@@ -43,40 +43,64 @@ static TokenPtr token(TokenType type, std::string_view literal) {
   return std::make_shared<Token>(type, literal);
 }
 
-TokenPtr integer(std::string_view literal) {
+TokenPtr Token::integer(std::string_view literal) {
   return token(TokenType::INTEGER, literal);
 }
 
-TokenPtr variable(std::string_view literal) {
+TokenPtr Token::variable(std::string_view literal) {
   return token(TokenType::VARIABLE, literal);
 }
 
-TokenPtr plus() {
+TokenPtr Token::plus() {
   return token(TokenType::PLUS, "+");
 }
 
-TokenPtr hyphen() {
+TokenPtr Token::hyphen() {
   return token(TokenType::HYPHEN, "-");
 }
 
-TokenPtr asterisk() {
+TokenPtr Token::asterisk() {
   return token(TokenType::ASTERISK, "*");
 }
 
-TokenPtr slash() {
+TokenPtr Token::slash() {
   return token(TokenType::SLASH, "/");
 }
 
-TokenPtr left_parenthese() {
+TokenPtr Token::left_parenthese() {
   return token(TokenType::LEFT_PARENTHESE, "(");
 }
 
-TokenPtr right_parenthese() {
+TokenPtr Token::right_parenthese() {
   return token(TokenType::RIGHT_PARENTHESE, ")");
 }
 
-TokenPtr semicolon() {
+TokenPtr Token::semicolon() {
   return token(TokenType::SEMICOLON, ";");
+}
+
+TokenPtr Token::equal() {
+  return token(TokenType::EQUAL, "==");
+}
+
+TokenPtr Token::not_equal() {
+  return token(TokenType::NOT_EQUAL, "!=");
+}
+
+TokenPtr Token::left_angle() {
+  return token(TokenType::LEFT_ANGLE, "<");
+}
+
+TokenPtr Token::less_equal() {
+  return token(TokenType::LESS_EQUAL, "<=");
+}
+
+TokenPtr Token::right_angle() {
+  return token(TokenType::RIGHT_ANGLE, ">");
+}
+
+TokenPtr Token::greater_equal() {
+  return token(TokenType::GREATER_EQUAL, ">=");
 }
 
 class LexerImpl : public Lexer {
@@ -111,25 +135,59 @@ class LexerImpl : public Lexer {
     switch (current_char()) {
       case '+':
         index_++;
-        return plus();
+        return Token::plus();
       case '-':
         index_++;
-        return hyphen();
+        return Token::hyphen();
       case '*':
         index_++;
-        return asterisk();
+        return Token::asterisk();
       case '/':
         index_++;
-        return slash();
+        return Token::slash();
       case '(':
         index_++;
-        return left_parenthese();
+        return Token::left_parenthese();
       case ')':
         index_++;
-        return right_parenthese();
+        return Token::right_parenthese();
       case ';':
         index_++;
-        return semicolon();
+        return Token::semicolon();
+      case '=':
+        index_++;
+        if (index_ < contents_.size() && current_char() == '=') {
+          index_++;
+          return Token::equal();
+        } else {
+          std::stringstream error_msg;
+          error_msg << "Unknow punctuator on parsing:\"=" << current_char() << "\""; 
+          throw std::invalid_argument(error_msg.str());
+        }
+      case '!':
+        index_++;
+        if (index_ < contents_.size() && current_char() == '=') {
+          index_++;
+          return Token::not_equal();
+        } else {
+          std::stringstream error_msg;
+          error_msg << "Unknow punctuator on parsing:\"!" << current_char() << "\""; 
+          throw std::invalid_argument(error_msg.str());
+        }
+      case '<':
+        index_++;
+        if (index_ < contents_.size() && current_char() == '=') {
+          index_++;
+          return Token::less_equal();
+        }
+        return Token::left_angle();
+      case '>':
+        index_++;
+        if (index_ < contents_.size() && current_char() == '=') {
+          index_++;
+          return Token::greater_equal();
+        }
+        return Token::right_angle();
       default:
         std::stringstream error_msg;
         error_msg << "Unknow punctuator on parsing:\"" << current_char() << "\""; 
@@ -142,7 +200,7 @@ class LexerImpl : public Lexer {
     while (std::isdigit(current_char())) {
       index_++;
     }
-    return  integer(std::string_view(contents_.c_str() + begin, index_ - begin));
+    return Token::integer(std::string_view(contents_.c_str() + begin, index_ - begin));
   }
 
   TokenPtr next_variable() {
@@ -150,7 +208,7 @@ class LexerImpl : public Lexer {
     while (std::isalnum(current_char())) {
       index_++;
     }
-    return token(TokenType::VARIABLE, std::string_view(contents_.c_str() + begin, index_ - begin));
+    return Token::variable(std::string_view(contents_.c_str() + begin, index_ - begin));
   }
 
   char current_char() {

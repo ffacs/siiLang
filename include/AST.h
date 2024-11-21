@@ -4,6 +4,7 @@
 #include <vector>
 #include "lexer.h"
 
+
 enum class ASTNodeType : uint32_t {
   EMPTY = 0,
   MUL = 1,
@@ -11,9 +12,13 @@ enum class ASTNodeType : uint32_t {
   ADD = 3,
   SUB = 4,
   NEG = 5,
-  INTEGER = 6,
-  VARIABLE = 7,
-  STATEMENTS = 8
+  EQUAL = 6,
+  NOT_EQUAL = 7,
+  LESS_THAN = 8,
+  LESS_EQUAL = 9,
+  INTEGER = 10,
+  VARIABLE = 11,
+  STATEMENTS = 12
 };
 
 class ASTNode;
@@ -33,11 +38,23 @@ struct ASTNode {
   std::string to_string() const;
   bool operator==(const ASTNode&) const;
   bool operator!=(const ASTNode& other) const { return !(*this == other); }
-};
 
-ASTNodePtr astNode(ASTNodeType type, TokenPtr token);
-ASTNodePtr astNode(ASTNodeType type, TokenPtr token, std::vector<ASTNodePtr> children);
+  static ASTNodePtr empty();
+  static ASTNodePtr multiply(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr divide(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr add(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr subtract(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr negtive(ASTNodePtr operand);
+  static ASTNodePtr equal(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr not_equal(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr less_than(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr less_equal(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr integer(TokenPtr literal);
+  static ASTNodePtr variable(TokenPtr literal);
+  static ASTNodePtr statements(std::vector<ASTNodePtr> children);
+};
 
 class AST {
   ASTNodePtr root;
 };
+

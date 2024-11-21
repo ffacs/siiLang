@@ -5,17 +5,27 @@
 #include <memory>
 
 enum class TokenType : uint32_t {
-  ED = 0,
-  INTEGER = 1,
-  VARIABLE = 2,
-  PLUS = 3, // +
-  HYPHEN = 4, // -
-  ASTERISK = 5, // *
-  SLASH = 6, // /
-  LEFT_PARENTHESE = 7, // (
-  RIGHT_PARENTHESE = 8, // )
-  SEMICOLON = 9, // ;
+  ED                    = 0,
+  INTEGER               = 1,
+  VARIABLE              = 2,
+  PLUS                  = 3, // +
+  HYPHEN                = 4, // -
+  ASTERISK              = 5, // *
+  SLASH                 = 6, // /
+  LEFT_PARENTHESE       = 7, // (
+  RIGHT_PARENTHESE      = 8, // )
+  SEMICOLON             = 9, // ;
+  EQUAL                 = 10, // ==
+  NOT_EQUAL             = 11, // !=
+  LEFT_ANGLE            = 12, // <
+  LESS_EQUAL            = 13, // <=
+  RIGHT_ANGLE           = 14, // >
+  GREATER_EQUAL         = 15, // >=
 };
+
+
+struct Token;
+typedef std::shared_ptr<Token> TokenPtr;
 
 struct Token {
   Token(TokenType type, std::string_view literal) :
@@ -25,19 +35,23 @@ struct Token {
   std::string literal_;
 
   std::string to_string() const;
+  static TokenPtr integer(std::string_view literal);
+  static TokenPtr variable(std::string_view literal);
+  static TokenPtr plus();
+  static TokenPtr hyphen();
+  static TokenPtr asterisk();
+  static TokenPtr slash();
+  static TokenPtr left_parenthese();
+  static TokenPtr right_parenthese();
+  static TokenPtr semicolon();
+  static TokenPtr equal();
+  static TokenPtr not_equal();
+  static TokenPtr left_angle();
+  static TokenPtr less_equal();
+  static TokenPtr right_angle();
+  static TokenPtr greater_equal();
 };
 
-typedef std::shared_ptr<Token> TokenPtr;
-
-TokenPtr integer(std::string_view literal);
-TokenPtr variable(std::string_view literal);
-TokenPtr plus();
-TokenPtr hyphen();
-TokenPtr asterisk();
-TokenPtr slash();
-TokenPtr left_parenthese();
-TokenPtr right_parenthese();
-TokenPtr semicolon();
 
 class Lexer {
 public:

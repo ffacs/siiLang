@@ -1,6 +1,65 @@
 #include "AST.h"
 #include <sstream>
 
+static inline ASTNodePtr astNode(ASTNodeType type, TokenPtr token) {
+  return std::make_shared<ASTNode>(type, std::move(token));
+}
+
+static ASTNodePtr astNode(ASTNodeType type, TokenPtr token, std::vector<ASTNodePtr> children) {
+  return std::make_shared<ASTNode>(type, std::move(token), std::move(children));
+}
+
+ASTNodePtr ASTNode::empty() {
+  return astNode(ASTNodeType::EMPTY, nullptr);
+}
+
+ASTNodePtr ASTNode::multiply(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::MUL, nullptr, {lhs, rhs});
+}
+
+ASTNodePtr ASTNode::divide(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::DIV, nullptr, {lhs, rhs});
+}
+
+ASTNodePtr ASTNode::add(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::ADD, nullptr, {lhs, rhs});
+}
+
+ASTNodePtr ASTNode::subtract(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::SUB, nullptr, {lhs, rhs});
+}
+
+ASTNodePtr ASTNode::negtive(ASTNodePtr operand) {
+  return astNode(ASTNodeType::NEG, nullptr, { operand });
+}
+
+ASTNodePtr ASTNode::equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::EQUAL, nullptr, {lhs, rhs});
+}
+
+ASTNodePtr ASTNode::not_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::NOT_EQUAL, nullptr, {lhs, rhs});
+}
+
+ASTNodePtr ASTNode::less_than(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::LESS_THAN, nullptr, {lhs, rhs});
+}
+
+ASTNodePtr ASTNode::less_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::LESS_EQUAL, nullptr, {lhs, rhs});
+}
+
+ASTNodePtr ASTNode::integer(TokenPtr literal) {
+  return astNode(ASTNodeType::INTEGER, std::move(literal));
+}
+
+ASTNodePtr ASTNode::variable(TokenPtr literal) {
+  return astNode(ASTNodeType::VARIABLE, std::move(literal));
+}
+ASTNodePtr ASTNode::statements(std::vector<ASTNodePtr> children) {
+  return astNode(ASTNodeType::STATEMENTS, nullptr, std::move(children));
+}
+
 std::string ASTNode::to_string() const {
   std::stringstream ss;
   switch (type_) {
@@ -47,12 +106,4 @@ bool ASTNode::operator==(const ASTNode & other) const {
     }
   }
   return true;
-}
-
-ASTNodePtr astNode(ASTNodeType type, TokenPtr token) {
-  return std::make_shared<ASTNode>(type, std::move(token));
-}
-
-ASTNodePtr astNode(ASTNodeType type, TokenPtr token, std::vector<ASTNodePtr> children) {
-  return std::make_shared<ASTNode>(type, std::move(token), std::move(children));
 }

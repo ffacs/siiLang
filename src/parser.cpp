@@ -15,6 +15,7 @@ private:
   ASTNodePtr parse_statements();
   ASTNodePtr parse_statement();
   ASTNodePtr parse_expression();
+  ASTNodePtr parse_relation();
   ASTNodePtr parse_add_and_subtraction();
   ASTNodePtr parse_multiply_and_division();
   ASTNodePtr parse_unary();
@@ -35,7 +36,7 @@ ASTNodePtr ParserImpl::parse_statements() {
       children.emplace_back(std::move(next_node));
     }
   }
-  return astNode(ASTNodeType::STATEMENTS, nullptr, std::move(children));
+  return ASTNode::statements(children);
 }
 
 ASTNodePtr ParserImpl::parse_statement() {
@@ -46,12 +47,47 @@ ASTNodePtr ParserImpl::parse_statement() {
     return next_node;
   }
   lexer_->expect_next(";");
-  return astNode(ASTNodeType::EMPTY, nullptr);
+  return ASTNode::empty();
 }
 
-// EXPR => ADD_AND_SUB
+// EXPR => RELATION
 ASTNodePtr ParserImpl::parse_expression() {
-  return parse_add_and_subtraction();
+  return parse_relation();
+}
+
+// RELATION => ADD_AND_SUB ('==' ADD_AND_SUB 
+//                        | '!=' ADD_AND_SUB 
+//                        | '<' ADD_AND_SUB 
+//                        | '<=' ADD_AND_SUB)*
+ASTNodePtr ParserImpl::parse_relation() {
+  ASTNodePtr lhs = parse_add_and_subtraction();
+  while (true) {
+    TokenPtr next_token = lexer_->peek();
+    bool is_equal = next_token->type_         == TokenType::EQUAL,
+         is_not_equal = next_token->type_     == TokenType::NOT_EQUAL,
+         is_less_than = next_token->type_     == TokenType::LEFT_ANGLE,
+         is_less_equal = next_token->type_    == TokenType::LESS_EQUAL,
+         is_greater_than = next_token->type_  == TokenType::RIGHT_ANGLE,
+         is_greater_equal = next_token->type_ == TokenType::GREATER_EQUAL;
+    if (!is_equal && !is_not_equal 
+     && !is_less_than && !is_less_equal 
+     && !is_greater_than && !is_greater_equal) { return lhs; }
+    next_token = lexer_->next();
+    ASTNodePtr rhs = parse_add_and_subtraction();
+    if (is_equal) {
+      return ASTNode::equal(lhs, rhs);
+    } else if (is_not_equal) {
+      return ASTNode::not_equal(lhs, rhs);
+    } else if (is_less_than) {
+      return ASTNode::less_than(lhs, rhs);
+    } else if (is_less_equal) {
+      return ASTNode::less_equal(lhs, rhs);
+    } else if (is_greater_than) {
+      return ASTNode::less_than(rhs, lhs);
+    } else {
+      return ASTNode::less_equal(rhs, lhs);
+    }
+  }
 }
 
 // ADD_AND_SUB => MULTIPLY ('+' MULTIPLY | '-' MULTIPLY)*
@@ -64,9 +100,7 @@ ASTNodePtr ParserImpl::parse_add_and_subtraction() {
     if (!is_add && !is_sub) { return lhs; }
     next_token = lexer_->next();
     ASTNodePtr rhs = parse_multiply_and_division();
-    lhs = is_add ? 
-            astNode(ASTNodeType::ADD, next_token, {lhs, rhs})
-          : astNode(ASTNodeType::SUB, next_token, {lhs, rhs}); 
+    lhs = is_add ? ASTNode::add(lhs, rhs) : ASTNode::subtract(lhs, rhs);
   }
 }
 
@@ -80,9 +114,7 @@ ASTNodePtr ParserImpl::parse_multiply_and_division() {
     if (!is_mul && !is_div) { return lhs; }
     next_token = lexer_->next();
     ASTNodePtr rhs = parse_unary();
-    lhs = is_mul ? 
-              astNode(ASTNodeType::MUL, next_token, {lhs, rhs}) 
-            : astNode(ASTNodeType::DIV, next_token, {lhs, rhs});
+    lhs = is_mul ? ASTNode::multiply(lhs, rhs) : ASTNode::divide(lhs, rhs);
   }
 }
 
@@ -95,7 +127,7 @@ ASTNodePtr ParserImpl::parse_unary() {
   }
   else if (next_token->type_ == TokenType::HYPHEN) {
     next_token = lexer_->next();
-    return astNode(ASTNodeType::NEG, next_token, { parse_unary() });
+    return ASTNode::negtive(parse_unary());
   }
   return parse_primary();
 }
@@ -105,10 +137,10 @@ ASTNodePtr ParserImpl::parse_primary() {
   TokenPtr next_token = lexer_->next();
   switch (next_token->type_) {
     case TokenType::VARIABLE: {
-      return astNode(ASTNodeType::VARIABLE, next_token);
+      return ASTNode::variable(std::move(next_token));
     }
     case TokenType::INTEGER: {
-      return astNode(ASTNodeType::INTEGER, next_token);
+      return ASTNode::integer(std::move(next_token));
     }
     case TokenType::LEFT_PARENTHESE: {
       ASTNodePtr expression = parse_expression();
