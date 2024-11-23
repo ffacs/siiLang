@@ -19,7 +19,7 @@ enum class ASTNodeType : uint32_t {
   INTEGER = 10,
   VARIABLE = 11,
   ASSIGN = 12,
-  STATEMENTS = 13
+  COMPOUND_STATEMENT = 13
 };
 
 class ASTNode;
@@ -53,6 +53,6 @@ struct ASTNode {
   static ASTNodePtr integer(TokenPtr literal);
   static ASTNodePtr variable(TokenPtr literal);
   static ASTNodePtr assign(ASTNodePtr lhs, ASTNodePtr rhs);
-  static ASTNodePtr statements(std::vector<ASTNodePtr> children);
+  static ASTNodePtr compound_statement(std::vector<ASTNodePtr> children);
 };
 

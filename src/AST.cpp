@@ -61,8 +61,8 @@ ASTNodePtr ASTNode::assign(ASTNodePtr lhs, ASTNodePtr rhs) {
   return astNode(ASTNodeType::ASSIGN, nullptr, {lhs, rhs});
 }
 
-ASTNodePtr ASTNode::statements(std::vector<ASTNodePtr> children) {
-  return astNode(ASTNodeType::STATEMENTS, nullptr, std::move(children));
+ASTNodePtr ASTNode::compound_statement(std::vector<ASTNodePtr> children) {
+  return astNode(ASTNodeType::COMPOUND_STATEMENT, nullptr, std::move(children));
 }
 
 std::string ASTNode::to_string() const {
@@ -87,8 +87,8 @@ std::string ASTNode::to_string() const {
       ss << token_->literal_;
       return ss.str();
     } 
-    case ASTNodeType::STATEMENTS: {
-      ss << "statements: {";
+    case ASTNodeType::COMPOUND_STATEMENT: {
+      ss << "Compound statement: {";
         for (const auto& node : children_) {
           ss << node->to_string() << ";";
         }

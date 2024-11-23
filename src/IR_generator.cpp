@@ -25,7 +25,7 @@ protected:
   AddressPtr generate_for_integer_node(const ASTNodePtr& node);
   AddressPtr generate_for_variable_node(const ASTNodePtr& node);
   AddressPtr generate_for_assign_node(const ASTNodePtr& node);
-  AddressPtr generate_for_statements_node(const ASTNodePtr& node);
+  AddressPtr generate_for_compound_statement_node(const ASTNodePtr& node);
 };
 
 AddressPtr IRGeneratorImpl::generate_for_node(const ASTNodePtr& node) {
@@ -54,8 +54,8 @@ AddressPtr IRGeneratorImpl::generate_for_node(const ASTNodePtr& node) {
       return generate_for_variable_node(node);
     case ASTNodeType::ASSIGN:
       return generate_for_assign_node(node);
-    case ASTNodeType::STATEMENTS:
-      return generate_for_statements_node(node);
+    case ASTNodeType::COMPOUND_STATEMENT:
+      return generate_for_compound_statement_node(node);
     default:
       std::stringstream error_msg;
       error_msg << "Unknow type of AST Node" << static_cast<uint32_t>(node->type_);
@@ -138,7 +138,7 @@ AddressPtr IRGeneratorImpl::generate_for_assign_node(const ASTNodePtr& node) {
   return code_builder_->append_assign(std::move(result_address), std::move(right_address));
 }
 
-AddressPtr IRGeneratorImpl::generate_for_statements_node(const ASTNodePtr& node) {
+AddressPtr IRGeneratorImpl::generate_for_compound_statement_node(const ASTNodePtr& node) {
   for (const auto& child : node->children_) {
     generate_for_node(child);
   }

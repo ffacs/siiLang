@@ -19,7 +19,7 @@ TEST(IRGenerator, Multiply) {
   EXPECT_EQ(
       "%0 = 1 * 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::multiply(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -28,7 +28,7 @@ TEST(IRGenerator, Multiply) {
   EXPECT_EQ(
       "%0 = %var1 * %var2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::multiply(
             ASTNode::variable(Token::variable("var1")),
             ASTNode::variable(Token::variable("var2")))
@@ -40,7 +40,7 @@ TEST(IRGenerator, Divide) {
   EXPECT_EQ(
       "%0 = 1 / 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::divide(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -49,7 +49,7 @@ TEST(IRGenerator, Divide) {
   EXPECT_EQ(
       "%0 = 1 / 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::divide(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -61,7 +61,7 @@ TEST(IRGenerator, Addition) {
   EXPECT_EQ(
       "%0 = 1 + 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::add(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -73,7 +73,7 @@ TEST(IRGenerator, Subtraction) {
   EXPECT_EQ(
       "%0 = 1 + 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::add(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -85,7 +85,7 @@ TEST(IRGenerator, Equal) {
   EXPECT_EQ(
       "%0 = 1 == 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::equal(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -97,7 +97,7 @@ TEST(IRGenerator, NotEqual) {
   EXPECT_EQ(
       "%0 = 1 != 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::not_equal(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -109,7 +109,7 @@ TEST(IRGenerator, LessThan) {
   EXPECT_EQ(
       "%0 = 1 < 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::less_than(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -121,7 +121,7 @@ TEST(IRGenerator, LessEqual) {
   EXPECT_EQ(
       "%0 = 1 <= 2;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::less_equal(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2")))
@@ -133,7 +133,7 @@ TEST(IRGenerator, Negtive) {
   EXPECT_EQ(
       "%0 = -1;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::negtive(
             ASTNode::integer(Token::integer("1")))
       }))
@@ -145,7 +145,7 @@ TEST(IRGenerator, Statements) {
       "%0 = 1 + 2;\n"
       "%1 = 1 - 2;",
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::add(
             ASTNode::integer(Token::integer("1")),
             ASTNode::integer(Token::integer("2"))),
@@ -162,7 +162,7 @@ TEST(IRGenerator, Recursive) {
       "%1 = -3;\n"
       "%2 = %0 * %1;", 
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::multiply(
             ASTNode::multiply(
               ASTNode::integer(Token::integer("1")),
@@ -179,7 +179,7 @@ TEST(IRGenerator, Assign) {
       "%var2 = 2;\n"
       "%var1 = %var2;",
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::assign(
             ASTNode::variable(Token::variable("var1")),
             ASTNode::assign(
@@ -193,7 +193,7 @@ TEST(IRGenerator, Assign) {
       "%var2 = %0;\n"
       "%var1 = %var2;",
       IRStringGenerate(
-        ASTNode::statements({
+        ASTNode::compound_statement({
           ASTNode::assign(
             ASTNode::variable(Token::variable("var1")),
             ASTNode::assign(
@@ -203,5 +203,29 @@ TEST(IRGenerator, Assign) {
                 ASTNode::variable(Token::variable("var1"))))
           )
       }))
+  );
+}
+
+TEST(IRGenerator, CompoundStatement) {
+  EXPECT_EQ(
+    "%var1 = %var2;\n"
+    "%var1 = 2;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::compound_statement({
+          ASTNode::assign(
+            ASTNode::variable(Token::variable("var1")),
+            ASTNode::variable(Token::variable("var2")))
+        }),
+        ASTNode::compound_statement({
+          ASTNode::compound_statement({
+            ASTNode::assign(
+              ASTNode::variable(Token::variable("var1")),
+              ASTNode::integer(Token::integer("2")))
+          })
+        }),
+        ASTNode::compound_statement({})
+      })
+    )
   );
 }

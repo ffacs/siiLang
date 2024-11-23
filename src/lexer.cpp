@@ -110,6 +110,14 @@ TokenPtr Token::assgin() {
   return token(TokenType::ASSIGN, "=");
 }
 
+TokenPtr Token::left_brace() {
+  return token(TokenType::LEFT_BRACE, "{");
+}
+
+TokenPtr Token::right_brace() {
+  return token(TokenType::RIGHT_BRACE, "}");
+}
+
 class LexerImpl : public Lexer {
  public:
   LexerImpl(std::istream& input) : 
@@ -192,6 +200,12 @@ class LexerImpl : public Lexer {
           return Token::greater_equal();
         }
         return Token::right_angle();
+      case '{':
+        index_++;
+        return Token::left_brace();
+      case '}':
+        index_++;
+        return Token::right_brace();
       default:
         std::stringstream error_msg;
         error_msg << "Unknow punctuator on parsing:\"" << current_char() << "\""; 

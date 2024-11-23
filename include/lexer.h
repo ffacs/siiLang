@@ -22,6 +22,8 @@ enum class TokenType : uint32_t {
   RIGHT_ANGLE           = 14, // >
   GREATER_EQUAL         = 15, // >=
   ASSIGN                = 16, // =
+  LEFT_BRACE            = 17, // {
+  RIGHT_BRACE           = 18, // }
 };
 
 
@@ -52,6 +54,8 @@ struct Token {
   static TokenPtr right_angle();
   static TokenPtr greater_equal();
   static TokenPtr assgin();
+  static TokenPtr left_brace();
+  static TokenPtr right_brace();
 };
 
 

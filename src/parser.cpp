@@ -12,7 +12,9 @@ public:
     ASTNodePtr work() override;
 private:
   std::unique_ptr<Lexer> lexer_;
-  ASTNodePtr parse_statements();
+  ASTNodePtr parse_translation_unit();
+  ASTNodePtr parse_compound_statement();
+  ASTNodePtr parse_expression_statement();
   ASTNodePtr parse_statement();
   ASTNodePtr parse_expression();
   ASTNodePtr parse_assignment();
@@ -24,37 +26,62 @@ private:
 };
 
 ASTNodePtr ParserImpl::work() {
-  return parse_statements();
+  return parse_translation_unit();
 }
 
-ASTNodePtr ParserImpl::parse_statements() {
+// TRANSLATION_UINT => COMPOUND_STATEMENT
+ASTNodePtr ParserImpl::parse_translation_unit() {
+  auto result = parse_compound_statement();
+  TokenPtr next_token = lexer_->next();
+  if (next_token->type_ != TokenType::ED) {
+    throw std::invalid_argument("EOF expected!");
+  }
+  return result;
+}
+
+// STATEMENT =>  COMPOUND_STATEMENT
+//             | EXPRESSION_STATEMENT
+ASTNodePtr ParserImpl::parse_statement() {
+  TokenPtr next_token = lexer_->peek();
+  if (next_token->type_ == TokenType::LEFT_BRACE) {
+    return parse_compound_statement();
+  }
+  return parse_expression_statement();
+}
+
+// COMPOUND_STATEMENT => '{' (STATEMENT)* '}'
+ASTNodePtr ParserImpl::parse_compound_statement() {
+  lexer_->expect_next("{");
   std::vector<ASTNodePtr> children;
   while (true) {
     TokenPtr next_token = lexer_->peek();
-    if (next_token->type_ == TokenType::ED) { break; }
+    if (next_token->type_ == TokenType::RIGHT_BRACE) {
+      lexer_->expect_next("}");
+      break;
+    }
     ASTNodePtr next_node = parse_statement();
     if (next_node->type_ != ASTNodeType::EMPTY) {
       children.emplace_back(std::move(next_node));
     }
   }
-  return ASTNode::statements(children);
+  return ASTNode::compound_statement(children);
 }
 
-ASTNodePtr ParserImpl::parse_statement() {
+// EXPRESSION_STATEMENT => (EXPRESSION)? ';'
+ASTNodePtr ParserImpl::parse_expression_statement() {
+  auto result = parse_expression();
+  lexer_->expect_next(";");
+  return result;
+}
+
+// EXPRESSION => ASSIGNMENT
+ASTNodePtr ParserImpl::parse_expression() {
   TokenPtr next_token = lexer_->peek();
   if (next_token->type_ != TokenType::SEMICOLON) {
-    ASTNodePtr next_node = parse_expression();
-    lexer_->expect_next(";");
+    ASTNodePtr next_node = parse_assignment();
     return next_node;
   }
-  lexer_->expect_next(";");
   return ASTNode::empty();
-}
-
-
-// EXPR => ASSIGNMENT
-ASTNodePtr ParserImpl::parse_expression() {
-  return parse_assignment();
 }
 
 //ASSIGNMENT => RELATION ('=' RELATION)*

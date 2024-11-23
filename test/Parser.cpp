@@ -8,65 +8,65 @@ static ASTNodePtr parse_from_string(const std::string& str) {
 }
 
 TEST(Parser, ArithmeticPrimary) {
-  std::string case1 = "1;";
+  std::string case1 = "{1;}";
   EXPECT_EQ(
     *parse_from_string(case1), 
-    *ASTNode::statements({ASTNode::integer(Token::integer("1"))})
+    *ASTNode::compound_statement({ASTNode::integer(Token::integer("1"))})
   );
-  std::string case2 = "1; 2;";
+  std::string case2 = "{1; 2;}";
   EXPECT_EQ(
     *parse_from_string(case2), 
-    *ASTNode::statements({ASTNode::integer(Token::integer("1")), 
+    *ASTNode::compound_statement({ASTNode::integer(Token::integer("1")), 
                           ASTNode::integer(Token::integer("2"))})
   );
-  std::string case3 = "var1; var2;";
+  std::string case3 = "{var1; var2;}";
   EXPECT_EQ(
     *parse_from_string(case3), 
-    *ASTNode::statements({ASTNode::variable(Token::variable("var1")), 
+    *ASTNode::compound_statement({ASTNode::variable(Token::variable("var1")), 
                           ASTNode::variable(Token::variable("var2"))})
   );
-  std::string case4 = "(var1);";
+  std::string case4 = "{(var1);}";
   EXPECT_EQ(
     *parse_from_string(case4), 
-    *ASTNode::statements({ASTNode::variable(Token::variable("var1"))})
+    *ASTNode::compound_statement({ASTNode::variable(Token::variable("var1"))})
   );
 }
 
 TEST(Parser, ArithmeticUnary) {
-  std::string case1 = "-1;";
+  std::string case1 = "{-1;}";
   EXPECT_EQ(
     *parse_from_string(case1), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::negtive(ASTNode::integer(Token::integer("1")))
     })
   );
-  std::string case2 = "-1; -2;";
+  std::string case2 = "{-1; -2;}";
   EXPECT_EQ(
     *parse_from_string(case2), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::negtive(ASTNode::integer(Token::integer("1"))),
       ASTNode::negtive(ASTNode::integer(Token::integer("2")))
     })
   );
-  std::string case3 = "-var1; -var2;";
+  std::string case3 = "{-var1; -var2;}";
   EXPECT_EQ(
     *parse_from_string(case3), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::negtive(ASTNode::variable(Token::variable("var1"))),
       ASTNode::negtive(ASTNode::variable(Token::variable("var2")))
     })
   );
-  std::string case4 = "(-var1);";
+  std::string case4 = "{(-var1);}";
   EXPECT_EQ(
     *parse_from_string(case4), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::negtive(ASTNode::variable(Token::variable("var1"))),
     })
   );
-  std::string case5 = "-(-var1);";
+  std::string case5 = "{-(-var1);}";
   EXPECT_EQ(
     *parse_from_string(case5), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::negtive(
         ASTNode::negtive(
           ASTNode::variable(Token::variable("var1")))),
@@ -75,20 +75,20 @@ TEST(Parser, ArithmeticUnary) {
 }
 
 TEST(Parser, ArithmeticMulAndDiv) {
-  std::string case1 = "+1 * -2;";
+  std::string case1 = "{+1 * -2;}";
   EXPECT_EQ(
     *parse_from_string(case1), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::multiply(
         ASTNode::integer(Token::integer("1")),
         ASTNode::negtive(ASTNode::integer(Token::integer("1")))
       )
     })
   );
-  std::string case2 = "1 * 2;2 * 2;";
+  std::string case2 = "{1 * 2;2 * 2;}";
   EXPECT_EQ(
     *parse_from_string(case2), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::multiply(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2"))
@@ -99,10 +99,10 @@ TEST(Parser, ArithmeticMulAndDiv) {
       )
     })
   );
-  std::string case3 = "+1 * +2 * -3;";
+  std::string case3 = "{+1 * +2 * -3;}";
   EXPECT_EQ(
     *parse_from_string(case3), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::multiply(
         ASTNode::multiply(
           ASTNode::integer(Token::integer("1")),
@@ -110,19 +110,19 @@ TEST(Parser, ArithmeticMulAndDiv) {
         ASTNode::negtive(ASTNode::integer(Token::integer("1"))))
     })
   );
-  std::string case4 = "1 / 2;";
+  std::string case4 = "{1 / 2;}";
   EXPECT_EQ(
     *parse_from_string(case4), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::divide(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2")))
     })
   );
-  std::string case5 = "1 / 2 * 3;";
+  std::string case5 = "{1 / 2 * 3;}";
   EXPECT_EQ(
     *parse_from_string(case5), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::multiply(
         ASTNode::divide(
           ASTNode::integer(Token::integer("1")),
@@ -133,19 +133,19 @@ TEST(Parser, ArithmeticMulAndDiv) {
 }
 
 TEST(Parser, ArithmeticAddAndSub) {
-  std::string case1 = "1 + 2;";
+  std::string case1 = "{1 + 2;}";
   EXPECT_EQ(
     *parse_from_string(case1), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::add(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2")))
     })
   );
-  std::string case2 = "1 + 2;2 + 2;";
+  std::string case2 = "{1 + 2;2 + 2;}";
   EXPECT_EQ(
     *parse_from_string(case2), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::add(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2"))),
@@ -154,10 +154,10 @@ TEST(Parser, ArithmeticAddAndSub) {
         ASTNode::integer(Token::integer("2"))),
     })
   );
-  std::string case3 = "1 + 2 + 3;";
+  std::string case3 = "{1 + 2 + 3;}";
   EXPECT_EQ(
     *parse_from_string(case3), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::add(
         ASTNode::add(
           ASTNode::integer(Token::integer("1")),
@@ -165,19 +165,19 @@ TEST(Parser, ArithmeticAddAndSub) {
         ASTNode::integer(Token::integer("3")))
     })
   );
-  std::string case4 = "1 - 2;";
+  std::string case4 = "{1 - 2;}";
   EXPECT_EQ(
     *parse_from_string(case4), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::subtract(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2")))
     })
   );
-  std::string case5 = "1 - 2 + 3;";
+  std::string case5 = "{1 - 2 + 3;}";
   EXPECT_EQ(
     *parse_from_string(case5), 
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::add(
         ASTNode::subtract(
           ASTNode::integer(Token::integer("1")),
@@ -185,10 +185,10 @@ TEST(Parser, ArithmeticAddAndSub) {
         ASTNode::integer(Token::integer("3")))
     })
   );
-  std::string case6 = "1 - (2 * (var1 + 3)) + (1 + var2);";
+  std::string case6 = "{1 - (2 * (var1 + 3)) + (1 + var2);}";
   EXPECT_EQ(
    *parse_from_string(case6),
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::add(
         ASTNode::subtract(
           ASTNode::integer(Token::integer("1")),
@@ -207,64 +207,64 @@ TEST(Parser, ArithmeticAddAndSub) {
 }
 
 TEST(Parser, ArithmeticRelation) {
-  std::string case1 = "1 == 2;";
+  std::string case1 = "{1 == 2;}";
   EXPECT_EQ(
     *parse_from_string(case1),
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::equal(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2")))
       })
   );
-  std::string case2 = "1 != 2;";
+  std::string case2 = "{1 != 2;}";
   EXPECT_EQ(
     *parse_from_string(case2),
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::not_equal(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2")))
       })
   );
-  std::string case3 = "1 > 2;";
+  std::string case3 = "{1 > 2;}";
   EXPECT_EQ(
     *parse_from_string(case3),
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::less_than(
         ASTNode::integer(Token::integer("2")),
         ASTNode::integer(Token::integer("1")))
       })
   );
-  std::string case4 = "1 >= 2;";
+  std::string case4 = "{1 >= 2;}";
   EXPECT_EQ(
     *parse_from_string(case4),
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::less_equal(
         ASTNode::integer(Token::integer("2")),
         ASTNode::integer(Token::integer("1")))
       })
   );
-  std::string case5 = "1 < 2;";
+  std::string case5 = "{1 < 2;}";
   EXPECT_EQ(
     *parse_from_string(case5),
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::less_than(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2")))
       })
   );
-  std::string case6 = "1 <= 2;";
+  std::string case6 = "{1 <= 2;}";
   EXPECT_EQ(
     *parse_from_string(case6),
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::less_equal(
         ASTNode::integer(Token::integer("1")),
         ASTNode::integer(Token::integer("2")))
       })
   );
-  std::string case7 = "1 < 2 <= 2;";
+  std::string case7 = "{1 < 2 <= 2;}";
   EXPECT_EQ(
     *parse_from_string(case7),
-    *ASTNode::statements({
+    *ASTNode::compound_statement({
       ASTNode::less_equal(
         ASTNode::less_than(
           ASTNode::integer(Token::integer("1")),
@@ -276,8 +276,8 @@ TEST(Parser, ArithmeticRelation) {
 
 TEST(Parser, Assignment) {
   EXPECT_EQ(
-    *parse_from_string("1 = 2 = 3;"),
-    *ASTNode::statements({
+    *parse_from_string("{1 = 2 = 3;}"),
+    *ASTNode::compound_statement({
       ASTNode::assign(
         ASTNode::integer(Token::integer("1")),
         ASTNode::assign(
@@ -286,8 +286,8 @@ TEST(Parser, Assignment) {
       })
   );
   EXPECT_EQ(
-    *parse_from_string("1 == 2 = var2 = 3 + var3;"),
-    *ASTNode::statements({
+    *parse_from_string("{1 == 2 = var2 = 3 + var3;}"),
+    *ASTNode::compound_statement({
       ASTNode::assign(
         ASTNode::equal(
           ASTNode::integer(Token::integer("1")), 
@@ -297,6 +297,20 @@ TEST(Parser, Assignment) {
           ASTNode::add(
             ASTNode::integer(Token::integer("3")), 
             ASTNode::variable(Token::variable("var3")))))
+    })
+  );
+}
+
+TEST(Parser, CompoundStatement) {
+  EXPECT_EQ(
+    *parse_from_string("{ {var1;} {{var2;}} {} }"),
+    *ASTNode::compound_statement({
+      ASTNode::compound_statement({ASTNode::variable(Token::variable("var1"))}),
+      ASTNode::compound_statement({
+        ASTNode::compound_statement(
+          {ASTNode::variable(Token::variable("var2"))})
+      }),
+      ASTNode::compound_statement({})
     })
   );
 }
