@@ -18,7 +18,8 @@ enum class ASTNodeType : uint32_t {
   LESS_EQUAL = 9,
   INTEGER = 10,
   VARIABLE = 11,
-  STATEMENTS = 12
+  ASSIGN = 12,
+  STATEMENTS = 13
 };
 
 class ASTNode;
@@ -51,6 +52,7 @@ struct ASTNode {
   static ASTNodePtr less_equal(ASTNodePtr lhs, ASTNodePtr rhs);
   static ASTNodePtr integer(TokenPtr literal);
   static ASTNodePtr variable(TokenPtr literal);
+  static ASTNodePtr assign(ASTNodePtr lhs, ASTNodePtr rhs);
   static ASTNodePtr statements(std::vector<ASTNodePtr> children);
 };
 

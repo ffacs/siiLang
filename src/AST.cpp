@@ -56,6 +56,11 @@ ASTNodePtr ASTNode::integer(TokenPtr literal) {
 ASTNodePtr ASTNode::variable(TokenPtr literal) {
   return astNode(ASTNodeType::VARIABLE, std::move(literal));
 }
+
+ASTNodePtr ASTNode::assign(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return astNode(ASTNodeType::ASSIGN, nullptr, {lhs, rhs});
+}
+
 ASTNodePtr ASTNode::statements(std::vector<ASTNodePtr> children) {
   return astNode(ASTNodeType::STATEMENTS, nullptr, std::move(children));
 }

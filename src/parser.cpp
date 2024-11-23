@@ -15,6 +15,7 @@ private:
   ASTNodePtr parse_statements();
   ASTNodePtr parse_statement();
   ASTNodePtr parse_expression();
+  ASTNodePtr parse_assignment();
   ASTNodePtr parse_relation();
   ASTNodePtr parse_add_and_subtraction();
   ASTNodePtr parse_multiply_and_division();
@@ -50,9 +51,20 @@ ASTNodePtr ParserImpl::parse_statement() {
   return ASTNode::empty();
 }
 
-// EXPR => RELATION
+
+// EXPR => ASSIGNMENT
 ASTNodePtr ParserImpl::parse_expression() {
-  return parse_relation();
+  return parse_assignment();
+}
+
+//ASSIGNMENT => RELATION ('=' RELATION)*
+ASTNodePtr ParserImpl::parse_assignment() {
+  ASTNodePtr lhs = parse_relation();
+  TokenPtr next_token = lexer_->peek();
+  bool is_assign = next_token->type_ == TokenType::ASSIGN;
+  if (!is_assign) { return lhs; }
+  next_token = lexer_->next();
+  return ASTNode::assign(lhs, parse_assignment());
 }
 
 // RELATION => ADD_AND_SUB ('==' ADD_AND_SUB 

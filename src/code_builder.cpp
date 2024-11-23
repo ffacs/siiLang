@@ -11,6 +11,7 @@ class CodeBuilderImpl : public CodeBuilder {
   AddressPtr append_not_equal(AddressPtr left, AddressPtr right) override;
   AddressPtr append_less_than(AddressPtr left, AddressPtr right) override;
   AddressPtr append_less_equal(AddressPtr left, AddressPtr right) override;
+  AddressPtr append_assign(AddressPtr left, AddressPtr right) override;
   std::vector<ThreeAddressCodePtr> finish() override;
  protected:
   std::vector<ThreeAddressCodePtr> code_list_;
@@ -102,6 +103,14 @@ AddressPtr CodeBuilderImpl::append_less_equal(AddressPtr left, AddressPtr right)
   new_tac->argR_ = std::move(right);
   auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  code_list_.emplace_back(std::move(new_tac));
+  return result;
+}
+
+AddressPtr CodeBuilderImpl::append_assign(AddressPtr result, AddressPtr right) {
+  ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::ASSIGN);
+  new_tac->result_ = result;
+  new_tac->argL_ = std::move(right);
   code_list_.emplace_back(std::move(new_tac));
   return result;
 }

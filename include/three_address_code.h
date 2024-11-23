@@ -11,6 +11,7 @@ enum class TACOperator : uint32_t {
   NOT_EQUAL = 6,
   LESS_THAN = 7,
   LESS_EQUAL = 8,
+  ASSIGN = 9
 };
 
 enum class AddressType : uint32_t {

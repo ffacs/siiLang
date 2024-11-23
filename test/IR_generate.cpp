@@ -26,7 +26,7 @@ TEST(IRGenerator, Multiply) {
       }))
   );
   EXPECT_EQ(
-      "%0 = var1 * var2;", 
+      "%0 = %var1 * %var2;", 
       IRStringGenerate(
         ASTNode::statements({
           ASTNode::multiply(
@@ -169,6 +169,38 @@ TEST(IRGenerator, Recursive) {
               ASTNode::integer(Token::integer("2"))),
             ASTNode::negtive(
               ASTNode::integer(Token::integer("3")))
+          )
+      }))
+  );
+}
+
+TEST(IRGenerator, Assign) {
+  EXPECT_EQ(
+      "%var2 = 2;\n"
+      "%var1 = %var2;",
+      IRStringGenerate(
+        ASTNode::statements({
+          ASTNode::assign(
+            ASTNode::variable(Token::variable("var1")),
+            ASTNode::assign(
+              ASTNode::variable(Token::variable("var2")),
+              ASTNode::integer(Token::integer("2")))
+          )
+      }))
+  );
+  EXPECT_EQ(
+      "%0 = %var1 + %var1;\n"
+      "%var2 = %0;\n"
+      "%var1 = %var2;",
+      IRStringGenerate(
+        ASTNode::statements({
+          ASTNode::assign(
+            ASTNode::variable(Token::variable("var1")),
+            ASTNode::assign(
+              ASTNode::variable(Token::variable("var2")),
+              ASTNode::add(
+                ASTNode::variable(Token::variable("var1")), 
+                ASTNode::variable(Token::variable("var1"))))
           )
       }))
   );

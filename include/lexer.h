@@ -21,6 +21,7 @@ enum class TokenType : uint32_t {
   LESS_EQUAL            = 13, // <=
   RIGHT_ANGLE           = 14, // >
   GREATER_EQUAL         = 15, // >=
+  ASSIGN                = 16, // =
 };
 
 
@@ -50,6 +51,7 @@ struct Token {
   static TokenPtr less_equal();
   static TokenPtr right_angle();
   static TokenPtr greater_equal();
+  static TokenPtr assgin();
 };
 
 

@@ -24,6 +24,7 @@ protected:
   AddressPtr generate_for_less_equal_node(const ASTNodePtr& node);
   AddressPtr generate_for_integer_node(const ASTNodePtr& node);
   AddressPtr generate_for_variable_node(const ASTNodePtr& node);
+  AddressPtr generate_for_assign_node(const ASTNodePtr& node);
   AddressPtr generate_for_statements_node(const ASTNodePtr& node);
 };
 
@@ -51,6 +52,8 @@ AddressPtr IRGeneratorImpl::generate_for_node(const ASTNodePtr& node) {
       return generate_for_integer_node(node);
     case ASTNodeType::VARIABLE:
       return generate_for_variable_node(node);
+    case ASTNodeType::ASSIGN:
+      return generate_for_assign_node(node);
     case ASTNodeType::STATEMENTS:
       return generate_for_statements_node(node);
     default:
@@ -123,7 +126,16 @@ AddressPtr IRGeneratorImpl::generate_for_integer_node(const ASTNodePtr& node) {
 }
 
 AddressPtr IRGeneratorImpl::generate_for_variable_node(const ASTNodePtr& node) {
-  return Address::constant(node->token_->literal_);
+  return Address::variable(node->token_->literal_);
+}
+
+AddressPtr IRGeneratorImpl::generate_for_assign_node(const ASTNodePtr& node) {
+  auto result_address = generate_for_node(node->children_[0]); 
+  auto right_address = generate_for_node(node->children_[1]);
+  if (result_address->type_ != AddressType::VARIABLE) {
+    throw std::invalid_argument("Expect Variable on the left of assignment");
+  }
+  return code_builder_->append_assign(std::move(result_address), std::move(right_address));
 }
 
 AddressPtr IRGeneratorImpl::generate_for_statements_node(const ASTNodePtr& node) {

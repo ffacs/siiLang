@@ -273,3 +273,30 @@ TEST(Parser, ArithmeticRelation) {
       })
   );
 }
+
+TEST(Parser, Assignment) {
+  EXPECT_EQ(
+    *parse_from_string("1 = 2 = 3;"),
+    *ASTNode::statements({
+      ASTNode::assign(
+        ASTNode::integer(Token::integer("1")),
+        ASTNode::assign(
+          ASTNode::integer(Token::integer("2")),
+          ASTNode::integer(Token::integer("3"))))
+      })
+  );
+  EXPECT_EQ(
+    *parse_from_string("1 == 2 = var2 = 3 + var3;"),
+    *ASTNode::statements({
+      ASTNode::assign(
+        ASTNode::equal(
+          ASTNode::integer(Token::integer("1")), 
+          ASTNode::integer(Token::integer("2"))),
+        ASTNode::assign(
+          ASTNode::variable(Token::variable("var2")),
+          ASTNode::add(
+            ASTNode::integer(Token::integer("3")), 
+            ASTNode::variable(Token::variable("var3")))))
+    })
+  );
+}

@@ -33,6 +33,9 @@ std::string Token::to_string() const {
     case TokenType::SEMICOLON:
       ss << "Semicolon: " << literal_;
       break;
+    case TokenType::ASSIGN:
+      ss << "Assign: " << literal_;
+      break;
     default:
       throw std::invalid_argument("Unknow type of token");
   }
@@ -103,6 +106,10 @@ TokenPtr Token::greater_equal() {
   return token(TokenType::GREATER_EQUAL, ">=");
 }
 
+TokenPtr Token::assgin() {
+  return token(TokenType::ASSIGN, "=");
+}
+
 class LexerImpl : public Lexer {
  public:
   LexerImpl(std::istream& input) : 
@@ -159,11 +166,8 @@ class LexerImpl : public Lexer {
         if (index_ < contents_.size() && current_char() == '=') {
           index_++;
           return Token::equal();
-        } else {
-          std::stringstream error_msg;
-          error_msg << "Unknow punctuator on parsing:\"=" << current_char() << "\""; 
-          throw std::invalid_argument(error_msg.str());
         }
+        return Token::assgin();
       case '!':
         index_++;
         if (index_ < contents_.size() && current_char() == '=') {

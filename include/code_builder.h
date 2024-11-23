@@ -13,6 +13,7 @@ class CodeBuilder {
   virtual AddressPtr append_not_equal(AddressPtr left, AddressPtr right) = 0;
   virtual AddressPtr append_less_than(AddressPtr left, AddressPtr right) = 0;
   virtual AddressPtr append_less_equal(AddressPtr left, AddressPtr right) = 0;
+  virtual AddressPtr append_assign(AddressPtr left, AddressPtr right) = 0;
   virtual std::vector<ThreeAddressCodePtr> finish() = 0;
 };
 

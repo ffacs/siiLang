@@ -43,6 +43,8 @@ std::string ThreeAddressCode::to_string() const {
       return result_->to_string() + " = " + argL_->to_string() + " < " + argR_->to_string() + ";";
     case TACOperator::LESS_EQUAL:
       return result_->to_string() + " = " + argL_->to_string() + " <= " + argR_->to_string() + ";";
+    case TACOperator::ASSIGN:
+      return result_->to_string() + " = " + argL_->to_string() + ";";
     case TACOperator::NEG:
       return result_->to_string() + " = " + "-" + argL_->to_string() + ";";
     default:
