@@ -4,9 +4,9 @@
 
 class ParserImpl :public Parser {
 public:
-    ParserImpl(std::istream& input, std::ostream& ouput)
-      : Parser(input, ouput) {
-      lexer_  = create_lexer(input);
+    ParserImpl(std::istream& input)
+      : Parser(input) {
+      lexer_  = CreateLexer(input);
     }
     
     ASTNodePtr work() override;
@@ -75,17 +75,17 @@ ASTNodePtr ParserImpl::parse_relation() {
     next_token = lexer_->next();
     ASTNodePtr rhs = parse_add_and_subtraction();
     if (is_equal) {
-      return ASTNode::equal(lhs, rhs);
+      lhs = ASTNode::equal(lhs, rhs);
     } else if (is_not_equal) {
-      return ASTNode::not_equal(lhs, rhs);
+      lhs = ASTNode::not_equal(lhs, rhs);
     } else if (is_less_than) {
-      return ASTNode::less_than(lhs, rhs);
+      lhs = ASTNode::less_than(lhs, rhs);
     } else if (is_less_equal) {
-      return ASTNode::less_equal(lhs, rhs);
+      lhs = ASTNode::less_equal(lhs, rhs);
     } else if (is_greater_than) {
-      return ASTNode::less_than(rhs, lhs);
+      lhs = ASTNode::less_than(rhs, lhs);
     } else {
-      return ASTNode::less_equal(rhs, lhs);
+      lhs = ASTNode::less_equal(rhs, lhs);
     }
   }
 }
@@ -154,6 +154,6 @@ ASTNodePtr ParserImpl::parse_primary() {
   }
 }
 
-std::unique_ptr<Parser> create_parser(std::istream& input, std::ostream& ouput) {
-    return std::make_unique<ParserImpl>(input, ouput);
+std::unique_ptr<Parser> CreateParser(std::istream& input) {
+    return std::make_unique<ParserImpl>(input);
 }

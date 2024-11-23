@@ -54,7 +54,3 @@ struct ASTNode {
   static ASTNodePtr statements(std::vector<ASTNodePtr> children);
 };
 
-class AST {
-  ASTNodePtr root;
-};
-

@@ -75,5 +75,5 @@ public:
   }
 };
 
-std::unique_ptr<Lexer> create_lexer(std::istream& input);
+std::unique_ptr<Lexer> CreateLexer(std::istream& input);
 

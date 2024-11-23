@@ -5,13 +5,12 @@
 
 class Parser {
 public:
-  Parser(std::istream& input, std::ostream& ouput) : input_(input), output_(ouput) {}
+  Parser(std::istream& input) : input_(input) {}
   virtual ~Parser() {}
   virtual ASTNodePtr work() = 0;
 
  protected:
   std::istream& input_;
-  std::ostream& output_;
 };
 
-std::unique_ptr<Parser> create_parser(std::istream& input, std::ostream& ouput);
+std::unique_ptr<Parser> CreateParser(std::istream& input);

@@ -244,6 +244,6 @@ class LexerImpl : public Lexer {
   size_t index_;
 };
 
-std::unique_ptr<Lexer> create_lexer(std::istream& input) {
+std::unique_ptr<Lexer> CreateLexer(std::istream& input) {
   return std::make_unique<LexerImpl>(input);
 }

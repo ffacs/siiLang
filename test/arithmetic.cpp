@@ -3,7 +3,7 @@
 
 static ASTNodePtr parse_from_string(const std::string& str) {
   std::stringstream ss(str);
-  auto parser = create_parser(ss, std::cerr);
+  auto parser = CreateParser(ss);
   return parser->work();
 }
 
@@ -61,6 +61,15 @@ TEST(Parser, ArithmeticUnary) {
     *parse_from_string(case4), 
     *ASTNode::statements({
       ASTNode::negtive(ASTNode::variable(Token::variable("var1"))),
+    })
+  );
+  std::string case5 = "-(-var1);";
+  EXPECT_EQ(
+    *parse_from_string(case5), 
+    *ASTNode::statements({
+      ASTNode::negtive(
+        ASTNode::negtive(
+          ASTNode::variable(Token::variable("var1")))),
     })
   );
 }
@@ -252,23 +261,12 @@ TEST(Parser, ArithmeticRelation) {
         ASTNode::integer(Token::integer("2")))
       })
   );
-  std::string case7 = "1 + 2 <= 2;";
+  std::string case7 = "1 < 2 <= 2;";
   EXPECT_EQ(
     *parse_from_string(case7),
     *ASTNode::statements({
       ASTNode::less_equal(
-        ASTNode::add(
-          ASTNode::integer(Token::integer("1")),
-          ASTNode::integer(Token::integer("2"))),
-        ASTNode::integer(Token::integer("2")))
-      })
-  );
-  std::string case8 = "1 * 2 <= 2;";
-  EXPECT_EQ(
-    *parse_from_string(case8),
-    *ASTNode::statements({
-      ASTNode::less_equal(
-        ASTNode::multiply(
+        ASTNode::less_than(
           ASTNode::integer(Token::integer("1")),
           ASTNode::integer(Token::integer("2"))),
         ASTNode::integer(Token::integer("2")))
