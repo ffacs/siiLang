@@ -15,6 +15,7 @@ private:
   ASTNodePtr parse_translation_unit();
   ASTNodePtr parse_compound_statement();
   ASTNodePtr parse_expression_statement();
+  ASTNodePtr parse_select_statement();
   ASTNodePtr parse_statement();
   ASTNodePtr parse_expression();
   ASTNodePtr parse_assignment();
@@ -41,11 +42,15 @@ ASTNodePtr ParserImpl::parse_translation_unit() {
 
 // STATEMENT =>  COMPOUND_STATEMENT
 //             | EXPRESSION_STATEMENT
+//             | SELECT_STATEMENT
 ASTNodePtr ParserImpl::parse_statement() {
   TokenPtr next_token = lexer_->peek();
   if (next_token->type_ == TokenType::LEFT_BRACE) {
     return parse_compound_statement();
-  }
+  } else if (next_token->type_ == TokenType::KEYWORD &&
+             next_token->literal_ == "if") {
+    return parse_select_statement();
+  } 
   return parse_expression_statement();
 }
 
@@ -72,6 +77,24 @@ ASTNodePtr ParserImpl::parse_expression_statement() {
   auto result = parse_expression();
   lexer_->expect_next(";");
   return result;
+}
+
+// SELECT_STATEMENT =>  if '(' EXPRESSION ')' STATEMENT
+//                    | if '(' EXPRESSION ')' STATEMENT else STATEMENT
+ASTNodePtr ParserImpl::parse_select_statement() {
+  lexer_->expect_next("if");
+  lexer_->expect_next("(");
+  auto expression = parse_expression();
+  lexer_->expect_next(")");
+  auto if_statement = parse_statement();
+  auto next_token = lexer_->peek();
+  ASTNodePtr else_statement = nullptr;
+  if (next_token->type_ == TokenType::KEYWORD &&
+      next_token->literal_ == "else") {
+    lexer_->expect_next("else");
+    else_statement = parse_statement();
+  }
+  return ASTNode::if_else(expression, if_statement, else_statement);
 }
 
 // EXPRESSION => ASSIGNMENT
@@ -176,10 +199,10 @@ ASTNodePtr ParserImpl::parse_primary() {
   TokenPtr next_token = lexer_->next();
   switch (next_token->type_) {
     case TokenType::VARIABLE: {
-      return ASTNode::variable(std::move(next_token));
+      return ASTNode::variable(next_token->literal_);
     }
     case TokenType::INTEGER: {
-      return ASTNode::integer(std::move(next_token));
+      return ASTNode::integer(next_token->literal_);
     }
     case TokenType::LEFT_PARENTHESE: {
       ASTNodePtr expression = parse_expression();

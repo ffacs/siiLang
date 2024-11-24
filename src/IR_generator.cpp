@@ -25,6 +25,7 @@ protected:
   AddressPtr generate_for_integer_node(const ASTNodePtr& node);
   AddressPtr generate_for_variable_node(const ASTNodePtr& node);
   AddressPtr generate_for_assign_node(const ASTNodePtr& node);
+  AddressPtr generate_for_if_else_node(const ASTNodePtr& node);
   AddressPtr generate_for_compound_statement_node(const ASTNodePtr& node);
 };
 
@@ -56,6 +57,8 @@ AddressPtr IRGeneratorImpl::generate_for_node(const ASTNodePtr& node) {
       return generate_for_assign_node(node);
     case ASTNodeType::COMPOUND_STATEMENT:
       return generate_for_compound_statement_node(node);
+    case ASTNodeType::IF_ELSE:
+      return generate_for_if_else_node(node);
     default:
       std::stringstream error_msg;
       error_msg << "Unknow type of AST Node" << static_cast<uint32_t>(node->type_);
@@ -122,11 +125,11 @@ AddressPtr IRGeneratorImpl::generate_for_less_equal_node(const ASTNodePtr& node)
 }
 
 AddressPtr IRGeneratorImpl::generate_for_integer_node(const ASTNodePtr& node) {
-  return Address::constant(node->token_->literal_);
+  return Address::constant(node->literal_);
 }
 
 AddressPtr IRGeneratorImpl::generate_for_variable_node(const ASTNodePtr& node) {
-  return Address::variable(node->token_->literal_);
+  return Address::variable(node->literal_);
 }
 
 AddressPtr IRGeneratorImpl::generate_for_assign_node(const ASTNodePtr& node) {
@@ -136,6 +139,23 @@ AddressPtr IRGeneratorImpl::generate_for_assign_node(const ASTNodePtr& node) {
     throw std::invalid_argument("Expect Variable on the left of assignment");
   }
   return code_builder_->append_assign(std::move(result_address), std::move(right_address));
+}
+
+AddressPtr IRGeneratorImpl::generate_for_if_else_node(const ASTNodePtr& node) {
+  auto expression_address = generate_for_node(node->children_[0]);
+  auto label_if_true = code_builder_->new_label();
+  auto label_if_false = code_builder_->new_label();
+  auto label_follow = code_builder_->new_label();
+  code_builder_->append_if_else(expression_address, label_if_true, label_if_false);
+  code_builder_->append_label(label_if_true);
+  generate_for_node(node->children_[1]);
+  code_builder_->append_goto(label_follow);
+  code_builder_->append_label(label_if_false);
+  if (node->children_[2] != nullptr) {
+    generate_for_node(node->children_[2]);
+  }
+  code_builder_->append_label(label_follow);
+  return nullptr;
 }
 
 AddressPtr IRGeneratorImpl::generate_for_compound_statement_node(const ASTNodePtr& node) {

@@ -24,8 +24,8 @@ enum class TokenType : uint32_t {
   ASSIGN                = 16, // =
   LEFT_BRACE            = 17, // {
   RIGHT_BRACE           = 18, // }
+  KEYWORD               = 19
 };
-
 
 struct Token;
 typedef std::shared_ptr<Token> TokenPtr;
@@ -40,6 +40,7 @@ struct Token {
   std::string to_string() const;
   static TokenPtr integer(std::string_view literal);
   static TokenPtr variable(std::string_view literal);
+  static TokenPtr keyword(std::string_view literal);
   static TokenPtr plus();
   static TokenPtr hyphen();
   static TokenPtr asterisk();

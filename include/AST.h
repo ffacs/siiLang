@@ -19,7 +19,8 @@ enum class ASTNodeType : uint32_t {
   INTEGER = 10,
   VARIABLE = 11,
   ASSIGN = 12,
-  COMPOUND_STATEMENT = 13
+  IF_ELSE = 13,
+  COMPOUND_STATEMENT = 14
 };
 
 class ASTNode;
@@ -27,14 +28,14 @@ typedef std::shared_ptr<ASTNode> ASTNodePtr;
 
 struct ASTNode {
   ASTNodeType type_;
-  TokenPtr token_; 
+  std::string literal_; 
   std::vector<ASTNodePtr> children_;
 
-  ASTNode(ASTNodeType type, TokenPtr token) 
-    : type_(type), token_(std::move(token)) {}
+  ASTNode(ASTNodeType type, const std::string& literal) 
+    : type_(type), literal_(literal) {}
 
-  ASTNode(ASTNodeType type, TokenPtr token, std::vector<ASTNodePtr> childern) 
-    : type_(type), token_(std::move(token)), children_(std::move(childern)) {}
+  ASTNode(ASTNodeType type, std::vector<ASTNodePtr> childern) 
+    : type_(type), children_(std::move(childern)) {}
 
   std::string to_string() const;
   bool operator==(const ASTNode&) const;
@@ -50,9 +51,10 @@ struct ASTNode {
   static ASTNodePtr not_equal(ASTNodePtr lhs, ASTNodePtr rhs);
   static ASTNodePtr less_than(ASTNodePtr lhs, ASTNodePtr rhs);
   static ASTNodePtr less_equal(ASTNodePtr lhs, ASTNodePtr rhs);
-  static ASTNodePtr integer(TokenPtr literal);
-  static ASTNodePtr variable(TokenPtr literal);
+  static ASTNodePtr integer(const std::string& literal);
+  static ASTNodePtr variable(const std::string& name);
   static ASTNodePtr assign(ASTNodePtr lhs, ASTNodePtr rhs);
+  static ASTNodePtr if_else(ASTNodePtr expression, ASTNodePtr if_statement, ASTNodePtr else_statement);
   static ASTNodePtr compound_statement(std::vector<ASTNodePtr> children);
 };
 

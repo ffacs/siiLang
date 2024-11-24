@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include <set>
 
 std::string Token::to_string() const {
   std::stringstream ss;
@@ -118,6 +119,15 @@ TokenPtr Token::right_brace() {
   return token(TokenType::RIGHT_BRACE, "}");
 }
 
+TokenPtr Token::keyword(std::string_view literal) {
+  return token(TokenType::KEYWORD, literal);
+}
+
+static std::set<std::string> KeyWords = {
+  "if",
+  "else"
+};
+
 class LexerImpl : public Lexer {
  public:
   LexerImpl(std::istream& input) : 
@@ -226,7 +236,11 @@ class LexerImpl : public Lexer {
     while (std::isalnum(current_char())) {
       index_++;
     }
-    return Token::variable(std::string_view(contents_.c_str() + begin, index_ - begin));
+    std::string literal(contents_.c_str() + begin, index_ - begin);
+    if (KeyWords.find(literal) != KeyWords.end()) {
+      return Token::keyword(literal);
+    }
+    return Token::variable(literal);
   }
 
   char current_char() {

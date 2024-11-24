@@ -11,7 +11,10 @@ enum class TACOperator : uint32_t {
   NOT_EQUAL = 6,
   LESS_THAN = 7,
   LESS_EQUAL = 8,
-  ASSIGN = 9
+  ASSIGN = 9,
+  GOTO = 10,
+  IF_TRUE_GOTO = 11,
+  NOPE = 12
 };
 
 enum class AddressType : uint32_t {
@@ -22,8 +25,10 @@ enum class AddressType : uint32_t {
 
 struct Address;
 struct ThreeAddressCode;
+struct Label;
 typedef std::shared_ptr<Address> AddressPtr;
 typedef std::shared_ptr<ThreeAddressCode> ThreeAddressCodePtr;
+typedef std::shared_ptr<Label> LabelPtr;
 
 struct Address {
   Address(AddressType type) : type_(type) {}
@@ -55,11 +60,20 @@ struct TemporaryAddress : public Address {
   std::string name_;
 };
 
+struct Label {
+  ThreeAddressCode* dest_;
+  std::string name_;
+  Label(ThreeAddressCode* dest, const std::string& name) : dest_(dest), name_(name) {}
+  std::string to_string() const;
+};
+
 struct ThreeAddressCode {
   TACOperator operator_;  
   AddressPtr argL_;
   AddressPtr argR_;
   AddressPtr result_;
+  std::vector<LabelPtr> lable_list_;
+  LabelPtr jump_dest_;
 
   ThreeAddressCode(TACOperator ope) : operator_(ope) {}
 
