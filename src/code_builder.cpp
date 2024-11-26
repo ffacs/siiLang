@@ -13,7 +13,8 @@ class CodeBuilderImpl : public CodeBuilder {
   AddressPtr append_less_equal(AddressPtr left, AddressPtr right) override;
   AddressPtr append_assign(AddressPtr left, AddressPtr right) override;
   LabelPtr   new_label(const std::string& name = "") override;
-  void       append_if_else(AddressPtr expression, LabelPtr true_label, LabelPtr false_label) override;
+  void       append_if_true_goto(AddressPtr expression, LabelPtr target_label) override;
+  void       append_if_false_goto(AddressPtr expression, LabelPtr target_label) override;
   void       append_goto(LabelPtr target_label) override;
   void       append_label(LabelPtr label) override;
   void       append_nope() override;
@@ -142,14 +143,18 @@ LabelPtr CodeBuilderImpl::new_label(const std::string& name) {
   return std::make_shared<Label>(nullptr, new_label_name);
 }
 
-void CodeBuilderImpl::append_if_else(AddressPtr expression, LabelPtr true_label, LabelPtr false_label) {
+void CodeBuilderImpl::append_if_true_goto(AddressPtr expression, LabelPtr target_label) {
   ThreeAddressCodePtr if_true_goto = std::make_shared<ThreeAddressCode>(TACOperator::IF_TRUE_GOTO);
-  if_true_goto->argL_ = expression;
-  if_true_goto->jump_dest_ = std::move(true_label);
+  if_true_goto ->argL_ = expression;
+  if_true_goto ->jump_dest_ = std::move(target_label);
   append_new_tac(std::move(if_true_goto));
-  ThreeAddressCodePtr then_goto = std::make_shared<ThreeAddressCode>(TACOperator::GOTO); 
-  then_goto->jump_dest_ = std::move(false_label);
-  append_new_tac(std::move(then_goto));
+}
+
+void CodeBuilderImpl::append_if_false_goto(AddressPtr expression, LabelPtr target_label) {
+  ThreeAddressCodePtr if_false_goto = std::make_shared<ThreeAddressCode>(TACOperator::IF_FALSE_GOTO);
+  if_false_goto->argL_ = expression;
+  if_false_goto->jump_dest_ = std::move(target_label);
+  append_new_tac(std::move(if_false_goto));
 }
 
 void CodeBuilderImpl::append_goto(LabelPtr target_label) {

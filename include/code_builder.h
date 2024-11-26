@@ -15,7 +15,8 @@ class CodeBuilder {
   virtual AddressPtr append_less_equal(AddressPtr left, AddressPtr right) = 0;
   virtual AddressPtr append_assign(AddressPtr left, AddressPtr right) = 0;
   virtual LabelPtr   new_label(const std::string& name = "") = 0;
-  virtual void       append_if_else(AddressPtr expression, LabelPtr true_label, LabelPtr false_label) = 0;
+  virtual void       append_if_true_goto(AddressPtr expression, LabelPtr target_label) = 0;
+  virtual void       append_if_false_goto(AddressPtr expression, LabelPtr target_label) = 0;
   virtual void       append_goto(LabelPtr target_label) = 0;
   virtual void       append_label(LabelPtr label) = 0;
   virtual void       append_nope() = 0;

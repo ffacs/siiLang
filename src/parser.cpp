@@ -16,10 +16,12 @@ private:
   ASTNodePtr parse_compound_statement();
   ASTNodePtr parse_expression_statement();
   ASTNodePtr parse_select_statement();
+  ASTNodePtr parse_iteration_statement();
   ASTNodePtr parse_statement();
   ASTNodePtr parse_expression();
   ASTNodePtr parse_assignment();
   ASTNodePtr parse_relation();
+  ASTNodePtr parse_equality();
   ASTNodePtr parse_add_and_subtraction();
   ASTNodePtr parse_multiply_and_division();
   ASTNodePtr parse_unary();
@@ -43,6 +45,7 @@ ASTNodePtr ParserImpl::parse_translation_unit() {
 // STATEMENT =>  COMPOUND_STATEMENT
 //             | EXPRESSION_STATEMENT
 //             | SELECT_STATEMENT
+//             | ITERATION_STATEMENT
 ASTNodePtr ParserImpl::parse_statement() {
   TokenPtr next_token = lexer_->peek();
   if (next_token->type_ == TokenType::LEFT_BRACE) {
@@ -50,7 +53,12 @@ ASTNodePtr ParserImpl::parse_statement() {
   } else if (next_token->type_ == TokenType::KEYWORD &&
              next_token->literal_ == "if") {
     return parse_select_statement();
-  } 
+  } else if (next_token->type_ == TokenType::KEYWORD &&
+             (next_token->literal_ == "for" ||
+              next_token->literal_ == "do"  ||
+              next_token->literal_ == "while")) {
+    return parse_iteration_statement();
+  }
   return parse_expression_statement();
 }
 
@@ -74,9 +82,61 @@ ASTNodePtr ParserImpl::parse_compound_statement() {
 
 // EXPRESSION_STATEMENT => (EXPRESSION)? ';'
 ASTNodePtr ParserImpl::parse_expression_statement() {
-  auto result = parse_expression();
+  TokenPtr next_token = lexer_->peek();
+  if (next_token->type_ != TokenType::SEMICOLON) {
+    ASTNodePtr next_node = parse_assignment();
+    lexer_->expect_next(";");
+    return next_node;
+  }
   lexer_->expect_next(";");
-  return result;
+  return ASTNode::empty();
+}
+
+// ITERATION_STATEMENT =>  for '(' EXPRESSION? '; EXPRESSION? ';' EXPRESSION? ')' STATEMENT
+//                       | do STATEMENT while '(' EXPRESSION ')' ';'
+//                       | while '(' EXPRESSION ')' STATEMENT
+ASTNodePtr ParserImpl::parse_iteration_statement() {
+  auto next_token = lexer_->peek();
+  ASTNodePtr init_expression = nullptr, condition_expression = nullptr, increment_expession = nullptr, statement = nullptr;
+  if (next_token->literal_ == "for") {
+    lexer_->expect_next("for");
+    lexer_->expect_next("(");
+      init_expression = lexer_->peek()->type_ == TokenType::SEMICOLON 
+                                                 ? ASTNode::empty() 
+                                                 : parse_expression();
+    lexer_->expect_next(";");
+    next_token = lexer_->peek();
+      condition_expression = lexer_->peek()->type_ == TokenType::SEMICOLON 
+                                                      ? ASTNode::empty() 
+                                                      : parse_expression();
+    lexer_->expect_next(";");
+    next_token = lexer_->peek();
+      increment_expession = lexer_->peek()->type_ == TokenType::RIGHT_PARENTHESE 
+                                                     ? ASTNode::empty() 
+                                                     : parse_expression();
+    lexer_->expect_next(")");
+    statement = parse_statement();
+    return ASTNode::for_loop(std::move(init_expression),
+                             std::move(condition_expression),
+                             std::move(increment_expession),
+                             std::move(statement));
+  } else if (next_token->literal_ == "do") {
+    lexer_->expect_next("do");
+      statement = parse_statement();
+    lexer_->expect_next("while");
+    lexer_->expect_next("(");
+      condition_expression = parse_expression();
+    lexer_->expect_next(")");
+    lexer_->expect_next(";");
+    return ASTNode::do_while(std::move(statement), std::move(condition_expression));
+  } else {
+    lexer_->expect_next("while");
+    lexer_->expect_next("(");
+      condition_expression = parse_expression();
+    lexer_->expect_next(")");
+      statement = parse_statement();
+    return ASTNode::while_loop(std::move(condition_expression), std::move(statement));
+  }
 }
 
 // SELECT_STATEMENT =>  if '(' EXPRESSION ')' STATEMENT
@@ -99,22 +159,36 @@ ASTNodePtr ParserImpl::parse_select_statement() {
 
 // EXPRESSION => ASSIGNMENT
 ASTNodePtr ParserImpl::parse_expression() {
-  TokenPtr next_token = lexer_->peek();
-  if (next_token->type_ != TokenType::SEMICOLON) {
-    ASTNodePtr next_node = parse_assignment();
-    return next_node;
-  }
-  return ASTNode::empty();
+  return parse_assignment();
 }
 
-//ASSIGNMENT => RELATION ('=' RELATION)*
+//ASSIGNMENT => EQUALITY ('=' EQUALITY)*
 ASTNodePtr ParserImpl::parse_assignment() {
-  ASTNodePtr lhs = parse_relation();
+  ASTNodePtr lhs = parse_equality();
   TokenPtr next_token = lexer_->peek();
   bool is_assign = next_token->type_ == TokenType::ASSIGN;
   if (!is_assign) { return lhs; }
   next_token = lexer_->next();
   return ASTNode::assign(lhs, parse_assignment());
+}
+
+// EQUALITY => RELATION ('==' RELATION
+//                     | '!=' RElATION)
+ASTNodePtr ParserImpl::parse_equality() {
+  ASTNodePtr lhs = parse_relation();
+  while (true) {
+    TokenPtr next_token = lexer_->peek();
+    bool is_equal = next_token->type_         == TokenType::EQUAL,
+         is_not_equal = next_token->type_     == TokenType::NOT_EQUAL;
+    if (!is_equal && !is_not_equal) { return lhs; }
+    next_token = lexer_->next();
+    ASTNodePtr rhs = parse_relation();
+    if (is_equal) {
+      lhs = ASTNode::equal(lhs, rhs);
+    } else {
+      lhs = ASTNode::not_equal(lhs, rhs);
+    }
+  }
 }
 
 // RELATION => ADD_AND_SUB ('==' ADD_AND_SUB 
@@ -125,22 +199,15 @@ ASTNodePtr ParserImpl::parse_relation() {
   ASTNodePtr lhs = parse_add_and_subtraction();
   while (true) {
     TokenPtr next_token = lexer_->peek();
-    bool is_equal = next_token->type_         == TokenType::EQUAL,
-         is_not_equal = next_token->type_     == TokenType::NOT_EQUAL,
-         is_less_than = next_token->type_     == TokenType::LEFT_ANGLE,
+    bool is_less_than = next_token->type_     == TokenType::LEFT_ANGLE,
          is_less_equal = next_token->type_    == TokenType::LESS_EQUAL,
          is_greater_than = next_token->type_  == TokenType::RIGHT_ANGLE,
          is_greater_equal = next_token->type_ == TokenType::GREATER_EQUAL;
-    if (!is_equal && !is_not_equal 
-     && !is_less_than && !is_less_equal 
+    if (!is_less_than && !is_less_equal 
      && !is_greater_than && !is_greater_equal) { return lhs; }
     next_token = lexer_->next();
     ASTNodePtr rhs = parse_add_and_subtraction();
-    if (is_equal) {
-      lhs = ASTNode::equal(lhs, rhs);
-    } else if (is_not_equal) {
-      lhs = ASTNode::not_equal(lhs, rhs);
-    } else if (is_less_than) {
+    if (is_less_than) {
       lhs = ASTNode::less_than(lhs, rhs);
     } else if (is_less_equal) {
       lhs = ASTNode::less_equal(lhs, rhs);

@@ -66,6 +66,24 @@ ASTNodePtr ASTNode::if_else(ASTNodePtr expression, ASTNodePtr if_statement, ASTN
   return astNode(ASTNodeType::IF_ELSE, {expression, if_statement, else_statement});
 }
 
+ASTNodePtr ASTNode::for_loop(ASTNodePtr init_expression,
+                    ASTNodePtr condition_expression,
+                    ASTNodePtr increment_expression,
+                    ASTNodePtr statement) {
+  return astNode(ASTNodeType::FOR_LOOP, {init_expression,
+                                         condition_expression,
+                                         increment_expression,
+                                         statement});
+}
+
+ASTNodePtr ASTNode::do_while(ASTNodePtr statement, ASTNodePtr condition_expression) {
+  return astNode(ASTNodeType::DO_WHILE, {statement, condition_expression});
+}
+
+ASTNodePtr ASTNode::while_loop(ASTNodePtr condition_expression, ASTNodePtr statement) {
+  return astNode(ASTNodeType::WHILE_LOOP, {condition_expression, statement});
+}
+
 ASTNodePtr ASTNode::compound_statement(std::vector<ASTNodePtr> children) {
   return astNode(ASTNodeType::COMPOUND_STATEMENT, std::move(children));
 }

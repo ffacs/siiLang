@@ -82,6 +82,10 @@ std::string ThreeAddressCode::to_string() const {
       result_str << "if " + argL_->to_string() + " goto " + jump_dest_->to_string() + ";";
       break;
     }
+    case TACOperator::IF_FALSE_GOTO: {
+      result_str << "if-false " + argL_->to_string() + " goto " + jump_dest_->to_string() + ";";
+      break;
+    }
     case TACOperator::GOTO: {
       result_str << "goto " + jump_dest_->to_string() + ";";
       break;

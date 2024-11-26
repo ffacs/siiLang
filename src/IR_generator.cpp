@@ -26,11 +26,16 @@ protected:
   AddressPtr generate_for_variable_node(const ASTNodePtr& node);
   AddressPtr generate_for_assign_node(const ASTNodePtr& node);
   AddressPtr generate_for_if_else_node(const ASTNodePtr& node);
+  AddressPtr generate_for_for_loop_node(const ASTNodePtr& node);
+  AddressPtr generate_for_do_while_node(const ASTNodePtr& node);
+  AddressPtr generate_for_while_loop_node(const ASTNodePtr& node);
   AddressPtr generate_for_compound_statement_node(const ASTNodePtr& node);
 };
 
 AddressPtr IRGeneratorImpl::generate_for_node(const ASTNodePtr& node) {
   switch (node->type_) {
+    case ASTNodeType::EMPTY:
+      return nullptr;
     case ASTNodeType::MUL:
       return generate_for_mul_node(node);
     case ASTNodeType::DIV:
@@ -59,6 +64,12 @@ AddressPtr IRGeneratorImpl::generate_for_node(const ASTNodePtr& node) {
       return generate_for_compound_statement_node(node);
     case ASTNodeType::IF_ELSE:
       return generate_for_if_else_node(node);
+    case ASTNodeType::FOR_LOOP:
+      return generate_for_for_loop_node(node);
+    case ASTNodeType::DO_WHILE:
+      return generate_for_do_while_node(node);
+    case ASTNodeType::WHILE_LOOP:
+      return generate_for_while_loop_node(node);
     default:
       std::stringstream error_msg;
       error_msg << "Unknow type of AST Node" << static_cast<uint32_t>(node->type_);
@@ -142,19 +153,74 @@ AddressPtr IRGeneratorImpl::generate_for_assign_node(const ASTNodePtr& node) {
 }
 
 AddressPtr IRGeneratorImpl::generate_for_if_else_node(const ASTNodePtr& node) {
-  auto expression_address = generate_for_node(node->children_[0]);
-  auto label_if_true = code_builder_->new_label();
-  auto label_if_false = code_builder_->new_label();
-  auto label_follow = code_builder_->new_label();
-  code_builder_->append_if_else(expression_address, label_if_true, label_if_false);
-  code_builder_->append_label(label_if_true);
-  generate_for_node(node->children_[1]);
-  code_builder_->append_goto(label_follow);
-  code_builder_->append_label(label_if_false);
-  if (node->children_[2] != nullptr) {
-    generate_for_node(node->children_[2]);
+  auto cond = node->children_[0];
+  auto if_true_statement = node->children_[1];
+  auto else_statement = node->children_[2];
+  auto cond_address = generate_for_node(node->children_[0]);
+  auto false_label = code_builder_->new_label();
+  auto end_label = code_builder_->new_label();
+
+  // IF
+  code_builder_->append_if_false_goto(cond_address, false_label);
+  generate_for_node(if_true_statement);
+  code_builder_->append_goto(end_label);
+
+  // Else
+  code_builder_->append_label(false_label);
+  if (else_statement != nullptr) {
+    generate_for_node(else_statement);
   }
-  code_builder_->append_label(label_follow);
+
+  code_builder_->append_label(end_label);
+  return nullptr;
+}
+
+AddressPtr IRGeneratorImpl::generate_for_for_loop_node(const ASTNodePtr& node) {
+  auto init = node->children_[0];
+  auto cond = node->children_[1];
+  auto incr = node->children_[2];
+  auto statement = node->children_[3];
+  generate_for_node(init);
+  auto cond_label = code_builder_->new_label();
+  auto end_label  = code_builder_->new_label();
+  code_builder_->append_label(cond_label);
+  if (cond->type_ != ASTNodeType::EMPTY) {
+    auto cond_address = generate_for_node(cond);
+    code_builder_->append_if_false_goto(cond_address, end_label);
+  }
+  generate_for_node(statement);
+  generate_for_node(incr);
+  code_builder_->append_goto(cond_label);
+  code_builder_->append_label(end_label);
+  return nullptr;
+}
+
+AddressPtr IRGeneratorImpl::generate_for_while_loop_node(const ASTNodePtr& node) {
+  auto cond = node->children_[0];
+  auto statement = node->children_[1];
+
+  auto cond_label = code_builder_->new_label();
+  auto end_label  = code_builder_->new_label();
+
+  code_builder_->append_label(cond_label);
+  auto cond_address = generate_for_node(cond);
+  code_builder_->append_if_false_goto(cond_address, end_label);
+  generate_for_node(statement);
+  code_builder_->append_goto(cond_label);
+  code_builder_->append_label(end_label);
+  return nullptr;
+}
+
+AddressPtr IRGeneratorImpl::generate_for_do_while_node(const ASTNodePtr& node) {
+  auto statement = node->children_[0];
+  auto cond = node->children_[1];
+
+  auto statement_label = code_builder_->new_label();
+
+  code_builder_->append_label(statement_label);
+  generate_for_node(statement);
+  auto cond_address = generate_for_node(cond);
+  code_builder_->append_if_true_goto(cond_address, statement_label);
   return nullptr;
 }
 

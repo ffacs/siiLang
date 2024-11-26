@@ -232,21 +232,17 @@ TEST(IRGenerator, CompoundStatement) {
 
 TEST(IRGenerator, SelectStatement) {
   EXPECT_EQ(
-    "  if %var1 goto Label.0;\n"
+    "  if-false %var1 goto Label.0;\n"
+    "  %var1 = 1;\n"
     "  goto Label.1;\n"
     "Label.0:\n"
-    "  %var1 = 1;\n"
-    "  goto Label.2;\n"
-    "Label.1:\n"
-    "  if %var2 goto Label.3;\n"
-    "  goto Label.4;\n"
-    "Label.3:\n"
+    "  if-false %var2 goto Label.2;\n"
     "  %var2 = 2;\n"
-    "  goto Label.5;\n"
-    "Label.4:\n"
-    "  %var1 = 3;\n"
-    "Label.5:\n"
+    "  goto Label.3;\n"
     "Label.2:\n"
+    "  %var1 = 3;\n"
+    "Label.3:\n"
+    "Label.1:\n"
     "  nope;",
     IRStringGenerate(
       ASTNode::compound_statement({
@@ -275,21 +271,17 @@ TEST(IRGenerator, SelectStatement) {
     )
   );
   EXPECT_EQ(
-    "  if %var1 goto Label.0;\n"
+    "  if-false %var1 goto Label.0;\n"
+    "  %var1 = 1;\n"
     "  goto Label.1;\n"
     "Label.0:\n"
-    "  %var1 = 1;\n"
-    "  goto Label.2;\n"
-    "Label.1:\n"
-    "  if %var2 goto Label.3;\n"
-    "  goto Label.4;\n"
-    "Label.3:\n"
+    "  if-false %var2 goto Label.2;\n"
     "  %var2 = 2;\n"
-    "  goto Label.5;\n"
-    "Label.4:\n"
-    "  %var1 = 3;\n"
-    "Label.5:\n"
+    "  goto Label.3;\n"
     "Label.2:\n"
+    "  %var1 = 3;\n"
+    "Label.3:\n"
+    "Label.1:\n"
     "  %var3 = %var4;",
     IRStringGenerate(
       ASTNode::compound_statement({
@@ -321,3 +313,136 @@ TEST(IRGenerator, SelectStatement) {
     )
   );
 }
+
+TEST(IRGenerator, IterationStatement) {
+  EXPECT_EQ("Label.0:\n"
+            "  goto Label.0;\n" 
+            "Label.1:\n"
+            "  nope;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::for_loop(
+          ASTNode::empty(),
+          ASTNode::empty(),
+          ASTNode::empty(),
+          ASTNode::compound_statement({ }))
+      })
+    )
+  );
+  EXPECT_EQ("  %var1 = 1;\n"
+            "Label.0:\n"
+            "  if-false %var2 goto Label.1;\n"
+            "  %var1 = 3;\n" 
+            "  goto Label.0;\n"
+            "Label.1:\n"
+            "  nope;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::for_loop(
+          ASTNode::assign(
+            ASTNode::variable("var1"),
+            ASTNode::integer("1")),
+          ASTNode::variable("var2"),
+          ASTNode::variable("var3"),
+          ASTNode::compound_statement({
+            ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3"))
+          }))
+      })
+    )
+  );
+  EXPECT_EQ("  %var1 = 1;\n"
+            "Label.0:\n"
+            "  if-false %var2 goto Label.1;\n"
+            "  %var1 = 3;\n" 
+            "  %var3 = 1;\n"
+            "  goto Label.0;\n"
+            "Label.1:\n"
+            "  nope;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::for_loop(
+          ASTNode::assign(
+            ASTNode::variable("var1"),
+            ASTNode::integer("1")),
+          ASTNode::variable("var2"),
+          ASTNode::assign(
+            ASTNode::variable("var3"),
+            ASTNode::integer("1")),
+          ASTNode::compound_statement({
+            ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3"))
+          }))
+      })
+    )
+  );
+  EXPECT_EQ("  %var1 = 1;\n"
+            "Label.0:\n"
+            "  %var1 = 3;\n" 
+            "  %var3 = 1;\n"
+            "  goto Label.0;\n"
+            "Label.1:\n"
+            "  nope;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::for_loop(
+          ASTNode::assign(
+            ASTNode::variable("var1"),
+            ASTNode::integer("1")),
+          ASTNode::empty(),
+          ASTNode::assign(
+            ASTNode::variable("var3"),
+            ASTNode::integer("1")),
+          ASTNode::compound_statement({
+            ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3"))
+          }))
+      })
+    )
+  );
+
+  EXPECT_EQ("Label.0:\n"
+            "  if-false %var1 goto Label.1;\n"
+            "  goto Label.0;\n"
+            "Label.1:\n"
+            "  nope;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::while_loop(
+          ASTNode::variable("var1"),
+          ASTNode::empty())
+      }))
+  );
+  EXPECT_EQ("Label.0:\n"
+            "  if-false %var1 goto Label.1;\n"
+            "  %var1 = 3;\n"
+            "  goto Label.0;\n"
+            "Label.1:\n"
+            "  nope;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::while_loop(
+          ASTNode::variable("var1"),
+          ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3")))
+      }))
+  );
+  EXPECT_EQ("Label.0:\n"
+            "  %var1 = 3;\n"
+            "  if %var1 goto Label.0;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::do_while(
+          ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3")),
+          ASTNode::variable("var1"))
+      }))
+  );
+  EXPECT_EQ("Label.0:\n"
+            "  %var1 = 3;\n"
+            "  if %var1 goto Label.0;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::do_while(
+          ASTNode::empty(),
+          ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3")))
+      }))
+  );
+
+}
+

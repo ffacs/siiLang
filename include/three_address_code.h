@@ -14,7 +14,8 @@ enum class TACOperator : uint32_t {
   ASSIGN = 9,
   GOTO = 10,
   IF_TRUE_GOTO = 11,
-  NOPE = 12
+  IF_FALSE_GOTO = 12,
+  NOPE = 13
 };
 
 enum class AddressType : uint32_t {

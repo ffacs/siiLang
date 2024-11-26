@@ -20,7 +20,10 @@ enum class ASTNodeType : uint32_t {
   VARIABLE = 11,
   ASSIGN = 12,
   IF_ELSE = 13,
-  COMPOUND_STATEMENT = 14
+  FOR_LOOP = 14,
+  DO_WHILE = 15,
+  WHILE_LOOP = 16,
+  COMPOUND_STATEMENT = 17
 };
 
 class ASTNode;
@@ -55,6 +58,9 @@ struct ASTNode {
   static ASTNodePtr variable(const std::string& name);
   static ASTNodePtr assign(ASTNodePtr lhs, ASTNodePtr rhs);
   static ASTNodePtr if_else(ASTNodePtr expression, ASTNodePtr if_statement, ASTNodePtr else_statement);
+  static ASTNodePtr for_loop(ASTNodePtr init_expression, ASTNodePtr condition_expression, ASTNodePtr add_expression, ASTNodePtr statement);
+  static ASTNodePtr do_while(ASTNodePtr statement, ASTNodePtr condition_expression);
+  static ASTNodePtr while_loop(ASTNodePtr condition_expression, ASTNodePtr statement);
   static ASTNodePtr compound_statement(std::vector<ASTNodePtr> children);
 };
 

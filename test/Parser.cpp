@@ -207,6 +207,56 @@ TEST(Parser, ArithmeticAddAndSub) {
 }
 
 TEST(Parser, ArithmeticRelation) {
+  std::string case1 = "{1 > 2;}";
+  EXPECT_EQ(
+    *parse_from_string(case1),
+    *ASTNode::compound_statement({
+      ASTNode::less_than(
+        ASTNode::integer("2"),
+        ASTNode::integer("1"))
+      })
+  );
+  std::string case2 = "{1 >= 2;}";
+  EXPECT_EQ(
+    *parse_from_string(case2),
+    *ASTNode::compound_statement({
+      ASTNode::less_equal(
+        ASTNode::integer("2"),
+        ASTNode::integer("1"))
+      })
+  );
+  std::string case3 = "{1 < 2;}";
+  EXPECT_EQ(
+    *parse_from_string(case3),
+    *ASTNode::compound_statement({
+      ASTNode::less_than(
+        ASTNode::integer("1"),
+        ASTNode::integer("2"))
+      })
+  );
+  std::string case4 = "{1 <= 2;}";
+  EXPECT_EQ(
+    *parse_from_string(case4),
+    *ASTNode::compound_statement({
+      ASTNode::less_equal(
+        ASTNode::integer("1"),
+        ASTNode::integer("2"))
+      })
+  );
+  std::string case5 = "{1 < 2 <= 2;}";
+  EXPECT_EQ(
+    *parse_from_string(case5),
+    *ASTNode::compound_statement({
+      ASTNode::less_equal(
+        ASTNode::less_than(
+          ASTNode::integer("1"),
+          ASTNode::integer("2")),
+        ASTNode::integer("2"))
+      })
+  );
+}
+
+TEST(Parser, ArithmeticEquality) {
   std::string case1 = "{1 == 2;}";
   EXPECT_EQ(
     *parse_from_string(case1),
@@ -225,50 +275,12 @@ TEST(Parser, ArithmeticRelation) {
         ASTNode::integer("2"))
       })
   );
-  std::string case3 = "{1 > 2;}";
+  std::string case3 = "{1 < 2 != 2;}";
   EXPECT_EQ(
     *parse_from_string(case3),
     *ASTNode::compound_statement({
-      ASTNode::less_than(
-        ASTNode::integer("2"),
-        ASTNode::integer("1"))
-      })
-  );
-  std::string case4 = "{1 >= 2;}";
-  EXPECT_EQ(
-    *parse_from_string(case4),
-    *ASTNode::compound_statement({
-      ASTNode::less_equal(
-        ASTNode::integer("2"),
-        ASTNode::integer("1"))
-      })
-  );
-  std::string case5 = "{1 < 2;}";
-  EXPECT_EQ(
-    *parse_from_string(case5),
-    *ASTNode::compound_statement({
-      ASTNode::less_than(
-        ASTNode::integer("1"),
-        ASTNode::integer("2"))
-      })
-  );
-  std::string case6 = "{1 <= 2;}";
-  EXPECT_EQ(
-    *parse_from_string(case6),
-    *ASTNode::compound_statement({
-      ASTNode::less_equal(
-        ASTNode::integer("1"),
-        ASTNode::integer("2"))
-      })
-  );
-  std::string case7 = "{1 < 2 <= 2;}";
-  EXPECT_EQ(
-    *parse_from_string(case7),
-    *ASTNode::compound_statement({
-      ASTNode::less_equal(
-        ASTNode::less_than(
-          ASTNode::integer("1"),
-          ASTNode::integer("2")),
+      ASTNode::not_equal(
+        ASTNode::less_than(ASTNode::integer("1"), ASTNode::integer("2")),
         ASTNode::integer("2"))
       })
   );
@@ -373,4 +385,79 @@ TEST(Parser, SelectStatement) {
       )
     })
   );
+}
+
+TEST(Parser, IterationStatement) {
+  EXPECT_EQ(
+    *parse_from_string("{for(;;) {}}"),
+    *ASTNode::compound_statement({
+      ASTNode::for_loop(
+        ASTNode::empty(),
+        ASTNode::empty(),
+        ASTNode::empty(),
+        ASTNode::compound_statement({ }))
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{for(var1;var2;var3) {}}"),
+    *ASTNode::compound_statement({
+      ASTNode::for_loop(
+        ASTNode::variable("var1"),
+        ASTNode::variable("var2"),
+        ASTNode::variable("var3"),
+        ASTNode::compound_statement({ }))
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{for(var1; var2; var3) { var1 = 3; } }"),
+    *ASTNode::compound_statement({
+      ASTNode::for_loop(
+        ASTNode::variable("var1"),
+        ASTNode::variable("var2"),
+        ASTNode::variable("var3"),
+        ASTNode::compound_statement({
+          ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3"))
+        }))
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{while(var1) {}}"),
+    *ASTNode::compound_statement({
+      ASTNode::while_loop(
+        ASTNode::variable("var1"),
+        ASTNode::compound_statement({ }))
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{while(var1) { var1 = 3; }}"),
+    *ASTNode::compound_statement({
+      ASTNode::while_loop(
+        ASTNode::variable("var1"),
+        ASTNode::compound_statement({
+          ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3"))
+        }))
+    })
+  );
+  EXPECT_ANY_THROW(parse_from_string("{while() {}}"));
+  EXPECT_EQ(
+    *parse_from_string("{do {var1 = 3;} while(var1);}"),
+    *ASTNode::compound_statement({
+      ASTNode::do_while(
+        ASTNode::compound_statement({
+          ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3"))
+        }),
+        ASTNode::variable("var1"))
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{do ; while(var1 = 3);}"),
+    *ASTNode::compound_statement({
+      ASTNode::do_while(
+        ASTNode::empty(),
+        ASTNode::assign(ASTNode::variable("var1"), ASTNode::integer("3")))
+    })
+  );
+  EXPECT_ANY_THROW(parse_from_string("{do while(var1);}"));
+  EXPECT_ANY_THROW(parse_from_string("{do ;while();}"));
+  EXPECT_ANY_THROW(parse_from_string("{do ;while()}"));
 }

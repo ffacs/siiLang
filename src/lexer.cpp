@@ -125,7 +125,10 @@ TokenPtr Token::keyword(std::string_view literal) {
 
 static std::set<std::string> KeyWords = {
   "if",
-  "else"
+  "else",
+  "for",
+  "do",
+  "while"
 };
 
 class LexerImpl : public Lexer {
