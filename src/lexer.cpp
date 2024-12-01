@@ -123,12 +123,32 @@ TokenPtr Token::keyword(std::string_view literal) {
   return token(TokenType::KEYWORD, literal);
 }
 
+TokenPtr Token::type_specifier(std::string_view literal) {
+  return token(TokenType::TYPE_SPECIFER, literal);
+}
+
+TokenPtr Token::comma() {
+  return token(TokenType::COMMA, ",");
+}
+
+TokenPtr Token::left_bracket() {
+  return token(TokenType::LEFT_BRACKET, "[");
+}
+
+TokenPtr Token::right_bracket() {
+  return token(TokenType::RIGHT_BRACKET, "]");
+}
+
 static std::set<std::string> KeyWords = {
   "if",
   "else",
   "for",
   "do",
   "while"
+};
+
+static std::set<std::string> TypeSpcifiers = {
+  "int",
 };
 
 class LexerImpl : public Lexer {
@@ -219,6 +239,15 @@ class LexerImpl : public Lexer {
       case '}':
         index_++;
         return Token::right_brace();
+      case '[':
+        index_++;
+        return Token::left_bracket();
+      case ']':
+        index_++;
+        return Token::right_bracket();
+      case ',':
+        index_++;
+        return Token::comma();
       default:
         std::stringstream error_msg;
         error_msg << "Unknow punctuator on parsing:\"" << current_char() << "\""; 
@@ -242,6 +271,9 @@ class LexerImpl : public Lexer {
     std::string literal(contents_.c_str() + begin, index_ - begin);
     if (KeyWords.find(literal) != KeyWords.end()) {
       return Token::keyword(literal);
+    }
+    if (TypeSpcifiers.find(literal) != TypeSpcifiers.end()) {
+      return Token::type_specifier(literal);
     }
     return Token::variable(literal);
   }

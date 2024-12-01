@@ -446,3 +446,35 @@ TEST(IRGenerator, IterationStatement) {
 
 }
 
+TEST(IRGenerator, Declaration) {
+  EXPECT_EQ(
+    "  %0 = %b + 10;\n"
+    "  %c = %0;\n"
+    "  %a = %c;",
+    IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::declaration({
+          ASTNode::single_declaration(
+            Type::poniter(Type::basic(TypeKind::INT)),
+            ASTNode::variable("a"),
+            ASTNode::assign(ASTNode::variable("c"), ASTNode::add(ASTNode::variable("b"), ASTNode::integer("10")))
+          ),
+        })
+      })
+    )
+  );
+  EXPECT_ANY_THROW(IRStringGenerate(
+      ASTNode::compound_statement({
+        ASTNode::declaration({
+          ASTNode::single_declaration(
+            Type::poniter(Type::basic(TypeKind::INT)),
+            ASTNode::variable("a"),
+            nullptr),
+          ASTNode::single_declaration(
+            Type::poniter(Type::basic(TypeKind::INT)),
+            ASTNode::variable("a"),
+            nullptr),
+        })
+      })
+    ));
+}

@@ -461,3 +461,169 @@ TEST(Parser, IterationStatement) {
   EXPECT_ANY_THROW(parse_from_string("{do ;while();}"));
   EXPECT_ANY_THROW(parse_from_string("{do ;while()}"));
 }
+
+TEST(Parser, Declaration) {
+  EXPECT_ANY_THROW(parse_from_string("{int (*);}"));
+  EXPECT_ANY_THROW(parse_from_string("{int (*)();}"));
+  EXPECT_ANY_THROW(parse_from_string("{int *();}"));
+  EXPECT_ANY_THROW(parse_from_string("{int *;}"));
+  EXPECT_NO_THROW(parse_from_string("{int ;}"));
+  EXPECT_EQ(
+    *parse_from_string("{int a;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::basic(TypeKind::INT),
+          ASTNode::variable("a"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int a, b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::basic(TypeKind::INT),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::basic(TypeKind::INT),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int **a, *b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::poniter(Type::poniter(Type::basic(TypeKind::INT))),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int a[4], *b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::array(Type::basic(TypeKind::INT), 4),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int a[4][3], *b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::array(Type::array(Type::basic(TypeKind::INT), 3), 4),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int (*a)[4][3], *b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::poniter(Type::array(Type::array(Type::basic(TypeKind::INT), 3), 4)),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int a(), *b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::function(Type::basic(TypeKind::INT), {}),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int (*a)(), *b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::poniter(Type::function(Type::basic(TypeKind::INT), {})),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int *(*a[4])(), *b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::array(Type::poniter(Type::function(Type::poniter(Type::basic(TypeKind::INT)), {})), 4),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int *(*a[4][3]())()[3], *b;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::array(Type::array(Type::function(Type::poniter(Type::function(Type::array(Type::poniter(Type::basic(TypeKind::INT)), 3), {})), {}) ,3) ,4),
+          ASTNode::variable("a"),
+          nullptr),
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("b"),
+          nullptr)
+      })
+    })
+  );
+  EXPECT_EQ(
+    *parse_from_string("{int *a = c = b + 10;}"), 
+    *ASTNode::compound_statement({
+      ASTNode::declaration({
+        ASTNode::single_declaration(
+          Type::poniter(Type::basic(TypeKind::INT)),
+          ASTNode::variable("a"),
+          ASTNode::assign(ASTNode::variable("c"), ASTNode::add(ASTNode::variable("b"), ASTNode::integer("10")))
+        ),
+      })
+    })
+  );
+}

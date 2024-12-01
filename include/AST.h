@@ -3,9 +3,10 @@
 #include <memory>
 #include <vector>
 #include "lexer.h"
+#include "type.h"
 
 
-enum class ASTNodeType : uint32_t {
+enum class ASTNodeKind : uint32_t {
   EMPTY = 0,
   MUL = 1,
   DIV = 2,
@@ -23,25 +24,30 @@ enum class ASTNodeType : uint32_t {
   FOR_LOOP = 14,
   DO_WHILE = 15,
   WHILE_LOOP = 16,
-  COMPOUND_STATEMENT = 17
+  COMPOUND_STATEMENT = 17,
+  SINGLE_DECLARATION = 18,
+  DECLARATION = 19,
 };
 
 class ASTNode;
 typedef std::shared_ptr<ASTNode> ASTNodePtr;
 
 struct ASTNode {
-  ASTNodeType type_;
+  ASTNodeKind kind_;
   std::string literal_; 
   std::vector<ASTNodePtr> children_;
 
-  ASTNode(ASTNodeType type, const std::string& literal) 
-    : type_(type), literal_(literal) {}
+  ASTNode(ASTNodeKind kind) 
+    : kind_(kind) {}
 
-  ASTNode(ASTNodeType type, std::vector<ASTNodePtr> childern) 
-    : type_(type), children_(std::move(childern)) {}
+  ASTNode(ASTNodeKind kind, const std::string& literal) 
+    : kind_(kind), literal_(literal) {}
 
-  std::string to_string() const;
-  bool operator==(const ASTNode&) const;
+  ASTNode(ASTNodeKind kind, std::vector<ASTNodePtr> childern) 
+    : kind_(kind), children_(std::move(childern)) {}
+
+  virtual std::string to_string() const;
+  virtual bool operator==(const ASTNode&) const;
   bool operator!=(const ASTNode& other) const { return !(*this == other); }
 
   static ASTNodePtr empty();
@@ -62,5 +68,19 @@ struct ASTNode {
   static ASTNodePtr do_while(ASTNodePtr statement, ASTNodePtr condition_expression);
   static ASTNodePtr while_loop(ASTNodePtr condition_expression, ASTNodePtr statement);
   static ASTNodePtr compound_statement(std::vector<ASTNodePtr> children);
+  static ASTNodePtr single_declaration(TypePtr type, ASTNodePtr identifier, ASTNodePtr initializer);
+  static ASTNodePtr declaration(std::vector<ASTNodePtr> single_declaration_list);
 };
 
+struct SingleDeclarationNode : public ASTNode {
+  TypePtr type_;
+  ASTNodePtr identifier_;
+  ASTNodePtr initializer_;
+  SingleDeclarationNode(TypePtr type, ASTNodePtr identifier, ASTNodePtr initializer) :
+    ASTNode(ASTNodeKind::SINGLE_DECLARATION),
+    type_(std::move(type)),
+    identifier_(std::move(identifier)),
+    initializer_(std::move(initializer)) {}
+  std::string to_string() const override;
+  bool operator==(const ASTNode&) const override;
+};

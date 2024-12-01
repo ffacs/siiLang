@@ -2,6 +2,8 @@
 #include "lexer.h"
 #include "AST.h"
 
+#include <set>
+
 class ParserImpl :public Parser {
 public:
     ParserImpl(std::istream& input)
@@ -26,6 +28,16 @@ private:
   ASTNodePtr parse_multiply_and_division();
   ASTNodePtr parse_unary();
   ASTNodePtr parse_primary();
+
+  TypePtr    parse_type_specifier();
+  void       parse_pointer(TypeBuilderPtr builder);
+  TypePtr    parse_paramerter_list();
+  ASTNodePtr parse_constant_expression();
+  ASTNodePtr parse_direct_declatator(TypeBuilderPtr builder);
+  void       parse_function_array_suffix(TypeBuilderPtr builder);
+  ASTNodePtr parse_init_declarator(TypePtr base_type);
+  ASTNodePtr parse_declarator(TypeBuilderPtr builder);
+  ASTNodePtr parse_declaration();
 };
 
 ASTNodePtr ParserImpl::work() {
@@ -40,6 +52,108 @@ ASTNodePtr ParserImpl::parse_translation_unit() {
     throw std::invalid_argument("EOF expected!");
   }
   return result;
+}
+
+// TYPE_SPECIFIER => type_specifier
+TypePtr ParserImpl::parse_type_specifier() {
+  auto type_specifier = lexer_->next();
+  if (type_specifier->literal_ == "int") {
+    return Type::basic(TypeKind::INT);
+  }
+  throw std::invalid_argument("unknown type specifier");
+}
+
+ASTNodePtr ParserImpl::parse_init_declarator(TypePtr base_type) {
+  auto type_builder = CreateTypeBuilder(base_type);
+  auto identifier = parse_declarator(type_builder);
+  ASTNodePtr initializer = nullptr;
+  if (lexer_->peek()->type_ == TokenType::ASSIGN) {
+    lexer_->expect_next("=");
+    initializer = parse_assignment();
+  }
+  return ASTNode::single_declaration(type_builder->get(), std::move(identifier), std::move(initializer));
+}
+
+void ParserImpl::parse_pointer(TypeBuilderPtr builder) {
+  while (true) {
+    auto next_token = lexer_->peek();
+    if (next_token->type_ != TokenType::ASTERISK) { //*
+      break;
+    }
+    lexer_->expect_next("*");
+    builder->pointer_of();
+  }
+}
+
+ASTNodePtr ParserImpl::parse_constant_expression() {
+  return parse_equality();
+}
+
+// FUNCTION_ARRAY_SUFFIX =>   EMMPTY
+//                          | '[' CONSTANT_EXPRESSION ']'
+//                          | '(' ')'
+void ParserImpl::parse_function_array_suffix(TypeBuilderPtr builder) {
+  auto next_token = lexer_->peek();
+  if (next_token->type_ == TokenType::LEFT_PARENTHESE) { // (
+    lexer_->expect_next("(");
+    lexer_->expect_next(")");
+    parse_function_array_suffix(builder);
+    builder->return_of({});
+  } else if (next_token->type_ == TokenType::LEFT_BRACKET) { // [
+    lexer_->expect_next("[");
+    auto element_count = parse_constant_expression();
+    if (element_count->kind_ != ASTNodeKind::INTEGER) {
+      throw std::invalid_argument("Element count of array should be a integer.");
+    }
+    lexer_->expect_next("]");
+    parse_function_array_suffix(builder);
+    builder->array_of(std::stoull(element_count->literal_));
+  }
+}
+
+// DIRECT_DECLATATOR => {VARIABLE | '(' DECLARATOR ')'} FUNCTION_ARRAY_SUFFIX
+ASTNodePtr ParserImpl::parse_direct_declatator(TypeBuilderPtr builder) {
+  auto next_token = lexer_->peek();
+  ASTNodePtr result = nullptr;
+  if (next_token->type_ == TokenType::VARIABLE) {
+    next_token = lexer_->next();
+    result = ASTNode::variable(next_token->literal_);
+  } else {
+    lexer_->expect_next("(");
+    auto old_builder = builder->building_of();
+    result = parse_declarator(builder);
+    builder = std::move(old_builder);
+    lexer_->expect_next(")");
+  }
+
+  parse_function_array_suffix(builder);
+  return result;
+}
+
+// DECLARATOR => POINTER? DIRECT_DECLATATOR
+ASTNodePtr ParserImpl::parse_declarator(TypeBuilderPtr builder) {
+  parse_pointer(builder);
+  return parse_direct_declatator(builder);
+}
+
+// DECLARATION => TYPE_SPECIFIER {INIT_DECLARATOR {',' INIT_DECLARATOR}*}? ';'
+ASTNodePtr ParserImpl::parse_declaration() {
+  auto type_specifier = parse_type_specifier();
+  std::vector<ASTNodePtr> single_declaration_list;
+  while (true)  {
+    auto next_token = lexer_->peek();
+    if (next_token->type_ == TokenType::SEMICOLON) {
+      lexer_->expect_next(";");
+      return ASTNode::declaration(std::move(single_declaration_list));
+    }
+    single_declaration_list.emplace_back(parse_init_declarator(type_specifier));
+    next_token = lexer_->peek();
+    if (next_token->type_ == TokenType::SEMICOLON) {
+      lexer_->expect_next(";");
+      return ASTNode::declaration(std::move(single_declaration_list));
+    }
+    lexer_->expect_next(",");
+  } 
 }
 
 // STATEMENT =>  COMPOUND_STATEMENT
@@ -72,8 +186,13 @@ ASTNodePtr ParserImpl::parse_compound_statement() {
       lexer_->expect_next("}");
       break;
     }
-    ASTNodePtr next_node = parse_statement();
-    if (next_node->type_ != ASTNodeType::EMPTY) {
+    ASTNodePtr next_node = nullptr;
+    if (next_token->type_ == TokenType::TYPE_SPECIFER) {
+      next_node = parse_declaration();
+    } else {
+      next_node = parse_statement();
+    }
+    if (next_node->kind_ != ASTNodeKind::EMPTY) {
       children.emplace_back(std::move(next_node));
     }
   }
@@ -162,7 +281,7 @@ ASTNodePtr ParserImpl::parse_expression() {
   return parse_assignment();
 }
 
-//ASSIGNMENT => EQUALITY ('=' EQUALITY)*
+// ASSIGNMENT => EQUALITY ('=' EQUALITY)*
 ASTNodePtr ParserImpl::parse_assignment() {
   ASTNodePtr lhs = parse_equality();
   TokenPtr next_token = lexer_->peek();
