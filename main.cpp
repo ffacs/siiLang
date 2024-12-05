@@ -18,16 +18,17 @@ int main(int argc, char *argv[]) {
       exit(0);
     }
     auto parser = CreateParser(input);
-    auto IR_generator = CreateIRGenerator(parser->work());
-    auto IR_list = IR_generator->work();
-    std::stringstream result_builder;
-    for (size_t i = 0; i < IR_list.size(); i++) {
-      result_builder << IR_list[i]->to_string();
-      if (i != IR_list.size() - 1) {
-        result_builder << "\n";
-      }
-    }
-    std::cout << "IR of file: " << file_name << ": \n";
-    std::cout << result_builder.str();
+    std::cout << parser->work()->to_string() << "\n";
+//    auto IR_generator = CreateIRGenerator(parser->work());
+//    auto IR_list = IR_generator->work();
+//    std::stringstream result_builder;
+//    for (size_t i = 0; i < IR_list.size(); i++) {
+//      result_builder << IR_list[i]->to_string();
+//      if (i != IR_list.size() - 1) {
+//        result_builder << "\n";
+//      }
+//    }
+//    std::cout << "IR of file: " << file_name << ": \n";
+//    std::cout << result_builder.str();
   }
 }

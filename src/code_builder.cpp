@@ -2,27 +2,29 @@
 
 class CodeBuilderImpl : public CodeBuilder {
  public:
-  AddressPtr append_multiply(AddressPtr left, AddressPtr right) override;
-  AddressPtr append_divide(AddressPtr left, AddressPtr right) override;
-  AddressPtr append_add(AddressPtr left, AddressPtr right) override;
-  AddressPtr append_sub(AddressPtr left, AddressPtr right) override;
-  AddressPtr append_neg(AddressPtr left) override;
-  AddressPtr append_equal(AddressPtr left, AddressPtr right) override;
-  AddressPtr append_not_equal(AddressPtr left, AddressPtr right) override;
-  AddressPtr append_less_than(AddressPtr left, AddressPtr right) override;
-  AddressPtr append_less_equal(AddressPtr left, AddressPtr right) override;
-  AddressPtr append_assign(AddressPtr left, AddressPtr right) override;
+  void       append_multiply(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) override;
+  void       append_divide(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) override;
+  void       append_add(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) override;
+  void       append_sub(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) override;
+  void       append_neg(AddressPtr left, TemporaryAddressPtr result) override;
+  void       append_equal(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) override;
+  void       append_not_equal(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) override;
+  void       append_less_than(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) override;
+  void       append_less_equal(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) override;
+  AddressPtr append_assign(AddressPtr result, AddressPtr right) override;
   LabelPtr   new_label(const std::string& name = "") override;
   void       append_if_true_goto(AddressPtr expression, LabelPtr target_label) override;
   void       append_if_false_goto(AddressPtr expression, LabelPtr target_label) override;
   void       append_goto(LabelPtr target_label) override;
   void       append_label(LabelPtr label) override;
   void       append_nope() override;
+  void       append_function(FunctionAddressPtr left) override;
+  void       append_alloca(AddressPtr variable, uint32_t bytes) override;
   std::vector<ThreeAddressCodePtr> finish() override;
  protected:
   void       append_new_tac(ThreeAddressCodePtr new_tac);
+  std::vector<ThreeAddressCodePtr> alloca_list_;
   std::vector<ThreeAddressCodePtr> code_list_;
-  uint32_t temproray_variable_count_ = 0;
   uint32_t unnamed_label_count_ = 0;
   std::vector<LabelPtr> appended_labels_;
 };
@@ -38,93 +40,84 @@ void CodeBuilderImpl::append_new_tac(ThreeAddressCodePtr new_tac) {
   code_list_.emplace_back(std::move(new_tac));
 }
 
-AddressPtr CodeBuilderImpl::append_multiply(AddressPtr left, AddressPtr right) {
+void CodeBuilderImpl::append_multiply(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::MUL);
   new_tac->argL_ = std::move(left);
   new_tac->argR_ = std::move(right);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
-AddressPtr CodeBuilderImpl::append_divide(AddressPtr left, AddressPtr right) {
+void CodeBuilderImpl::append_divide(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::DIV);
   new_tac->argL_ = std::move(left);
   new_tac->argR_ = std::move(right);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
-AddressPtr CodeBuilderImpl::append_add(AddressPtr left, AddressPtr right) {
+void CodeBuilderImpl::append_add(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::ADD);
   new_tac->argL_ = std::move(left);
   new_tac->argR_ = std::move(right);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
-AddressPtr CodeBuilderImpl::append_sub(AddressPtr left, AddressPtr right) {
+void CodeBuilderImpl::append_sub(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::SUB);
   new_tac->argL_ = std::move(left);
   new_tac->argR_ = std::move(right);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
-AddressPtr CodeBuilderImpl::append_neg(AddressPtr child) {
+void CodeBuilderImpl::append_neg(AddressPtr child, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::NEG);
   new_tac->argL_ = std::move(child);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
-AddressPtr CodeBuilderImpl::append_equal(AddressPtr left, AddressPtr right) {
+void CodeBuilderImpl::append_equal(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::EQUAL);
   new_tac->argL_ = std::move(left);
   new_tac->argR_ = std::move(right);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
-AddressPtr CodeBuilderImpl::append_not_equal(AddressPtr left, AddressPtr right) {
+void CodeBuilderImpl::append_not_equal(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::NOT_EQUAL);
   new_tac->argL_ = std::move(left);
   new_tac->argR_ = std::move(right);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
-AddressPtr CodeBuilderImpl::append_less_than(AddressPtr left, AddressPtr right) {
+void CodeBuilderImpl::append_less_than(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::LESS_THAN);
   new_tac->argL_ = std::move(left);
   new_tac->argR_ = std::move(right);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
-AddressPtr CodeBuilderImpl::append_less_equal(AddressPtr left, AddressPtr right) {
+void CodeBuilderImpl::append_less_equal(AddressPtr left, AddressPtr right, TemporaryAddressPtr result) {
   ThreeAddressCodePtr new_tac = std::make_shared<ThreeAddressCode>(TACOperator::LESS_EQUAL);
   new_tac->argL_ = std::move(left);
   new_tac->argR_ = std::move(right);
-  auto result = Address::temporary(new_tac.get(), std::to_string(temproray_variable_count_++));
   new_tac->result_ = result;
+  result->src_ = new_tac.get();
   append_new_tac(std::move(new_tac));
-  return result;
 }
 
 AddressPtr CodeBuilderImpl::append_assign(AddressPtr result, AddressPtr right) {
@@ -176,9 +169,25 @@ std::vector<ThreeAddressCodePtr> CodeBuilderImpl::finish() {
   if (!appended_labels_.empty()) {
     append_nope();
   }
-  return std::move(code_list_);
+  std::vector<ThreeAddressCodePtr> result;
+  result.insert(result.end(), alloca_list_.begin(), alloca_list_.end());
+  result.insert(result.end(), code_list_.begin(), code_list_.end());
+  return result;
 }
 
-std::unique_ptr<CodeBuilder> CreateCodeBuilder() {
-  return std::make_unique<CodeBuilderImpl>();
+void CodeBuilderImpl::append_function(FunctionAddressPtr left) {
+  ThreeAddressCodePtr function = std::make_shared<ThreeAddressCode>(TACOperator::FUNCTION_DEFINITION);
+  function->argL_ = std::move(left);
+  append_new_tac(std::move(function));
+}
+
+void CodeBuilderImpl::append_alloca(AddressPtr variable, uint32_t bytes) {
+  ThreeAddressCodePtr alloca = std::make_shared<ThreeAddressCode>(TACOperator::ALLOCA);
+  alloca->argL_ = std::move(variable);
+  alloca->alloca_bytes_ = bytes;
+  alloca_list_.push_back(alloca);
+}
+
+CodeBuilderPtr CreateCodeBuilder() {
+  return std::make_shared<CodeBuilderImpl>();
 }

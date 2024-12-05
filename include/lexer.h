@@ -7,7 +7,7 @@
 enum class TokenType : uint32_t {
   ED                    = 0,
   INTEGER               = 1,
-  VARIABLE              = 2,
+  IDENTIFIER            = 2,
   PLUS                  = 3, // +
   HYPHEN                = 4, // -
   ASTERISK              = 5, // *
@@ -43,7 +43,7 @@ struct Token {
 
   std::string to_string() const;
   static TokenPtr integer(std::string_view literal);
-  static TokenPtr variable(std::string_view literal);
+  static TokenPtr identifier(std::string_view literal);
   static TokenPtr keyword(std::string_view literal);
   static TokenPtr type_specifier(std::string_view literal);
   static TokenPtr plus();

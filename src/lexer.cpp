@@ -10,7 +10,7 @@ std::string Token::to_string() const {
     case TokenType::INTEGER:
       ss << "Integer: " << literal_;
       break;
-    case TokenType::VARIABLE:
+    case TokenType::IDENTIFIER:
       ss << "Variable: " << literal_;
       break;
     case TokenType::PLUS:
@@ -51,8 +51,8 @@ TokenPtr Token::integer(std::string_view literal) {
   return token(TokenType::INTEGER, literal);
 }
 
-TokenPtr Token::variable(std::string_view literal) {
-  return token(TokenType::VARIABLE, literal);
+TokenPtr Token::identifier(std::string_view literal) {
+  return token(TokenType::IDENTIFIER, literal);
 }
 
 TokenPtr Token::plus() {
@@ -275,7 +275,7 @@ class LexerImpl : public Lexer {
     if (TypeSpcifiers.find(literal) != TypeSpcifiers.end()) {
       return Token::type_specifier(literal);
     }
-    return Token::variable(literal);
+    return Token::identifier(literal);
   }
 
   char current_char() {
