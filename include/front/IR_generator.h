@@ -1,5 +1,5 @@
 #pragma once
-#include "three_address_code.h"
+#include "front/three_address_code.h"
 
 class IRGenerator {
  public:

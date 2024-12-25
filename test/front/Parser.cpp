@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "parser.h"
+#include "front/parser.h"
 
 static auto CreateParser(const std::string& str) {
   std::stringstream ss(str);

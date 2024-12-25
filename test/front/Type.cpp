@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "type.h"
+#include "front/type.h"
 
 TEST(Type, TrimBuildingTypeForInt) {
   auto int_type = Type::basic(TypeKind::INT);

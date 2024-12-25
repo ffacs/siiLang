@@ -2,8 +2,8 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include "lexer.h"
-#include "type.h"
+#include "front/lexer.h"
+#include "front/type.h"
 
 
 enum class ASTNodeKind : uint32_t {

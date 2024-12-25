@@ -1,6 +1,6 @@
 #pragma once
-#include "AST.h"
-#include "type.h"
+#include "front/AST.h"
+#include "front/type.h"
 
 enum class TACOperator : uint32_t {
   MUL = 0,

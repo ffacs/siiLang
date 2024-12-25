@@ -1,4 +1,4 @@
-#include "three_address_code.h"
+#include "front/three_address_code.h"
 #include <sstream>
 
 VariableAddressPtr Address::variable(const std::string& name) {

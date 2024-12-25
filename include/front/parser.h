@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <iostream>
-#include "AST.h"
+#include "front/AST.h"
 
 class Parser {
 public:

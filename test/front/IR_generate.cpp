@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "IR_generator.h"
+#include "front/IR_generator.h"
 #include <sstream>
 
 static std::string IRStringGenerate(const ASTNodePtr root) {

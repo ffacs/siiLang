@@ -1,6 +1,6 @@
-#include "parser.h"
-#include "lexer.h"
-#include "AST.h"
+#include "front/parser.h"
+#include "front/lexer.h"
+#include "front/AST.h"
 
 #include <set>
 

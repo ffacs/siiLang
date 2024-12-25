@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "front/lexer.h"
 #include <set>
 
 std::string Token::to_string() const {

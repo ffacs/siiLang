@@ -1,6 +1,6 @@
-#include "IR_generator.h"
-#include "code_builder.h"
-#include "context_manager.h"
+#include "front/IR_generator.h"
+#include "front/code_builder.h"
+#include "front/context_manager.h"
 #include <set>
 
 class IRGeneratorImpl : public IRGenerator {
