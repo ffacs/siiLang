@@ -1,4 +1,5 @@
 #pragma once
+#include "front/diagnose.h"
 #include "front/type.h"
 #include <memory>
 #include <string>
@@ -60,6 +61,7 @@ typedef std::shared_ptr<DeclarationStatementNode> DeclarationStatementNodePtr;
 
 struct ASTNode {
   ASTNodeKind kind_;
+  LexInfo lex_info_;
 
   ASTNode(ASTNodeKind kind) : kind_(kind) {}
 

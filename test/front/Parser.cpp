@@ -3,9 +3,10 @@
 #include "gtest/gtest.h"
 
 namespace front {
+
 static auto CreateParser(const std::string &str) {
   std::stringstream ss(str);
-  return CreateParser(ss);
+  return CreateParser("file_name", ss);
 }
 
 static std::string ASTToString(const ASTNodePtr &node) {

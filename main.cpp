@@ -1,11 +1,11 @@
-#include <cstring>
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <sstream>
-#include "include/front/parser.h"
 #include "include/front/ASTPrinter.h"
 #include "include/front/IR_generator.h"
+#include "include/front/parser.h"
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 int main(int argc, char *argv[]) {
   if (argc <= 1) {
@@ -19,20 +19,18 @@ int main(int argc, char *argv[]) {
       std::cerr << "Failed to open: " << file_name << "\n";
       exit(0);
     }
-    auto parser = CreateParser(input);
+    auto parser = front::CreateParser(file_name, input);
     auto AST = parser->work();
-    ASTPrintVisitor AST_printer;
-    AST_printer.visit(*AST);
-//     auto IR_generator = CreateIRGenerator(parser->work());
-//     auto IR_list = IR_generator->work();
-//     std::stringstream result_builder;
-//     for (size_t i = 0; i < IR_list.size(); i++) {
-//       result_builder << IR_list[i]->to_string();
-//       if (i != IR_list.size() - 1) {
-//         result_builder << "\n";
-//       }
-//     }
-//     std::cout << "IR of file: " << file_name << ": \n";
-//     std::cout << result_builder.str();
+    auto IR_generator = front::CreateIRGenerator(AST);
+    auto IR_list = IR_generator->work();
+    std::stringstream result_builder;
+    for (size_t i = 0; i < IR_list.size(); i++) {
+      result_builder << IR_list[i]->to_string();
+      if (i != IR_list.size() - 1) {
+        result_builder << "\n";
+      }
+    }
+    std::cout << "IR of file: " << file_name << ": \n";
+    std::cout << result_builder.str();
   }
 }

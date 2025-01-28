@@ -1,71 +1,76 @@
 #pragma once
 #include <iostream>
 #include <memory>
-#include <sstream>
 #include <string>
+
+#include "diagnose.h"
 
 namespace front {
 
 enum class TokenType : uint32_t {
-  ED = 0,
-  INTEGER = 1,
-  IDENTIFIER = 2,
-  PLUS = 3,             // +
-  HYPHEN = 4,           // -
-  ASTERISK = 5,         // *
-  SLASH = 6,            // /
-  LEFT_PARENTHESE = 7,  // (
-  RIGHT_PARENTHESE = 8, // )
-  SEMICOLON = 9,        // ;
-  EQUAL = 10,           // ==
-  NOT_EQUAL = 11,       // !=
-  LEFT_ANGLE = 12,      // <
-  LESS_EQUAL = 13,      // <=
-  RIGHT_ANGLE = 14,     // >
-  GREATER_EQUAL = 15,   // >=
-  ASSIGN = 16,          // =
-  LEFT_BRACE = 17,      // {
-  RIGHT_BRACE = 18,     // }
-  LEFT_BRACKET = 19,    // [
-  RIGHT_BRACKET = 20,   // ]
-  KEYWORD = 21,
-  TYPE_SPECIFER = 22,
-  COMMA = 23, // ,
+  UNKNOWN = 0,
+  ED = 1,
+  INTEGER = 2,
+  IDENTIFIER = 3,
+  PLUS = 4,             // +
+  HYPHEN = 5,           // -
+  ASTERISK = 6,         // *
+  SLASH = 7,            // /
+  LEFT_PARENTHESE = 8,  // (
+  RIGHT_PARENTHESE = 9, // )
+  SEMICOLON = 10,       // ;
+  EQUAL = 11,           // ==
+  NOT_EQUAL = 12,       // !=
+  LEFT_ANGLE = 13,      // <
+  LESS_EQUAL = 14,      // <=
+  RIGHT_ANGLE = 15,     // >
+  GREATER_EQUAL = 16,   // >=
+  ASSIGN = 17,          // =
+  LEFT_BRACE = 18,      // {
+  RIGHT_BRACE = 19,     // }
+  LEFT_BRACKET = 20,    // [
+  RIGHT_BRACKET = 21,   // ]
+  KEYWORD = 22,
+  TYPE_SPECIFER = 23,
+  COMMA = 24, // ,
 };
 
 struct Token;
 typedef std::shared_ptr<Token> TokenPtr;
 
 struct Token {
-  Token(TokenType type, std::string_view literal)
-      : type_(type), literal_(std::move(literal)) {}
+  Token(TokenType type, std::string_view literal, LexInfo lex_info)
+      : type_(type), literal_(std::move(literal)),
+        lex_info_(std::move(lex_info)) {}
   TokenType type_;
   std::string literal_;
+  LexInfo lex_info_;
 
   std::string to_string() const;
-  static TokenPtr integer(std::string_view literal);
-  static TokenPtr identifier(std::string_view literal);
-  static TokenPtr keyword(std::string_view literal);
-  static TokenPtr type_specifier(std::string_view literal);
-  static TokenPtr plus();
-  static TokenPtr hyphen();
-  static TokenPtr asterisk();
-  static TokenPtr slash();
-  static TokenPtr left_parenthese();
-  static TokenPtr right_parenthese();
-  static TokenPtr semicolon();
-  static TokenPtr equal();
-  static TokenPtr not_equal();
-  static TokenPtr left_angle();
-  static TokenPtr less_equal();
-  static TokenPtr right_angle();
-  static TokenPtr greater_equal();
-  static TokenPtr assgin();
-  static TokenPtr left_brace();
-  static TokenPtr right_brace();
-  static TokenPtr comma();
-  static TokenPtr left_bracket();
-  static TokenPtr right_bracket();
+  static TokenPtr unknow(std::string_view literal, LexInfo position);
+  static TokenPtr integer(std::string_view literal, LexInfo position);
+  static TokenPtr identifier(std::string_view literal, LexInfo position);
+  static TokenPtr keyword(std::string_view literal, LexInfo position);
+  static TokenPtr type_specifier(std::string_view literal, LexInfo position);
+  static TokenPtr plus(LexInfo position);
+  static TokenPtr hyphen(LexInfo position);
+  static TokenPtr asterisk(LexInfo position);
+  static TokenPtr slash(LexInfo position);
+  static TokenPtr left_parenthese(LexInfo position);
+  static TokenPtr right_parenthese(LexInfo position);
+  static TokenPtr semicolon(LexInfo position);
+  static TokenPtr equal(LexInfo position);
+  static TokenPtr not_equal(LexInfo position);
+  static TokenPtr left_angle(LexInfo position);
+  static TokenPtr less_equal(LexInfo position);
+  static TokenPtr right_angle(LexInfo position);
+  static TokenPtr greater_equal(LexInfo position);
+  static TokenPtr assgin(LexInfo position);
+  static TokenPtr left_brace(LexInfo position);
+  static TokenPtr right_brace(LexInfo position);
+  static TokenPtr comma(LexInfo position);
+  static TokenPtr left_bracket(LexInfo position);
+  static TokenPtr right_bracket(LexInfo position);
 };
 
 class Lexer {
@@ -80,17 +85,14 @@ public:
 
   virtual bool have_next() = 0;
 
-  void expect_next(const std::string &expect) {
-    TokenPtr next_token = next();
-    if (next_token->literal_ != expect) {
-      std::stringstream error_msg;
-      error_msg << expect << " expected, but " << next_token->literal_
-                << " found";
-      throw std::invalid_argument(error_msg.str());
-    }
-  }
+  virtual LexPosition current_position() = 0;
+
+  virtual LexInfo get_lex_info(LexPosition begin) = 0;
+
+  virtual void expect_next(const std::string &expect) = 0;
 };
 
-std::unique_ptr<Lexer> CreateLexer(std::istream &input);
+std::unique_ptr<Lexer> CreateLexer(std::string_view content,
+                                   DiagnoseHandlerPtr diagnose_handler);
 
 } // namespace front
