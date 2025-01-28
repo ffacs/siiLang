@@ -4,25 +4,6 @@
 #include <string>
 #include <vector>
 
-enum class TACOperator : uint32_t {
-  MUL = 0,
-  DIV = 1,
-  ADD = 2,
-  SUB = 3,
-  NEG = 4,
-  EQUAL = 5,
-  NOT_EQUAL = 6,
-  LESS_THAN = 7,
-  LESS_EQUAL = 8,
-  ASSIGN = 9,
-  GOTO = 10,
-  IF_TRUE_GOTO = 11,
-  IF_FALSE_GOTO = 12,
-  NOPE = 13,
-  FUNCTION_DEFINITION = 14,
-  ALLOCA = 15
-};
-
 enum class AddressType : uint32_t {
   VARIABLE = 0,
   CONSTANT = 1,
@@ -30,19 +11,19 @@ enum class AddressType : uint32_t {
   FUNCTION = 3
 };
 
+struct SiiIRCode;
 struct Address;
 struct VariableAddress;
 struct ConstantAddress;
 struct TemporaryAddress;
 struct FunctionAddress;
-struct ThreeAddressCode;
 struct Label;
+using SiiIRCodePtr = std::shared_ptr<SiiIRCode>;
 typedef std::shared_ptr<Address> AddressPtr;
 typedef std::shared_ptr<VariableAddress> VariableAddressPtr;
 typedef std::shared_ptr<ConstantAddress> ConstantAddressPtr;
 typedef std::shared_ptr<TemporaryAddress> TemporaryAddressPtr;
 typedef std::shared_ptr<FunctionAddress> FunctionAddressPtr;
-typedef std::shared_ptr<ThreeAddressCode> ThreeAddressCodePtr;
 typedef std::shared_ptr<Label> LabelPtr;
 
 struct Address {
@@ -53,10 +34,9 @@ struct Address {
 
   static VariableAddressPtr variable(const std::string &name);
   static ConstantAddressPtr constant(const std::string &literal);
-  static TemporaryAddressPtr temporary(ThreeAddressCode *src,
-                                       const std::string &name);
+  static TemporaryAddressPtr temporary(SiiIRCode *src, const std::string &name);
   static FunctionAddressPtr
-  function(std::shared_ptr<std::vector<ThreeAddressCodePtr>> codes,
+  function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
            const std::string &name);
 };
 
@@ -75,41 +55,27 @@ struct ConstantAddress : public Address {
 };
 
 struct TemporaryAddress : public Address {
-  TemporaryAddress(ThreeAddressCode *src, std::string name)
+  TemporaryAddress(SiiIRCode *src, std::string name)
       : Address(AddressType::TEMPORARY), name_(std::move(name)) {}
   std::string to_string() const override;
-  ThreeAddressCode *src_{};
+  SiiIRCode *src_{};
   std::string name_;
 };
 
 struct FunctionAddress : public Address {
-  FunctionAddress(std::shared_ptr<std::vector<ThreeAddressCodePtr>> codes,
+  FunctionAddress(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
                   std::string name)
       : Address(AddressType::FUNCTION), codes_(std::move(codes)),
         name_(std::move(name)) {}
   std::string to_string() const override;
-  std::shared_ptr<std::vector<ThreeAddressCodePtr>> codes_;
+  std::shared_ptr<std::vector<SiiIRCodePtr>> codes_;
   std::string name_;
 };
 
 struct Label {
-  ThreeAddressCode *dest_;
+  SiiIRCode *dest_;
   std::string name_;
-  Label(ThreeAddressCode *dest, std::string name)
+  Label(SiiIRCode *dest, std::string name)
       : dest_(dest), name_(std::move(name)) {}
-  std::string to_string() const;
-};
-
-struct ThreeAddressCode {
-  TACOperator operator_;
-  AddressPtr argL_;
-  AddressPtr argR_;
-  AddressPtr result_;
-  std::vector<LabelPtr> lable_list_;
-  LabelPtr jump_dest_;
-  uint32_t alloca_bytes_;
-
-  explicit ThreeAddressCode(TACOperator ope) : operator_(ope) {}
-
   std::string to_string() const;
 };

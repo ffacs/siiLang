@@ -1,5 +1,5 @@
 #pragma once
-#include "front/three_address_code.h"
+#include "IR/address.h"
 
 class CodeBuilder;
 typedef std::shared_ptr<CodeBuilder> CodeBuilderPtr;
@@ -24,7 +24,7 @@ public:
                                 TemporaryAddressPtr result) = 0;
   virtual void append_less_equal(AddressPtr left, AddressPtr right,
                                  TemporaryAddressPtr result) = 0;
-  virtual AddressPtr append_assign(AddressPtr result, AddressPtr right) = 0;
+  virtual AddressPtr append_assign(AddressPtr dest, AddressPtr src) = 0;
   virtual LabelPtr new_label(const std::string &name = "") = 0;
   virtual void append_if_true_goto(AddressPtr expression,
                                    LabelPtr target_label) = 0;
@@ -35,7 +35,7 @@ public:
   virtual void append_nope() = 0;
   virtual void append_function(FunctionAddressPtr left) = 0;
   virtual void append_alloca(AddressPtr variable, uint32_t bytes) = 0;
-  virtual std::vector<ThreeAddressCodePtr> finish() = 0;
+  virtual std::vector<SiiIRCodePtr> finish() = 0;
 };
 
 CodeBuilderPtr CreateCodeBuilder();

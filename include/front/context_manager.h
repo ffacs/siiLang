@@ -1,5 +1,5 @@
 #pragma once
-#include "front/three_address_code.h"
+#include "IR/address.h"
 #include "front/type.h"
 #include <map>
 #include <memory>

@@ -9,7 +9,7 @@ public:
   IRGeneratorImpl(ASTNodePtr ast) : ast_(std::move(ast)) {
     ctx_manager_ = CreateContextManager();
   }
-  std::vector<ThreeAddressCodePtr> work() override;
+  std::vector<SiiIRCodePtr> work() override;
 
 protected:
   ASTNodePtr ast_;
@@ -116,7 +116,7 @@ AddressPtr IRGeneratorImpl::generate_for_node(const ASTNodePtr &node,
   }
 }
 
-std::vector<ThreeAddressCodePtr> IRGeneratorImpl::work() {
+std::vector<SiiIRCodePtr> IRGeneratorImpl::work() {
   CodeBuilderPtr code_builder = CreateCodeBuilder();
   generate_for_node(ast_, code_builder);
   return code_builder->finish();
@@ -437,7 +437,7 @@ AddressPtr IRGeneratorImpl::generate_for_function_declaration_node(
   const auto &function_type =
       static_cast<const FunctionType &>(*function_node.declarator_->type_);
   const auto &function_body = function_node.body_;
-  std::shared_ptr<std::vector<ThreeAddressCodePtr>> function_codes;
+  std::shared_ptr<std::vector<SiiIRCodePtr>> function_codes;
   ctx_manager_->enter_function();
   if (function_node.body_) {
     ctx_manager_->push_symbol_ctx();
@@ -449,8 +449,8 @@ AddressPtr IRGeneratorImpl::generate_for_function_declaration_node(
     }
     CodeBuilderPtr body_builder = CreateCodeBuilder();
     generate_for_node(function_body, body_builder);
-    function_codes = std::make_shared<std::vector<ThreeAddressCodePtr>>(
-        body_builder->finish());
+    function_codes =
+        std::make_shared<std::vector<SiiIRCodePtr>>(body_builder->finish());
     ctx_manager_->pop_symbol_ctx();
   }
   ctx_manager_->leave_function();

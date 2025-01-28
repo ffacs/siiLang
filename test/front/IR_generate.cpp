@@ -24,7 +24,7 @@ TEST(IRGenerator, FunctionDeclaration) {
           ASTNode::compound_statement({}))));
   EXPECT_EQ(
       "@function1:\n"
-      "  alloca %0 size 4;",
+      "  %0 = alloca size 4;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
@@ -33,7 +33,7 @@ TEST(IRGenerator, FunctionDeclaration) {
               nullptr)}))));
   EXPECT_EQ(
       "@function1:\n"
-      "  alloca %0 size 4;\n"
+      "  %0 = alloca size 4;\n"
       "  %0 = 1;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
@@ -43,8 +43,8 @@ TEST(IRGenerator, FunctionDeclaration) {
               ASTNode::integer("1"))}))));
   EXPECT_EQ(
       "@function1:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
       "  %0 = 0;\n"
       "  %1 = 1;",
       IRStringGenerate(ASTNode::function_declaration(
@@ -60,8 +60,8 @@ TEST(IRGenerator, FunctionDeclaration) {
           }))));
   EXPECT_EQ(
       "@function1:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
       "  %0 = 0;\n"
       "  %1 = 1;\n"
       "  %0 = %1;",
@@ -79,8 +79,8 @@ TEST(IRGenerator, FunctionDeclaration) {
                                ASTNode::identifier("var2"))}))));
   EXPECT_EQ(
       "@function1:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
       "  %0 = 0;\n"
       "  %1 = 1;\n"
       "  %2 = 1 + 2;\n"
@@ -103,8 +103,8 @@ TEST(IRGenerator, FunctionDeclaration) {
                                              ASTNode::integer("2"))))}))));
   EXPECT_EQ(
       "@function1:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
       "  %0 = 0;\n"
       "  %2 = 1 + 2;\n"
       "  %0 = %2;\n"
@@ -170,8 +170,8 @@ TEST(IRGenerator, Multiply) {
                 ASTNode::compound_statement({ASTNode::multiply(
                     ASTNode::integer("1"), ASTNode::integer("2"))}))));
   EXPECT_EQ("@function:\n"
-            "  alloca %0 size 4;\n"
-            "  alloca %1 size 4;\n"
+            "  %0 = alloca size 4;\n"
+            "  %1 = alloca size 4;\n"
             "  %2 = %1 * %0;",
             IRStringGenerate(ASTNode::function_declaration(
                 Declarator::Create(
@@ -186,8 +186,8 @@ TEST(IRGenerator, Multiply) {
                      ASTNode::multiply(ASTNode::identifier("var1"),
                                        ASTNode::identifier("var2"))}))));
   EXPECT_EQ("@function:\n"
-            "  alloca %0 size 4;\n"
-            "  alloca %1 size 4;\n"
+            "  %0 = alloca size 4;\n"
+            "  %1 = alloca size 4;\n"
             "  %2 = %0 * %1;",
             IRStringGenerate(ASTNode::function_declaration(
                 Declarator::Create(
@@ -321,8 +321,8 @@ TEST(IRGenerator, Recursive) {
 TEST(IRGenerator, Assign) {
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
       "  %1 = 2;\n"
       "  %0 = %1;",
       IRStringGenerate(ASTNode::function_declaration(
@@ -339,8 +339,8 @@ TEST(IRGenerator, Assign) {
                                ASTNode::assign(ASTNode::identifier("var2"),
                                                ASTNode::integer("2")))}))));
   EXPECT_EQ("@function:\n"
-            "  alloca %0 size 4;\n"
-            "  alloca %1 size 4;\n"
+            "  %0 = alloca size 4;\n"
+            "  %1 = alloca size 4;\n"
             "  %2 = %0 + %0;\n"
             "  %1 = %2;\n"
             "  %0 = %1;",
@@ -365,9 +365,9 @@ TEST(IRGenerator, Assign) {
 TEST(IRGenerator, CompoundStatement) {
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
-      "  alloca %2 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
+      "  %2 = alloca size 4;\n"
       "  %0 = %1;\n"
       "  %2 = 2;",
       IRStringGenerate(ASTNode::function_declaration(
@@ -392,10 +392,10 @@ TEST(IRGenerator, CompoundStatement) {
                ASTNode::compound_statement({})}))));
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
-      "  alloca %2 size 4;\n"
-      "  alloca %3 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
+      "  %2 = alloca size 4;\n"
+      "  %3 = alloca size 4;\n"
       "  %0 = 2;\n"
       "  %1 = %0;\n"
       "  %2 = 3;\n"
@@ -425,8 +425,8 @@ TEST(IRGenerator, CompoundStatement) {
 
 TEST(IRGenerator, SelectStatement) {
   EXPECT_EQ("@function:\n"
-            "  alloca %0 size 4;\n"
-            "  alloca %1 size 4;\n"
+            "  %0 = alloca size 4;\n"
+            "  %1 = alloca size 4;\n"
             "  if-false %0 goto Label.0;\n"
             "  %0 = 1;\n"
             "  goto Label.1;\n"
@@ -464,10 +464,10 @@ TEST(IRGenerator, SelectStatement) {
                                  ASTNode::identifier("var1"),
                                  ASTNode::integer("3"))})))}))));
   EXPECT_EQ("@function:\n"
-            "  alloca %0 size 4;\n"
-            "  alloca %1 size 4;\n"
-            "  alloca %2 size 4;\n"
-            "  alloca %3 size 4;\n"
+            "  %0 = alloca size 4;\n"
+            "  %1 = alloca size 4;\n"
+            "  %2 = alloca size 4;\n"
+            "  %3 = alloca size 4;\n"
             "  if-false %0 goto Label.0;\n"
             "  %0 = 1;\n"
             "  goto Label.1;\n"
@@ -528,9 +528,9 @@ TEST(IRGenerator, IterationStatement) {
                     ASTNode::compound_statement({}))}))));
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
-      "  alloca %2 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
+      "  %2 = alloca size 4;\n"
       "  %0 = 1;\n"
       "Label.0:\n"
       "  if-false %1 goto Label.1;\n"
@@ -560,9 +560,9 @@ TEST(IRGenerator, IterationStatement) {
                                         ASTNode::integer("3"))}))}))));
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
-      "  alloca %2 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
+      "  %2 = alloca size 4;\n"
       "  %0 = 1;\n"
       "Label.0:\n"
       "  if-false %1 goto Label.1;\n"
@@ -594,9 +594,9 @@ TEST(IRGenerator, IterationStatement) {
                                      ASTNode::integer("3"))}))}))));
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
-      "  alloca %2 size 4;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
+      "  %2 = alloca size 4;\n"
       "  %0 = 1;\n"
       "Label.0:\n"
       "  %0 = 3;\n"
@@ -627,7 +627,7 @@ TEST(IRGenerator, IterationStatement) {
                                      ASTNode::integer("3"))}))}))));
 
   EXPECT_EQ("@function:\n"
-            "  alloca %0 size 4;\n"
+            "  %0 = alloca size 4;\n"
             "Label.0:\n"
             "  if-false %0 goto Label.1;\n"
             "  goto Label.0;\n"
@@ -644,7 +644,7 @@ TEST(IRGenerator, IterationStatement) {
                                          ASTNode::empty())}))));
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
+      "  %0 = alloca size 4;\n"
       "Label.0:\n"
       "  if-false %0 goto Label.1;\n"
       "  %0 = 3;\n"
@@ -663,7 +663,7 @@ TEST(IRGenerator, IterationStatement) {
                                                    ASTNode::integer("3")))}))));
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
+      "  %0 = alloca size 4;\n"
       "Label.0:\n"
       "  %0 = 3;\n"
       "  if %0 goto Label.0;",
@@ -679,7 +679,7 @@ TEST(IRGenerator, IterationStatement) {
                                  ASTNode::identifier("var1"))}))));
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
+      "  %0 = alloca size 4;\n"
       "Label.0:\n"
       "  %0 = 3;\n"
       "  if %0 goto Label.0;",
@@ -698,9 +698,9 @@ TEST(IRGenerator, IterationStatement) {
 TEST(IRGenerator, Declaration) {
   EXPECT_EQ(
       "@function:\n"
-      "  alloca %0 size 4;\n"
-      "  alloca %1 size 4;\n"
-      "  alloca %2 size 8;\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
+      "  %2 = alloca size 8;\n"
       "  %3 = %1 + 10;\n"
       "  %0 = %3;\n"
       "  %2 = %0;",
