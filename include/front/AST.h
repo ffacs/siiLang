@@ -1,8 +1,8 @@
 #pragma once
-#include <string>
-#include <memory>
-#include <vector>
 #include "front/type.h"
+#include <memory>
+#include <string>
+#include <vector>
 
 enum class ASTNodeKind : uint32_t {
   EMPTY = 0,
@@ -59,12 +59,11 @@ typedef std::shared_ptr<DeclarationStatementNode> DeclarationStatementNodePtr;
 struct ASTNode {
   ASTNodeKind kind_;
 
-  ASTNode(ASTNodeKind kind) 
-    : kind_(kind) {}
+  ASTNode(ASTNodeKind kind) : kind_(kind) {}
 
-  virtual bool operator==(const ASTNode&) const;
-  bool operator!=(const ASTNode& other) const { return !(*this == other); }
-  void accept(ASTVisitor& visitor);
+  virtual bool operator==(const ASTNode &) const;
+  bool operator!=(const ASTNode &other) const { return !(*this == other); }
+  void accept(ASTVisitor &visitor);
 
   static ASTNodePtr empty();
   static BinaryOperationNodePtr multiply(ASTNodePtr lhs, ASTNodePtr rhs);
@@ -76,11 +75,10 @@ struct ASTNode {
   static BinaryOperationNodePtr less_than(ASTNodePtr lhs, ASTNodePtr rhs);
   static BinaryOperationNodePtr less_equal(ASTNodePtr lhs, ASTNodePtr rhs);
   static BinaryOperationNodePtr assign(ASTNodePtr lhs, ASTNodePtr rhs);
-  static LiteralNodePtr identifier(const std::string& name);
-  static LiteralNodePtr integer(const std::string& literal);
+  static LiteralNodePtr identifier(const std::string &name);
+  static LiteralNodePtr integer(const std::string &literal);
   static UnaryOperationNodePtr negtive(ASTNodePtr operand);
-  static IfElseNodePtr if_else(ASTNodePtr expression,
-                               ASTNodePtr if_statement,
+  static IfElseNodePtr if_else(ASTNodePtr expression, ASTNodePtr if_statement,
                                ASTNodePtr else_statement);
   static ForLoopNodePtr for_loop(ASTNodePtr init_expression,
                                  ASTNodePtr condition_expression,
@@ -90,20 +88,25 @@ struct ASTNode {
                                  ASTNodePtr condition_expression);
   static WhileLoopNodePtr while_loop(ASTNodePtr condition_expression,
                                      ASTNodePtr statement);
-  static CompoundStatementNodePtr compound_statement(std::vector<ASTNodePtr> children);
-  static VariableDeclarationNodePtr variable_declaration(DeclaratorPtr declarator,
-                                                         ASTNodePtr initializer);
-  static FunctionDeclarationNodePtr function_declaration(DeclaratorPtr declarator,
-                                                         ASTNodePtr body);
-  static FunctionDeclarationNodePtr function_declaration(DeclaratorPtr declarator,
-                                                         std::vector<DeclarationStatementNodePtr> declaration_statement_list,
-                                                         ASTNodePtr body);
+  static CompoundStatementNodePtr
+  compound_statement(std::vector<ASTNodePtr> children);
+  static VariableDeclarationNodePtr
+  variable_declaration(DeclaratorPtr declarator, ASTNodePtr initializer);
+  static FunctionDeclarationNodePtr
+  function_declaration(DeclaratorPtr declarator, ASTNodePtr body);
+  static FunctionDeclarationNodePtr function_declaration(
+      DeclaratorPtr declarator,
+      std::vector<DeclarationStatementNodePtr> declaration_statement_list,
+      ASTNodePtr body);
   static DeclarationNodePtr declaration(DeclaratorPtr declarator,
                                         ASTNodePtr initializer);
-  static DeclarationStatementNodePtr declaration_statement(std::vector<DeclarationNodePtr> declaration_list);
-  static VariableDeclarationNodePtr normalize_variable_declaration(ASTNodePtr node);
-  static FunctionDeclarationNodePtr normalize_function_declaration(ASTNodePtr node);
-  static DeclarationNodePtr         normalize_declaration(ASTNodePtr node);
+  static DeclarationStatementNodePtr
+  declaration_statement(std::vector<DeclarationNodePtr> declaration_list);
+  static VariableDeclarationNodePtr
+  normalize_variable_declaration(ASTNodePtr node);
+  static FunctionDeclarationNodePtr
+  normalize_function_declaration(ASTNodePtr node);
+  static DeclarationNodePtr normalize_declaration(ASTNodePtr node);
 };
 
 class ASTVisitor {
@@ -126,40 +129,38 @@ struct BinaryOperationNode : public ASTNode {
   ASTNodePtr lhs_;
   ASTNodePtr rhs_;
   BinaryOperationNode(ASTNodePtr lhs, ASTNodePtr rhs, ASTNodeKind kind)
-    : ASTNode(kind), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
+      : ASTNode(kind), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct UnaryOperationNode : public ASTNode {
   ASTNodePtr operand_;
   UnaryOperationNode(ASTNodePtr operand, ASTNodeKind kind)
-    : ASTNode(kind), operand_(std::move(operand)) {}
+      : ASTNode(kind), operand_(std::move(operand)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct LiteralNode : public ASTNode {
-  std::string literal_; 
+  std::string literal_;
   LiteralNode(std::string literal, ASTNodeKind kind)
-    : ASTNode(kind), literal_(std::move(literal)) {}
+      : ASTNode(kind), literal_(std::move(literal)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct IfElseNode : public ASTNode {
   ASTNodePtr expression_;
   ASTNodePtr if_statement_;
   ASTNodePtr else_statement_;
-  IfElseNode(ASTNodePtr expression,
-             ASTNodePtr if_statement,
-             ASTNodePtr else_statement) 
-    : ASTNode(ASTNodeKind::IF_ELSE),
-      expression_(std::move(expression)),
-      if_statement_(std::move(if_statement)),
-      else_statement_(std::move(else_statement)) {}
+  IfElseNode(ASTNodePtr expression, ASTNodePtr if_statement,
+             ASTNodePtr else_statement)
+      : ASTNode(ASTNodeKind::IF_ELSE), expression_(std::move(expression)),
+        if_statement_(std::move(if_statement)),
+        else_statement_(std::move(else_statement)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct ForLoopNode : public ASTNode {
@@ -167,92 +168,93 @@ struct ForLoopNode : public ASTNode {
   ASTNodePtr condition_expression_;
   ASTNodePtr increment_expression_;
   ASTNodePtr statement_;
-  ForLoopNode(ASTNodePtr init_expression,
-              ASTNodePtr condition_expression,
-              ASTNodePtr increment_expression,
-              ASTNodePtr statement)
-    : ASTNode(ASTNodeKind::FOR_LOOP),
-      init_expression_(std::move(init_expression)),
-      condition_expression_(std::move(condition_expression)),
-      increment_expression_(std::move(increment_expression)),
-      statement_(std::move(statement)) {}
+  ForLoopNode(ASTNodePtr init_expression, ASTNodePtr condition_expression,
+              ASTNodePtr increment_expression, ASTNodePtr statement)
+      : ASTNode(ASTNodeKind::FOR_LOOP),
+        init_expression_(std::move(init_expression)),
+        condition_expression_(std::move(condition_expression)),
+        increment_expression_(std::move(increment_expression)),
+        statement_(std::move(statement)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct DoWhileNode : public ASTNode {
   ASTNodePtr statement_;
   ASTNodePtr condition_expression_;
   DoWhileNode(ASTNodePtr statement, ASTNodePtr condition_expression)
-    : ASTNode(ASTNodeKind::DO_WHILE),
-      statement_(std::move(statement)),
-      condition_expression_(std::move(condition_expression)) {}
+      : ASTNode(ASTNodeKind::DO_WHILE), statement_(std::move(statement)),
+        condition_expression_(std::move(condition_expression)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct WhileLoopNode : public ASTNode {
   ASTNodePtr condition_expression_;
   ASTNodePtr statement_;
   WhileLoopNode(ASTNodePtr condition_expression, ASTNodePtr statement)
-    : ASTNode(ASTNodeKind::WHILE_LOOP),
-      condition_expression_(std::move(condition_expression)),
-      statement_(std::move(statement)) {}
+      : ASTNode(ASTNodeKind::WHILE_LOOP),
+        condition_expression_(std::move(condition_expression)),
+        statement_(std::move(statement)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct CompoundStatementNode : public ASTNode {
   std::vector<ASTNodePtr> children_;
   CompoundStatementNode(std::vector<ASTNodePtr> children)
-    : ASTNode(ASTNodeKind::COMPOUND_STATEMENT),
-      children_(std::move(children)) {}
+      : ASTNode(ASTNodeKind::COMPOUND_STATEMENT),
+        children_(std::move(children)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct DeclarationNode : public ASTNode {
   DeclaratorPtr declarator_;
   DeclarationNode(ASTNodeKind kind, DeclaratorPtr declarator)
-    : ASTNode(kind), declarator_(std::move(declarator)) {}
+      : ASTNode(kind), declarator_(std::move(declarator)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct VariableDeclarationNode : public DeclarationNode {
   ASTNodePtr initializer_;
 
-  VariableDeclarationNode(DeclaratorPtr declarator, ASTNodePtr initializer) :
-    DeclarationNode(ASTNodeKind::VARIABLE_DECLARATION, std::move(declarator)),
-    initializer_(std::move(initializer)) {}
+  VariableDeclarationNode(DeclaratorPtr declarator, ASTNodePtr initializer)
+      : DeclarationNode(ASTNodeKind::VARIABLE_DECLARATION,
+                        std::move(declarator)),
+        initializer_(std::move(initializer)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct FunctionDeclarationNode : public DeclarationNode {
   ASTNodePtr body_;
   std::vector<DeclarationStatementNodePtr> declaration_statement_list_;
 
-  FunctionDeclarationNode(DeclaratorPtr declarator, 
-                          std::vector<DeclarationStatementNodePtr> declaration_statement_list,
-                          ASTNodePtr body)
-    : DeclarationNode(ASTNodeKind::FUNCTION_DECLARATION, std::move(declarator)),
-      declaration_statement_list_(std::move(declaration_statement_list)),
-      body_(std::move(body)) {}
+  FunctionDeclarationNode(
+      DeclaratorPtr declarator,
+      std::vector<DeclarationStatementNodePtr> declaration_statement_list,
+      ASTNodePtr body)
+      : DeclarationNode(ASTNodeKind::FUNCTION_DECLARATION,
+                        std::move(declarator)),
+        declaration_statement_list_(std::move(declaration_statement_list)),
+        body_(std::move(body)) {}
 
   FunctionDeclarationNode(DeclaratorPtr declarator, ASTNodePtr body)
-    : DeclarationNode(ASTNodeKind::FUNCTION_DECLARATION, std::move(declarator)),
-      body_(std::move(body)) {}
+      : DeclarationNode(ASTNodeKind::FUNCTION_DECLARATION,
+                        std::move(declarator)),
+        body_(std::move(body)) {}
 
-  bool operator==(const ASTNode&) const override;
+  bool operator==(const ASTNode &) const override;
 };
 
 struct DeclarationStatementNode : public ASTNode {
   std::vector<DeclarationNodePtr> declaration_list_;
-  
-  DeclarationStatementNode(std::vector<DeclarationNodePtr> declaration_list) :
-    ASTNode(ASTNodeKind::DECLARATION_STATEMENT),
-    declaration_list_(std::move(declaration_list)) {}
 
-  bool operator==(const ASTNode&) const override;
+  DeclarationStatementNode(std::vector<DeclarationNodePtr> declaration_list)
+      : ASTNode(ASTNodeKind::DECLARATION_STATEMENT),
+        declaration_list_(std::move(declaration_list)) {}
+
+  bool operator==(const ASTNode &) const override;
 };

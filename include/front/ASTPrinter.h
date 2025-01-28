@@ -7,8 +7,14 @@ class Indent {
 
 public:
   Indent(std::ostream &os) : os_(os) {}
-  Indent& operator++() { indent_++; return *this; }
-  Indent& operator--() { indent_--; return *this; }
+  Indent &operator++() {
+    indent_++;
+    return *this;
+  }
+  Indent &operator--() {
+    indent_--;
+    return *this;
+  }
   friend std::ostream &operator<<(std::ostream &os, const Indent &indent) {
     for (int i = 0; i < indent.indent_; i++) {
       os << "  ";

@@ -1,8 +1,9 @@
 #pragma once
 #include "front/three_address_code.h"
+#include "front/AST.h"
 
 class IRGenerator {
- public:
+public:
   virtual ~IRGenerator() {}
   virtual std::vector<ThreeAddressCodePtr> work() = 0;
 };
