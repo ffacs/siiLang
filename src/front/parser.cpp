@@ -33,11 +33,11 @@ private:
   TypePtr                             parse_type_specifier();
   void                                parse_pointer(TypeBuilderPtr builder);
   ASTNodePtr                          parse_constant_expression();
-  ASTNodePtr                          parse_direct_declatator(TypeBuilderPtr builder, bool expect_identifier);
+  LiteralNodePtr                      parse_direct_declatator(TypeBuilderPtr builder, bool expect_identifier);
   void                                parse_function_array_suffix(TypeBuilderPtr builder);
   std::vector<DeclarationStatementNodePtr>     parse_declaration_list();
   DeclarationNodePtr                  parse_init_declarator(TypePtr base_type);
-  ASTNodePtr                          parse_declarator(TypeBuilderPtr builder, bool expect_identifier);
+  LiteralNodePtr                          parse_declarator(TypeBuilderPtr builder, bool expect_identifier);
   DeclarationStatementNodePtr         parse_declaration();
   DeclarationStatementNodePtr         parse_declaration(TypePtr base_type, DeclaratorPtr parsed_declarator);
   std::unique_ptr<Lexer> lexer_;
@@ -216,7 +216,8 @@ void ParserImpl::parse_function_array_suffix(TypeBuilderPtr builder) {
       if (element_count_expr->kind_ != ASTNodeKind::INTEGER) {
         throw std::invalid_argument("Element count of array should be a integer.");
       }
-      element_count = std::stoll(element_count_expr->literal_);
+      LiteralNode* integer_node = static_cast<LiteralNode*>(element_count_expr.get());
+      element_count = std::stoll(integer_node->literal_);
       if (element_count < 0) {
         throw std::invalid_argument("declared an array with a negative size");
       }
@@ -228,9 +229,9 @@ void ParserImpl::parse_function_array_suffix(TypeBuilderPtr builder) {
 }
 
 // DIRECT_DECLATATOR => {VARIABLE | '(' DECLARATOR ')'}? FUNCTION_ARRAY_SUFFIX
-ASTNodePtr ParserImpl::parse_direct_declatator(TypeBuilderPtr builder, bool expect_identifier) {
+LiteralNodePtr ParserImpl::parse_direct_declatator(TypeBuilderPtr builder, bool expect_identifier) {
   auto next_token = lexer_->peek();
-  ASTNodePtr result = ASTNode::identifier("");
+  LiteralNodePtr result = ASTNode::identifier("");
   if (next_token->type_ == TokenType::IDENTIFIER) {
     next_token = lexer_->next();
     result = ASTNode::identifier(next_token->literal_);
@@ -249,7 +250,7 @@ ASTNodePtr ParserImpl::parse_direct_declatator(TypeBuilderPtr builder, bool expe
 }
 
 // DECLARATOR => POINTER? DIRECT_DECLATATOR
-ASTNodePtr ParserImpl::parse_declarator(TypeBuilderPtr builder, bool expect_identifier) {
+LiteralNodePtr ParserImpl::parse_declarator(TypeBuilderPtr builder, bool expect_identifier) {
   parse_pointer(builder);
   return parse_direct_declatator(builder, expect_identifier);
 }

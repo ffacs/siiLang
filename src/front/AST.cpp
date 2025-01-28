@@ -3,86 +3,113 @@
 #include <map>
 #include <optional>
 
-static inline ASTNodePtr astNode(ASTNodeKind type, const std::string& literal) {
-  return std::make_shared<ASTNode>(type, literal);
-}
-
-static ASTNodePtr astNode(ASTNodeKind type, std::vector<ASTNodePtr> children) {
-  return std::make_shared<ASTNode>(type, std::move(children));
+void ASTNode::accept(ASTVisitor& visitor) {
+  visitor.visit(*this);
 }
 
 ASTNodePtr ASTNode::empty() {
-  return astNode(ASTNodeKind::EMPTY, "");
+  return std::make_shared<ASTNode>(ASTNodeKind::EMPTY);
 }
 
-ASTNodePtr ASTNode::multiply(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::MUL, {lhs, rhs});
+BinaryOperationNodePtr ASTNode::multiply(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::MUL);
 }
 
-ASTNodePtr ASTNode::divide(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::DIV, {lhs, rhs});
+BinaryOperationNodePtr ASTNode::divide(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::DIV);
 }
 
-ASTNodePtr ASTNode::add(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::ADD, {lhs, rhs});
+BinaryOperationNodePtr ASTNode::add(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::ADD);
 }
 
-ASTNodePtr ASTNode::subtract(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::SUB, {lhs, rhs});
+BinaryOperationNodePtr ASTNode::subtract(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::SUB);
 }
 
-ASTNodePtr ASTNode::negtive(ASTNodePtr operand) {
-  return astNode(ASTNodeKind::NEG, { operand });
+BinaryOperationNodePtr ASTNode::equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::EQUAL);
 }
 
-ASTNodePtr ASTNode::equal(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::EQUAL, {lhs, rhs});
+BinaryOperationNodePtr ASTNode::not_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::NOT_EQUAL);
 }
 
-ASTNodePtr ASTNode::not_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::NOT_EQUAL, {lhs, rhs});
+BinaryOperationNodePtr ASTNode::less_than(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::LESS_THAN);
 }
 
-ASTNodePtr ASTNode::less_than(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::LESS_THAN, {lhs, rhs});
+BinaryOperationNodePtr ASTNode::less_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::LESS_EQUAL);
 }
 
-ASTNodePtr ASTNode::less_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::LESS_EQUAL, {lhs, rhs});
+BinaryOperationNodePtr ASTNode::assign(ASTNodePtr lhs, ASTNodePtr rhs) {
+  return std::make_shared<BinaryOperationNode>(std::move(lhs),
+                                               std::move(rhs),
+                                               ASTNodeKind::ASSIGN);
 }
 
-ASTNodePtr ASTNode::integer(const std::string& literal) {
-  return astNode(ASTNodeKind::INTEGER, literal);
+LiteralNodePtr ASTNode::integer(const std::string& literal) {
+  return std::make_shared<LiteralNode>(literal, ASTNodeKind::INTEGER);
 }
 
-ASTNodePtr ASTNode::identifier(const std::string& name) {
-  return astNode(ASTNodeKind::IDENTIFIER, name);
+LiteralNodePtr ASTNode::identifier(const std::string& name) {
+  return std::make_shared<LiteralNode>(name, ASTNodeKind::IDENTIFIER);
 }
 
-ASTNodePtr ASTNode::assign(ASTNodePtr lhs, ASTNodePtr rhs) {
-  return astNode(ASTNodeKind::ASSIGN, {lhs, rhs});
+UnaryOperationNodePtr ASTNode::negtive(ASTNodePtr operand) {
+  return std::make_shared<UnaryOperationNode>(std::move(operand),
+                                               ASTNodeKind::NEG);
 }
 
-ASTNodePtr ASTNode::if_else(ASTNodePtr expression, ASTNodePtr if_statement, ASTNodePtr else_statement) {
-  return astNode(ASTNodeKind::IF_ELSE, {expression, if_statement, else_statement});
+IfElseNodePtr ASTNode::if_else(ASTNodePtr expression,
+                            ASTNodePtr if_statement,
+                            ASTNodePtr else_statement) {
+  return std::make_shared<IfElseNode>(std::move(expression),
+                                      std::move(if_statement),
+                                      std::move(else_statement));
 }
 
-ASTNodePtr ASTNode::for_loop(ASTNodePtr init_expression,
-                    ASTNodePtr condition_expression,
-                    ASTNodePtr increment_expression,
-                    ASTNodePtr statement) {
-  return astNode(ASTNodeKind::FOR_LOOP, {init_expression,
-                                         condition_expression,
-                                         increment_expression,
-                                         statement});
+ForLoopNodePtr ASTNode::for_loop(ASTNodePtr init_expression,
+                             ASTNodePtr condition_expression,
+                             ASTNodePtr increment_expression,
+                             ASTNodePtr statement) {
+  return std::make_shared<ForLoopNode>(std::move(init_expression),
+                                      std::move(condition_expression),
+                                      std::move(increment_expression),
+                                      std::move(statement));
 }
 
-ASTNodePtr ASTNode::do_while(ASTNodePtr statement, ASTNodePtr condition_expression) {
-  return astNode(ASTNodeKind::DO_WHILE, {statement, condition_expression});
+DoWhileNodePtr ASTNode::do_while(ASTNodePtr statement,
+                                 ASTNodePtr condition_expression) {
+  return std::make_shared<DoWhileNode>(std::move(statement),
+                                      std::move(condition_expression));
 }
 
-ASTNodePtr ASTNode::while_loop(ASTNodePtr condition_expression, ASTNodePtr statement) {
-  return astNode(ASTNodeKind::WHILE_LOOP, {condition_expression, statement});
+WhileLoopNodePtr ASTNode::while_loop(ASTNodePtr condition_expression,
+                                     ASTNodePtr statement) {
+  return std::make_shared<WhileLoopNode>(std::move(condition_expression),
+                                         std::move(statement));
+}
+
+CompoundStatementNodePtr ASTNode::compound_statement(std::vector<ASTNodePtr> children) {
+  return std::make_shared<CompoundStatementNode>(std::move(children));
 }
 
 VariableDeclarationNodePtr ASTNode::variable_declaration(DeclaratorPtr declarator, ASTNodePtr initializer) {
@@ -229,85 +256,67 @@ DeclarationNodePtr ASTNode::declaration(DeclaratorPtr declarator, ASTNodePtr ini
   return ASTNode::variable_declaration(std::move(declarator), std::move(initializer));
 }
 
-ASTNodePtr ASTNode::compound_statement(std::vector<ASTNodePtr> children) {
-  return astNode(ASTNodeKind::COMPOUND_STATEMENT, std::move(children));
+
+
+bool ASTNode::operator==(const ASTNode &other) const {
+  return kind_ == other.kind_;
 }
 
-static std::map<ASTNodeKind, std::string> BINARY_OPERATION_TYPE_TO_STRING = {
-  {ASTNodeKind::MUL, "*"},
-  {ASTNodeKind::DIV, "/"},
-  {ASTNodeKind::ADD, "+"},
-  {ASTNodeKind::SUB, "-"},
-  {ASTNodeKind::EQUAL, "=="},
-  {ASTNodeKind::NOT_EQUAL, "!="},
-  {ASTNodeKind::LESS_THAN, "<"},
-  {ASTNodeKind::LESS_EQUAL, "<="},
-};
-
-std::string ASTNode::to_string() const {
-  std::stringstream ss;
-  switch (kind_) {
-    case ASTNodeKind::MUL:
-    case ASTNodeKind::DIV: 
-    case ASTNodeKind::ADD: 
-    case ASTNodeKind::SUB:
-    case ASTNodeKind::EQUAL: 
-    case ASTNodeKind::NOT_EQUAL: 
-    case ASTNodeKind::LESS_THAN: 
-    case ASTNodeKind::LESS_EQUAL: {
-      ss << "(";
-      ss << children_[0]->to_string();
-      ss << BINARY_OPERATION_TYPE_TO_STRING[kind_];
-      ss << children_[1]->to_string();
-      ss << ")";
-      return ss.str();
-    }
-    case ASTNodeKind::INTEGER: {
-      ss << literal_;
-      return ss.str();
-    }
-    case ASTNodeKind::IDENTIFIER: {
-      ss << literal_;
-      return ss.str();
-    } 
-    case ASTNodeKind::ASSIGN: {
-      ss << children_[0]->to_string() << " = " << children_[1]->to_string();
-      return ss.str();
-    }
-    case ASTNodeKind::IF_ELSE: {
-      ss << "if (" << children_[0]->to_string() << ") ";
-      ss << children_[1]->to_string();
-      if (children_[2] != nullptr) {
-        ss << "else" << children_[2] ->to_string();
-      }
-      return ss.str();
-    }
-    case ASTNodeKind::COMPOUND_STATEMENT: {
-      ss << "{\n";
-        for (const auto& node : children_) {
-          ss << node->to_string() << ";\n";
-        }
-      ss << "}\n";
-      return ss.str();
-    } default: {
-      std::stringstream error_msg;
-      error_msg << "unknow type of ASTNode " << static_cast<uint32_t>(kind_) << " found";
-      throw std::invalid_argument(error_msg.str());
-    }
-  }
+bool BinaryOperationNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) { return false; }
+  auto typed_other = static_cast<const BinaryOperationNode&>(other);
+  return *lhs_ == *typed_other.lhs_ && *rhs_ == *typed_other.rhs_;
 }
 
-bool ASTNode::operator==(const ASTNode & other) const {
-  if (kind_ != other.kind_) return false;
-  if (children_.size() != other.children_.size()) return false;
-  for (size_t i = 0; i < children_.size(); i++) {
-    if ((children_[i] == nullptr) != (other.children_[i] == nullptr)) {
-      return false;
-    }
-    if (children_[i] == nullptr) { continue; }
-    if (*children_[i] != *other.children_[i]) {
-      return false;
-    }
+bool UnaryOperationNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) { return false; }
+  auto typed_other = static_cast<const UnaryOperationNode&>(other);
+  return *operand_ == *typed_other.operand_;
+}
+
+bool LiteralNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) { return false; }
+  auto typed_other = static_cast<const LiteralNode&>(other);
+  return literal_ == typed_other.literal_;
+}
+
+bool IfElseNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) { return false; }
+  auto typed_other = static_cast<const IfElseNode&>(other);
+  return *expression_ == *typed_other.expression_ &&
+         *if_statement_ == *typed_other.if_statement_ &&
+         *else_statement_ == *typed_other.else_statement_;
+}
+
+bool ForLoopNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) { return false; }
+  auto typed_other = static_cast<const ForLoopNode&>(other);
+  return *init_expression_ == *typed_other.init_expression_ &&
+         *condition_expression_ == *typed_other.condition_expression_ &&
+         *increment_expression_ == *typed_other.increment_expression_ &&
+         *statement_ == *typed_other.statement_;
+}
+
+bool DoWhileNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) { return false; }
+  auto typed_other = static_cast<const DoWhileNode&>(other);
+  return *statement_ == *typed_other.statement_ &&
+         *condition_expression_ == *typed_other.condition_expression_;
+}
+
+bool WhileLoopNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) { return false; }
+  auto typed_other = static_cast<const WhileLoopNode&>(other);
+  return *condition_expression_ == *typed_other.condition_expression_ &&
+         *statement_ == *typed_other.statement_;
+}
+
+bool CompoundStatementNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) { return false; }
+  auto typed_other = static_cast<const CompoundStatementNode&>(other);
+  if (children_.size() != typed_other.children_.size()) { return false; }
+  for (size_t i = 0; i < children_.size(); ++i) {
+    if (*children_[i] != *typed_other.children_[i]) { return false; }
   }
   return true;
 }
@@ -318,10 +327,6 @@ bool DeclarationNode::operator==(const ASTNode &other) const {
   return *declarator_ == *typed_other.declarator_;
 }
 
-std::string DeclarationNode::to_string() const {
-  return declarator_->to_string();
-}
-
 bool VariableDeclarationNode::operator==(const ASTNode &other) const {
   if (kind_ != other.kind_) { return false; }
   auto typed_other = static_cast<const VariableDeclarationNode&>(other);
@@ -330,14 +335,6 @@ bool VariableDeclarationNode::operator==(const ASTNode &other) const {
   if (initializer_ == nullptr) { return true; }
   return *initializer_ == *typed_other.initializer_;
 }
-
-std::string VariableDeclarationNode::to_string() const {
-    auto result = declarator_->to_string();
-    if (initializer_ != nullptr) {
-      result = result + " = " + initializer_->to_string();
-    }
-    return result;
-};
 
 bool FunctionDeclarationNode::operator==(const ASTNode &other) const {
   if (kind_ != other.kind_) { return false; }
@@ -350,15 +347,6 @@ bool FunctionDeclarationNode::operator==(const ASTNode &other) const {
   }
   return true;
 }
-
-std::string FunctionDeclarationNode::to_string() const {
-  std::stringstream ss;
-  ss << declarator_->to_string();
-  if (body_ != nullptr) {
-    ss << body_->to_string();
-  }
-  return ss.str();
-};
 
 bool DeclarationStatementNode::operator==(const ASTNode &other) const {
   if (kind_ != other.kind_) { return false; }
@@ -373,15 +361,3 @@ bool DeclarationStatementNode::operator==(const ASTNode &other) const {
   }
   return true;
 }
-
-std::string DeclarationStatementNode::to_string() const {
-  std::stringstream ss;
-  for (size_t i = 0; i < declaration_list_.size(); i++) {
-    ss << declaration_list_[i]->to_string();
-    if (i + 1 != children_.size()) {
-      ss << ";";
-    }
-  }
-  return ss.str();
-};
-

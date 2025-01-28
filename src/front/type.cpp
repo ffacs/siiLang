@@ -1,6 +1,5 @@
 #include "front/type.h"
 #include <stdexcept>
-#include <iostream>
 
 class TypeBuilderImpl : public TypeBuilder {
  public:
