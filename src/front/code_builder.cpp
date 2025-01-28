@@ -1,6 +1,9 @@
 #include "front/code_builder.h"
 #include "IR/IR.h"
 
+using namespace SiiIR;
+
+namespace front {
 class CodeBuilderImpl : public CodeBuilder {
 public:
   void append_multiply(AddressPtr left, AddressPtr right,
@@ -190,3 +193,5 @@ void CodeBuilderImpl::append_alloca(AddressPtr variable, uint32_t bytes) {
 CodeBuilderPtr CreateCodeBuilder() {
   return std::make_shared<CodeBuilderImpl>();
 }
+
+} // namespace front

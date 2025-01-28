@@ -2,6 +2,7 @@
 #include <map>
 #include <sstream>
 
+namespace front {
 void ASTPrintVisitor::visit(const ASTNode &node) {
   switch (node.kind_) {
   case ASTNodeKind::EMPTY: {
@@ -236,3 +237,5 @@ void ASTPrintVisitor::visit(const DeclarationStatementNode &node) {
   }
   --indent_;
 }
+
+} // namespace front

@@ -2,6 +2,8 @@
 #include "gtest/gtest.h"
 #include <sstream>
 
+namespace front {
+
 static std::string IRStringGenerate(const ASTNodePtr root) {
   auto generator = CreateIRGenerator(std::move(root));
   auto IR_list = generator->work();
@@ -748,3 +750,5 @@ TEST(IRGenerator, Declaration) {
           })}))),
       std::invalid_argument);
 }
+
+} // namespace front

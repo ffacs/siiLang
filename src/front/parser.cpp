@@ -2,8 +2,7 @@
 #include "front/AST.h"
 #include "front/lexer.h"
 
-#include <set>
-
+namespace front {
 class ParserImpl : public Parser {
 public:
   ParserImpl(std::istream &input) : Parser(input) {
@@ -565,3 +564,5 @@ ASTNodePtr ParserImpl::parse_primary() {
 std::unique_ptr<Parser> CreateParser(std::istream &input) {
   return std::make_unique<ParserImpl>(input);
 }
+
+} // namespace front

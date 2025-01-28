@@ -2,6 +2,7 @@
 #include "IR/IR.h"
 #include <sstream>
 
+namespace SiiIR {
 VariableAddressPtr Address::variable(const std::string &name) {
   return std::make_shared<VariableAddress>(name);
 }
@@ -44,3 +45,5 @@ std::string FunctionAddress::to_string() const {
 }
 
 std::string Label::to_string() const { return std::string("Label.") + name_; }
+
+} // namespace SiiIR

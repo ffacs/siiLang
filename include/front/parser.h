@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 
+namespace front {
 class Parser {
 public:
   Parser(std::istream &input) : input_(input) {}
@@ -18,3 +19,4 @@ protected:
 };
 
 std::unique_ptr<Parser> CreateParser(std::istream &input);
+} // namespace front

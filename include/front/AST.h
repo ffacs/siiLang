@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+namespace front {
+
 enum class ASTNodeKind : uint32_t {
   EMPTY = 0,
   MUL = 1,
@@ -258,3 +260,5 @@ struct DeclarationStatementNode : public ASTNode {
 
   bool operator==(const ASTNode &) const override;
 };
+
+} // namespace front

@@ -1,6 +1,7 @@
 #include "front/AST.h"
 #include <iostream>
 
+namespace front {
 class Indent {
   uint32_t indent_ = 0;
   std::ostream &os_;
@@ -44,3 +45,5 @@ protected:
   Indent indent_;
   std::ostream &os_;
 };
+
+} // namespace front

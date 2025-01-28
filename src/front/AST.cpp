@@ -2,6 +2,7 @@
 #include <map>
 #include <optional>
 
+namespace front {
 void ASTNode::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 
 ASTNodePtr ASTNode::empty() {
@@ -405,3 +406,5 @@ bool DeclarationStatementNode::operator==(const ASTNode &other) const {
   }
   return true;
 }
+
+} // namespace front

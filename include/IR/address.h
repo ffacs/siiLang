@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+namespace SiiIR {
 enum class AddressType : uint32_t {
   VARIABLE = 0,
   CONSTANT = 1,
@@ -79,3 +80,4 @@ struct Label {
       : dest_(dest), name_(std::move(name)) {}
   std::string to_string() const;
 };
+} // namespace SiiIR

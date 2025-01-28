@@ -4,6 +4,9 @@
 #include <set>
 #include <sstream>
 
+using namespace SiiIR;
+
+namespace front {
 class IRGeneratorImpl : public IRGenerator {
 public:
   IRGeneratorImpl(ASTNodePtr ast) : ast_(std::move(ast)) {
@@ -467,3 +470,5 @@ AddressPtr IRGeneratorImpl::generate_for_function_declaration_node(
 std::unique_ptr<IRGenerator> CreateIRGenerator(ASTNodePtr ast) {
   return std::make_unique<IRGeneratorImpl>(std::move(ast));
 }
+
+} // namespace front

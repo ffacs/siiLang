@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+namespace front {
 enum class TypeKind : uint32_t {
   BUILDING = 0,
   INT = 1,
@@ -123,3 +124,5 @@ struct Declarator {
   bool operator!=(const Declarator &other) const { return !(*this == other); }
   static DeclaratorPtr Create(TypePtr type, const std::string &identifier);
 };
+
+} // namespace front

@@ -2,6 +2,7 @@
 #include "front/ASTPrinter.h"
 #include "gtest/gtest.h"
 
+namespace front {
 static auto CreateParser(const std::string &str) {
   std::stringstream ss(str);
   return CreateParser(ss);
@@ -794,3 +795,5 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                         Declarator::Create(Type::basic(TypeKind::INT), "x"),
                         ASTNode::identifier("y"))})}))));
 }
+
+} // namespace front

@@ -2,6 +2,9 @@
 #include <map>
 #include <stdexcept>
 
+using namespace SiiIR;
+
+namespace front {
 SymbolPtr Symbol::symbol(TypePtr type, AddressPtr address) {
   return std::make_shared<Symbol>(std::move(type), std::move(address));
 }
@@ -149,3 +152,5 @@ void ContextManagerImpl::leave_function() { current_function_ctx_ = nullptr; }
 ContextManagerPtr CreateContextManager() {
   return std::make_shared<ContextManagerImpl>();
 }
+
+} // namespace front

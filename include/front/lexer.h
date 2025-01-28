@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 
+namespace front {
+
 enum class TokenType : uint32_t {
   ED = 0,
   INTEGER = 1,
@@ -90,3 +92,5 @@ public:
 };
 
 std::unique_ptr<Lexer> CreateLexer(std::istream &input);
+
+} // namespace front

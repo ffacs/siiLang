@@ -1,6 +1,7 @@
 #include "front/lexer.h"
 #include <set>
 
+namespace front {
 std::string Token::to_string() const {
   std::stringstream ss;
   switch (type_) {
@@ -273,3 +274,5 @@ private:
 std::unique_ptr<Lexer> CreateLexer(std::istream &input) {
   return std::make_unique<LexerImpl>(input);
 }
+
+} // namespace front

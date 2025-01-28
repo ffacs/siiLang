@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+namespace front {
 class Symbol;
 class SymbolTable;
 struct SymbolContext;
@@ -18,10 +19,10 @@ typedef std::shared_ptr<ContextManager> ContextManagerPtr;
 
 struct Symbol {
   TypePtr type_;
-  AddressPtr address_;
-  Symbol(TypePtr type, AddressPtr address)
+  SiiIR::AddressPtr address_;
+  Symbol(TypePtr type, SiiIR::AddressPtr address)
       : type_(std::move(type)), address_(std::move(address)) {}
-  static SymbolPtr symbol(TypePtr type, AddressPtr address);
+  static SymbolPtr symbol(TypePtr type, SiiIR::AddressPtr address);
 };
 
 struct SymbolTable {
@@ -43,14 +44,14 @@ struct SymbolContext {
 };
 
 struct FunctionContext {
-  std::vector<TemporaryAddressPtr> temporary_addresses_;
-  std::vector<VariableAddressPtr> variable_addresses_;
-  std::vector<VariableAddressPtr> parameter_addresses_;
+  std::vector<SiiIR::TemporaryAddressPtr> temporary_addresses_;
+  std::vector<SiiIR::VariableAddressPtr> variable_addresses_;
+  std::vector<SiiIR::VariableAddressPtr> parameter_addresses_;
   ~FunctionContext() { rename_all_addresses(); }
 
-  TemporaryAddressPtr allocate_temporary_address();
-  VariableAddressPtr allocate_variable_address();
-  VariableAddressPtr allocate_parameter_address();
+  SiiIR::TemporaryAddressPtr allocate_temporary_address();
+  SiiIR::VariableAddressPtr allocate_variable_address();
+  SiiIR::VariableAddressPtr allocate_parameter_address();
   void rename_all_addresses();
 };
 
@@ -69,3 +70,5 @@ public:
 };
 
 ContextManagerPtr CreateContextManager();
+
+} // namespace front

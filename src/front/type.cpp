@@ -1,6 +1,7 @@
 #include "front/type.h"
 #include <stdexcept>
 
+namespace front {
 class TypeBuilderImpl : public TypeBuilder {
 public:
   TypeBuilderImpl(TypePtr base) : current_type_(std::move(base)) {}
@@ -301,3 +302,5 @@ std::string Declarator::to_string() const {
 DeclaratorPtr Declarator::Create(TypePtr type, const std::string &identifier) {
   return std::make_shared<Declarator>(std::move(type), identifier);
 }
+
+} // namespace front

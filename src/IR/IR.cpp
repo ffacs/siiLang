@@ -1,6 +1,7 @@
 #include "IR/IR.h"
 #include <sstream>
 
+namespace SiiIR {
 std::string SiiIRCode::to_string() const {
   std::stringstream result_str;
   for (const auto &label : labels_) {
@@ -101,3 +102,5 @@ std::string SiiIRAlloca::to_string() const {
   return SiiIRCode::to_string() + "  " + dest_->to_string() +
          " = alloca size " + std::to_string(size_) + ";";
 }
+
+} // namespace SiiIR

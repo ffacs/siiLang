@@ -1,6 +1,7 @@
 #include "front/type.h"
 #include "gtest/gtest.h"
 
+namespace front {
 TEST(Type, TrimBuildingTypeForInt) {
   auto int_type = Type::basic(TypeKind::INT);
   EXPECT_EQ(*Type::TrimBuildingType(int_type), *Type::basic(TypeKind::INT));
@@ -208,3 +209,5 @@ TEST(Type, NormalizeVariableDeclaration) {
                    CreateTypeBuilder(Type::basic(TypeKind::INT)))),
                std::invalid_argument);
 }
+
+} // namespace front

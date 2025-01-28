@@ -3,6 +3,8 @@
 #include <string>
 
 #include "IR/address.h"
+
+namespace SiiIR {
 enum class SiiIRCodeKind : uint32_t {
   MUL = 0,
   DIV = 1,
@@ -126,3 +128,5 @@ struct SiiIRAlloca : public SiiIRCode {
   AddressPtr dest_;
   uint32_t size_;
 };
+
+} // namespace SiiIR
