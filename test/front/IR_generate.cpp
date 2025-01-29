@@ -8,9 +8,9 @@ static std::string IRStringGenerate(const ASTNodePtr root) {
   auto generator = CreateIRGenerator(std::move(root));
   auto IR_list = generator->work();
   std::stringstream result_builder;
-  for (size_t i = 0; i < IR_list.size(); i++) {
-    result_builder << IR_list[i]->to_string();
-    if (i != IR_list.size() - 1) {
+  for (size_t i = 0; i < IR_list->size(); i++) {
+    result_builder << (*IR_list)[i]->to_string();
+    if (i != IR_list->size() - 1) {
       result_builder << "\n";
     }
   }

@@ -74,10 +74,11 @@ struct FunctionAddress : public Address {
 };
 
 struct Label {
-  SiiIRCode *dest_;
+  SiiIRCode *dest_code_;
   std::string name_;
   Label(SiiIRCode *dest, std::string name)
-      : dest_(dest), name_(std::move(name)) {}
+      : dest_code_(dest), name_(std::move(name)) {}
   std::string to_string() const;
+  bool operator<(const Label &rhs) const { return name_ < rhs.name_; }
 };
 } // namespace SiiIR

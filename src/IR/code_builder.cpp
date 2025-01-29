@@ -1,9 +1,7 @@
-#include "front/code_builder.h"
+#include "IR/code_builder.h"
 #include "IR/IR.h"
 
-using namespace SiiIR;
-
-namespace front {
+namespace SiiIR {
 class CodeBuilderImpl : public CodeBuilder {
 public:
   void append_multiply(AddressPtr left, AddressPtr right,
@@ -34,7 +32,7 @@ public:
   void append_nope() override;
   void append_function(FunctionAddressPtr func) override;
   void append_alloca(AddressPtr variable, uint32_t bytes) override;
-  std::vector<SiiIRCodePtr> finish() override;
+  std::shared_ptr<std::vector<SiiIRCodePtr>> finish() override;
 
 protected:
   void append_new_code(SiiIRCodePtr new_code);
@@ -47,7 +45,7 @@ protected:
 void CodeBuilderImpl::append_new_code(SiiIRCodePtr new_code) {
   if (!appended_labels_.empty()) {
     for (auto &label : appended_labels_) {
-      label->dest_ = new_code.get();
+      label->dest_code_ = new_code.get();
       new_code->labels_.emplace_back(std::move(label));
     }
     appended_labels_.clear();
@@ -168,13 +166,14 @@ void CodeBuilderImpl::append_nope() {
   append_new_code(std::move(nope));
 }
 
-std::vector<SiiIRCodePtr> CodeBuilderImpl::finish() {
+std::shared_ptr<std::vector<SiiIRCodePtr>> CodeBuilderImpl::finish() {
   if (!appended_labels_.empty()) {
     append_nope();
   }
-  std::vector<SiiIRCodePtr> result;
-  result.insert(result.end(), alloca_list_.begin(), alloca_list_.end());
-  result.insert(result.end(), code_list_.begin(), code_list_.end());
+  std::shared_ptr<std::vector<SiiIRCodePtr>> result =
+      std::make_shared<std::vector<SiiIRCodePtr>>();
+  result->insert(result->end(), alloca_list_.begin(), alloca_list_.end());
+  result->insert(result->end(), code_list_.begin(), code_list_.end());
   return result;
 }
 
@@ -194,4 +193,4 @@ CodeBuilderPtr CreateCodeBuilder() {
   return std::make_shared<CodeBuilderImpl>();
 }
 
-} // namespace front
+} // namespace SiiIR

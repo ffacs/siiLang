@@ -26,4 +26,5 @@ ExternalProject_Add(gtest
   BUILD_BYPRODUCTS "${GMOCK_STATIC_LIB}" "${GTEST_STATIC_LIB}" "${GTEST_MAIN_STATIC_LIB}")
 
 add_subdirectory(front)
+add_subdirectory(IR)
 

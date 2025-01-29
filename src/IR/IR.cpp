@@ -76,18 +76,18 @@ std::string SiiIRUnaryOperation::to_string() const {
 std::string SiiIRIfTrueGoto::to_string() const {
   auto prefix = SiiIRCode::to_string();
   return prefix + "  if " + condition_->to_string() + " goto " +
-         dest_->to_string() + ";";
+         dest_label_->to_string() + ";";
 }
 
 std::string SiiIRIfFalseGoto::to_string() const {
   auto prefix = SiiIRCode::to_string();
   return prefix + "  if-false " + condition_->to_string() + " goto " +
-         dest_->to_string() + ";";
+         dest_label_->to_string() + ";";
 }
 
 std::string SiiIRGoto::to_string() const {
   auto prefix = SiiIRCode::to_string();
-  return prefix + "  goto " + dest_->to_string() + ";";
+  return prefix + "  goto " + dest_label_->to_string() + ";";
 }
 
 std::string SiiIRNope::to_string() const {

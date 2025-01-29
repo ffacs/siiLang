@@ -1,6 +1,6 @@
 #include "front/IR_generator.h"
-#include "front/code_builder.h"
 #include "front/context_manager.h"
+#include "IR/code_builder.h"
 #include <set>
 #include <sstream>
 
@@ -12,7 +12,7 @@ public:
   IRGeneratorImpl(ASTNodePtr ast) : ast_(std::move(ast)) {
     ctx_manager_ = CreateContextManager();
   }
-  std::vector<SiiIRCodePtr> work() override;
+  std::shared_ptr<std::vector<SiiIRCodePtr>> work() override;
 
 protected:
   ASTNodePtr ast_;
@@ -119,7 +119,7 @@ AddressPtr IRGeneratorImpl::generate_for_node(const ASTNodePtr &node,
   }
 }
 
-std::vector<SiiIRCodePtr> IRGeneratorImpl::work() {
+std::shared_ptr<std::vector<SiiIRCodePtr>> IRGeneratorImpl::work() {
   CodeBuilderPtr code_builder = CreateCodeBuilder();
   generate_for_node(ast_, code_builder);
   return code_builder->finish();
@@ -452,8 +452,7 @@ AddressPtr IRGeneratorImpl::generate_for_function_declaration_node(
     }
     CodeBuilderPtr body_builder = CreateCodeBuilder();
     generate_for_node(function_body, body_builder);
-    function_codes =
-        std::make_shared<std::vector<SiiIRCodePtr>>(body_builder->finish());
+    function_codes = body_builder->finish();
     ctx_manager_->pop_symbol_ctx();
   }
   ctx_manager_->leave_function();
