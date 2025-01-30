@@ -452,6 +452,7 @@ TEST(IRGenerator, SelectStatement) {
             "Label.2:\n"
             "  store 3 to %0;\n"
             "Label.3:\n"
+            "  goto Label.1;\n"
             "Label.1:\n"
             "  nope;",
             IRStringGenerate(ASTNode::function_declaration(
@@ -495,6 +496,7 @@ TEST(IRGenerator, SelectStatement) {
             "Label.2:\n"
             "  store 3 to %0;\n"
             "Label.3:\n"
+            "  goto Label.1;\n"
             "Label.1:\n"
             "  %6 = load %3;\n"
             "  store %6 to %2;",

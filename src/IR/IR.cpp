@@ -4,8 +4,8 @@
 namespace SiiIR {
 std::string SiiIRCode::to_string() const {
   std::stringstream result_str;
-  for (const auto &label : labels_) {
-    result_str << label->to_string() + ":\n";
+  if (label_ != nullptr) {
+    result_str << label_->to_string() + ":\n";
   }
   return result_str.str();
 }

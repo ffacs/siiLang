@@ -10,6 +10,7 @@ using BasicGroupPtr = std::shared_ptr<BasicGroup>;
 
 struct BasicGroupNode {
   BasicGroupPtr basic_group_;
+  std::vector<BasicGroupNode *> precedes_;
   std::vector<BasicGroupNode *> follows_;
   BasicGroupNode() : basic_group_(std::make_shared<BasicGroup>()) {}
 };
@@ -27,6 +28,5 @@ using CFGPtr = std::shared_ptr<CFG>;
 
 CFGPtr BuildCFG(std::shared_ptr<std::vector<SiiIRCodePtr>> codes);
 // TODO merge BasicGroup with its following BasicGroup when there is only one
-
 
 } // namespace SiiIR

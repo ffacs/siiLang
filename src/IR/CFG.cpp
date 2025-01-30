@@ -12,16 +12,12 @@ private:
 
   BasicGroupNode *build_basic_group_starting_from(SiiIRCode *start) {
     BasicGroupNodePtr result = nullptr;
-    if (!start->labels_.empty()) {
-      for (const auto &label : start->labels_) {
-        if (label_to_node_.find(label->name_) != label_to_node_.end()) {
-          return label_to_node_[label->name_].get();
-        }
+    if (start->label_ != nullptr) {
+      if (label_to_node_.find(start->label_->name_) != label_to_node_.end()) {
+        return label_to_node_[start->label_->name_].get();
       }
       result = std::make_shared<BasicGroupNode>();
-      for (const auto &label : start->labels_) {
-        label_to_node_[label->name_] = result;
-      }
+      label_to_node_[start->label_->name_] = result;
       // make sure we won't stuck in a loop
       result->basic_group_->codes_.push_back(start);
       start = start->next_;
@@ -32,7 +28,7 @@ private:
     std::vector<SiiIRCode *> &target_codes = result->basic_group_->codes_;
     SiiIRCode *current = start;
     while (current != nullptr) {
-      if (!current->labels_.empty()) {
+      if (current->label_ != nullptr) {
         BasicGroupNode *next_group = build_basic_group_starting_from(current);
         result->follows_.push_back(next_group);
         break;
@@ -49,8 +45,10 @@ private:
         BasicGroupNode *next_group = build_basic_group_starting_from(
             static_cast<SiiIRIfTrueGoto *>(current)->dest_label_->dest_code_);
         result->follows_.push_back(next_group);
+        next_group->precedes_.push_back(result.get());
         next_group = build_basic_group_starting_from(current->next_);
         result->follows_.push_back(next_group);
+        next_group->precedes_.push_back(result.get());
         break;
       }
       current = current->next_;
@@ -80,8 +78,9 @@ public:
     result_cfg->entry_ = entry.get();
 
     if (!codes_->empty()) {
-      entry->follows_.push_back(
-          build_basic_group_starting_from(codes_->front().get()));
+        auto follow = build_basic_group_starting_from(codes_->front().get());
+        entry->follows_.push_back(follow);
+        follow->precedes_.push_back(entry.get());
     }
     result_cfg->basic_groups_ = std::move(basic_groups_);
     result_cfg->codes_in_order_ = std::move(codes_);

@@ -40,16 +40,14 @@ protected:
   std::vector<SiiIRCodePtr> alloca_list_;
   std::vector<SiiIRCodePtr> code_list_;
   uint32_t unnamed_label_count_ = 0;
-  std::vector<LabelPtr> appended_labels_;
+  LabelPtr appended_label_;
 };
 
 void CodeBuilderImpl::append_new_code(SiiIRCodePtr new_code) {
-  if (!appended_labels_.empty()) {
-    for (auto &label : appended_labels_) {
-      label->dest_code_ = new_code.get();
-      new_code->labels_.emplace_back(std::move(label));
-    }
-    appended_labels_.clear();
+  if (appended_label_ != nullptr) {
+    appended_label_->dest_code_ = new_code.get();
+    new_code->label_ = std::move(appended_label_);
+    appended_label_.reset();
   }
   code_list_.emplace_back(std::move(new_code));
 }
@@ -164,7 +162,11 @@ void CodeBuilderImpl::append_goto(LabelPtr target_label) {
 }
 
 void CodeBuilderImpl::append_label(LabelPtr label) {
-  appended_labels_.emplace_back(std::move(label));
+  if (appended_label_ != nullptr) {
+    append_goto(label);
+    appended_label_ = nullptr;
+  }
+  appended_label_ = std::move(label);
 }
 
 void CodeBuilderImpl::append_nope() {
@@ -173,7 +175,7 @@ void CodeBuilderImpl::append_nope() {
 }
 
 std::shared_ptr<std::vector<SiiIRCodePtr>> CodeBuilderImpl::finish() {
-  if (!appended_labels_.empty()) {
+  if (appended_label_ != nullptr) {
     append_nope();
   }
   std::shared_ptr<std::vector<SiiIRCodePtr>> result =

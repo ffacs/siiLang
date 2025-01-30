@@ -53,7 +53,7 @@ using SiiIRLoadPtr = std::shared_ptr<SiiIRLoad>;
 struct SiiIRCode {
   SiiIRCodeKind kind_;
   SiiIRCode* next_ = nullptr;
-  std::vector<LabelPtr> labels_;
+  LabelPtr label_;
   explicit SiiIRCode(SiiIRCodeKind kind) : kind_(kind) {}
 
   virtual std::string to_string() const;
