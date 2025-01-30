@@ -13,7 +13,7 @@ public:
     lexer_ = CreateLexer(contents_, diagnose_handler_);
   }
   ASTNodePtr work() override;
-  ASTNodePtr parse_compound_statement() override;
+  CompoundStatementNodePtr parse_compound_statement() override;
   ASTNodePtr parse_declaration_or_function_definition() override;
 
   ASTNodePtr parse_translation_unit() override;
@@ -376,8 +376,8 @@ done:
 }
 
 // COMPOUND_STATEMENT => '{' (STATEMENT)* '}'
-ASTNodePtr ParserImpl::parse_compound_statement() {
-  ASTNodePtr result = nullptr;
+CompoundStatementNodePtr ParserImpl::parse_compound_statement() {
+  CompoundStatementNodePtr result = nullptr;
   LexPosition begin_pos = lexer_->current_position();
   lexer_->expect_next("{");
   std::vector<ASTNodePtr> children;

@@ -36,7 +36,7 @@ TEST(IRGenerator, FunctionDeclaration) {
   EXPECT_EQ(
       "@function1:\n"
       "  %0 = alloca size 4;\n"
-      "  %0 = 1;",
+      "  store 1 to %0;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
@@ -47,8 +47,8 @@ TEST(IRGenerator, FunctionDeclaration) {
       "@function1:\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
-      "  %0 = 0;\n"
-      "  %1 = 1;",
+      "  store 0 to %0;\n"
+      "  store 1 to %1;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
@@ -64,9 +64,10 @@ TEST(IRGenerator, FunctionDeclaration) {
       "@function1:\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
-      "  %0 = 0;\n"
-      "  %1 = 1;\n"
-      "  %0 = %1;",
+      "  store 0 to %0;\n"
+      "  store 1 to %1;\n"
+      "  %2 = load %1;\n"
+      "  store %2 to %0;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
@@ -83,11 +84,12 @@ TEST(IRGenerator, FunctionDeclaration) {
       "@function1:\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
-      "  %0 = 0;\n"
-      "  %1 = 1;\n"
-      "  %2 = 1 + 2;\n"
-      "  %3 = %1 + %2;\n"
-      "  %0 = %3;",
+      "  store 0 to %0;\n"
+      "  store 1 to %1;\n"
+      "  %2 = load %1;\n"
+      "  %3 = 1 + 2;\n"
+      "  %4 = %2 + %3;\n"
+      "  store %4 to %0;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
@@ -107,10 +109,10 @@ TEST(IRGenerator, FunctionDeclaration) {
       "@function1:\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
-      "  %0 = 0;\n"
+      "  store 0 to %0;\n"
       "  %2 = 1 + 2;\n"
-      "  %0 = %2;\n"
-      "  %1 = 1;",
+      "  store %2 to %0;\n"
+      "  store 1 to %1;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
@@ -150,7 +152,7 @@ TEST(IRGenerator, FunctionDeclarationWithParameter) {
           ASTNode::compound_statement({}))),
       std::invalid_argument);
   EXPECT_EQ("@function1:\n"
-            "  %0 = 1;",
+            "  store 1 to %0;",
             IRStringGenerate(ASTNode::function_declaration(
                 Declarator::Create(
                     Type::function(
@@ -174,7 +176,9 @@ TEST(IRGenerator, Multiply) {
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
-            "  %2 = %1 * %0;",
+            "  %2 = load %1;\n"
+            "  %3 = load %0;\n"
+            "  %4 = %2 * %3;",
             IRStringGenerate(ASTNode::function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
@@ -190,7 +194,9 @@ TEST(IRGenerator, Multiply) {
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
-            "  %2 = %0 * %1;",
+            "  %2 = load %0;\n"
+            "  %3 = load %1;\n"
+            "  %4 = %2 * %3;",
             IRStringGenerate(ASTNode::function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
@@ -325,8 +331,8 @@ TEST(IRGenerator, Assign) {
       "@function:\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
-      "  %1 = 2;\n"
-      "  %0 = %1;",
+      "  store 2 to %1;\n"
+      "  store 2 to %0;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
@@ -343,9 +349,11 @@ TEST(IRGenerator, Assign) {
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
-            "  %2 = %0 + %0;\n"
-            "  %1 = %2;\n"
-            "  %0 = %1;",
+            "  %2 = load %0;\n"
+            "  %3 = load %0;\n"
+            "  %4 = %2 + %3;\n"
+            "  store %4 to %1;\n"
+            "  store %4 to %0;",
             IRStringGenerate(ASTNode::function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
@@ -370,8 +378,9 @@ TEST(IRGenerator, CompoundStatement) {
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
-      "  %0 = %1;\n"
-      "  %2 = 2;",
+      "  %3 = load %1;\n"
+      "  store %3 to %0;\n"
+      "  store 2 to %2;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
@@ -398,10 +407,12 @@ TEST(IRGenerator, CompoundStatement) {
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
       "  %3 = alloca size 4;\n"
-      "  %0 = 2;\n"
-      "  %1 = %0;\n"
-      "  %2 = 3;\n"
-      "  %3 = %2;",
+      "  store 2 to %0;\n"
+      "  %4 = load %0;\n"
+      "  store %4 to %1;\n"
+      "  store 3 to %2;\n"
+      "  %5 = load %2;\n"
+      "  store %5 to %3;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
@@ -429,15 +440,17 @@ TEST(IRGenerator, SelectStatement) {
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
-            "  if-false %0 goto Label.0;\n"
-            "  %0 = 1;\n"
+            "  %2 = load %0;\n"
+            "  if-false %2 goto Label.0;\n"
+            "  store 1 to %0;\n"
             "  goto Label.1;\n"
             "Label.0:\n"
-            "  if-false %1 goto Label.2;\n"
-            "  %1 = 2;\n"
+            "  %3 = load %1;\n"
+            "  if-false %3 goto Label.2;\n"
+            "  store 2 to %1;\n"
             "  goto Label.3;\n"
             "Label.2:\n"
-            "  %0 = 3;\n"
+            "  store 3 to %0;\n"
             "Label.3:\n"
             "Label.1:\n"
             "  nope;",
@@ -470,18 +483,21 @@ TEST(IRGenerator, SelectStatement) {
             "  %1 = alloca size 4;\n"
             "  %2 = alloca size 4;\n"
             "  %3 = alloca size 4;\n"
-            "  if-false %0 goto Label.0;\n"
-            "  %0 = 1;\n"
+            "  %4 = load %0;\n"
+            "  if-false %4 goto Label.0;\n"
+            "  store 1 to %0;\n"
             "  goto Label.1;\n"
             "Label.0:\n"
-            "  if-false %1 goto Label.2;\n"
-            "  %1 = 2;\n"
+            "  %5 = load %1;\n"
+            "  if-false %5 goto Label.2;\n"
+            "  store 2 to %1;\n"
             "  goto Label.3;\n"
             "Label.2:\n"
-            "  %0 = 3;\n"
+            "  store 3 to %0;\n"
             "Label.3:\n"
             "Label.1:\n"
-            "  %2 = %3;",
+            "  %6 = load %3;\n"
+            "  store %6 to %2;",
             IRStringGenerate(ASTNode::function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
@@ -533,10 +549,11 @@ TEST(IRGenerator, IterationStatement) {
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
-      "  %0 = 1;\n"
+      "  store 1 to %0;\n"
       "Label.0:\n"
-      "  if-false %1 goto Label.1;\n"
-      "  %0 = 3;\n"
+      "  %3 = load %1;\n"
+      "  if-false %3 goto Label.1;\n"
+      "  store 3 to %0;\n"
       "  goto Label.0;\n"
       "Label.1:\n"
       "  nope;",
@@ -565,11 +582,12 @@ TEST(IRGenerator, IterationStatement) {
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
-      "  %0 = 1;\n"
+      "  store 1 to %0;\n"
       "Label.0:\n"
-      "  if-false %1 goto Label.1;\n"
-      "  %0 = 3;\n"
-      "  %2 = 1;\n"
+      "  %3 = load %1;\n"
+      "  if-false %3 goto Label.1;\n"
+      "  store 3 to %0;\n"
+      "  store 1 to %2;\n"
       "  goto Label.0;\n"
       "Label.1:\n"
       "  nope;",
@@ -599,10 +617,10 @@ TEST(IRGenerator, IterationStatement) {
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
-      "  %0 = 1;\n"
+      "  store 1 to %0;\n"
       "Label.0:\n"
-      "  %0 = 3;\n"
-      "  %2 = 1;\n"
+      "  store 3 to %0;\n"
+      "  store 1 to %2;\n"
       "  goto Label.0;\n"
       "Label.1:\n"
       "  nope;",
@@ -631,7 +649,8 @@ TEST(IRGenerator, IterationStatement) {
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "Label.0:\n"
-            "  if-false %0 goto Label.1;\n"
+            "  %1 = load %0;\n"
+            "  if-false %1 goto Label.1;\n"
             "  goto Label.0;\n"
             "Label.1:\n"
             "  nope;",
@@ -648,8 +667,9 @@ TEST(IRGenerator, IterationStatement) {
       "@function:\n"
       "  %0 = alloca size 4;\n"
       "Label.0:\n"
-      "  if-false %0 goto Label.1;\n"
-      "  %0 = 3;\n"
+      "  %1 = load %0;\n"
+      "  if-false %1 goto Label.1;\n"
+      "  store 3 to %0;\n"
       "  goto Label.0;\n"
       "Label.1:\n"
       "  nope;",
@@ -667,8 +687,9 @@ TEST(IRGenerator, IterationStatement) {
       "@function:\n"
       "  %0 = alloca size 4;\n"
       "Label.0:\n"
-      "  %0 = 3;\n"
-      "  if %0 goto Label.0;",
+      "  store 3 to %0;\n"
+      "  %1 = load %0;\n"
+      "  if %1 goto Label.0;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
@@ -683,8 +704,8 @@ TEST(IRGenerator, IterationStatement) {
       "@function:\n"
       "  %0 = alloca size 4;\n"
       "Label.0:\n"
-      "  %0 = 3;\n"
-      "  if %0 goto Label.0;",
+      "  store 3 to %0;\n"
+      "  if 3 goto Label.0;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
@@ -703,9 +724,10 @@ TEST(IRGenerator, Declaration) {
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 8;\n"
-      "  %3 = %1 + 10;\n"
-      "  %0 = %3;\n"
-      "  %2 = %0;",
+      "  %3 = load %1;\n"
+      "  %4 = %3 + 10;\n"
+      "  store %4 to %0;\n"
+      "  store %4 to %2;",
       IRStringGenerate(ASTNode::function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),

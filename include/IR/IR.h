@@ -15,14 +15,15 @@ enum class SiiIRCodeKind : uint32_t {
   NOT_EQUAL = 6,
   LESS_THAN = 7,
   LESS_EQUAL = 8,
-  ASSIGN = 9,
-  GOTO = 10,
-  IF_TRUE_GOTO = 11,
-  IF_FALSE_GOTO = 12,
-  NOPE = 13,
-  FUNCTION_DEFINITION = 14,
-  ALLOCA = 15,
-  PHI = 16
+  GOTO = 9,
+  IF_TRUE_GOTO = 10,
+  IF_FALSE_GOTO = 11,
+  NOPE = 12,
+  FUNCTION_DEFINITION = 13,
+  ALLOCA = 14,
+  LOAD = 15,
+  STORE = 16,
+  PHI = 17
 };
 
 struct SiiIRCode;
@@ -35,16 +36,19 @@ struct SiiIRIfFalseGoto;
 struct SiiIRNope;
 struct SiiIRFunctionDefinition;
 struct SiiIRAlloca;
+struct SiiIRStore;
+struct SiiIRLoad;
 using SiiIRCodePtr = std::shared_ptr<SiiIRCode>;
 using SiiIRBinaryOperationPtr = std::shared_ptr<SiiIRBinaryOperation>;
 using SiiIRUnaryOperationPtr = std::shared_ptr<SiiIRUnaryOperation>;
-using SiiIRAssignPtr = std::shared_ptr<SiiIRAssign>;
 using SiiIRGotoPtr = std::shared_ptr<SiiIRGoto>;
 using SiiIRIfTrueGotoPtr = std::shared_ptr<SiiIRIfTrueGoto>;
 using SiiIRIfFalseGotoPtr = std::shared_ptr<SiiIRIfFalseGoto>;
 using SiiIRNopePtr = std::shared_ptr<SiiIRNope>;
 using SiiIRFunctionDefinitionPtr = std::shared_ptr<SiiIRFunctionDefinition>;
 using SiiIRAllocaPtr = std::shared_ptr<SiiIRAlloca>;
+using SiiIRStorePtr = std::shared_ptr<SiiIRStore>;
+using SiiIRLoadPtr = std::shared_ptr<SiiIRLoad>;
 
 struct SiiIRCode {
   SiiIRCodeKind kind_;
@@ -74,15 +78,6 @@ struct SiiIRUnaryOperation : public SiiIRCode {
   std::string to_string() const override;
   AddressPtr operand_;
   AddressPtr result_;
-};
-
-struct SiiIRAssign : public SiiIRCode {
-  SiiIRAssign(AddressPtr src, AddressPtr dest)
-      : SiiIRCode(SiiIRCodeKind::ASSIGN), src_(std::move(src)),
-        dest_(std::move(dest)) {}
-  std::string to_string() const override;
-  AddressPtr src_;
-  AddressPtr dest_;
 };
 
 struct SiiIRGoto : public SiiIRCode {
@@ -129,6 +124,24 @@ struct SiiIRAlloca : public SiiIRCode {
   std::string to_string() const override;
   AddressPtr dest_;
   uint32_t size_;
+};
+
+struct SiiIRLoad : public SiiIRCode {
+  SiiIRLoad(AddressPtr src, AddressPtr dest)
+      : SiiIRCode(SiiIRCodeKind::LOAD), src_(std::move(src)),
+        dest_(std::move(dest)) {}
+  std::string to_string() const override;
+  AddressPtr src_;
+  AddressPtr dest_;
+};
+
+struct SiiIRStore : public SiiIRCode {
+  SiiIRStore(AddressPtr src, AddressPtr dest)
+      : SiiIRCode(SiiIRCodeKind::STORE), src_(std::move(src)),
+        dest_(std::move(dest)) {}
+  std::string to_string() const override;
+  AddressPtr src_;
+  AddressPtr dest_;
 };
 
 } // namespace SiiIR

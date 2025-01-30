@@ -12,7 +12,7 @@ public:
 
   // For test purpose
   virtual ASTNodePtr parse_declaration_or_function_definition() = 0;
-  virtual ASTNodePtr parse_compound_statement() = 0;
+  virtual CompoundStatementNodePtr parse_compound_statement() = 0;
   virtual ASTNodePtr parse_translation_unit() = 0;
   virtual ASTNodePtr parse_expression_statement() = 0;
   virtual ASTNodePtr parse_select_statement() = 0;

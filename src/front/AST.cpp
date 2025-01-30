@@ -114,7 +114,7 @@ DeclarationStatementNodePtr ASTNode::declaration_statement(
 }
 
 FunctionDeclarationNodePtr
-ASTNode::function_declaration(DeclaratorPtr declarator, ASTNodePtr body) {
+ASTNode::function_declaration(DeclaratorPtr declarator, CompoundStatementNodePtr body) {
   return std::make_shared<FunctionDeclarationNode>(std::move(declarator),
                                                    std::move(body));
 }
@@ -122,7 +122,7 @@ ASTNode::function_declaration(DeclaratorPtr declarator, ASTNodePtr body) {
 FunctionDeclarationNodePtr ASTNode::function_declaration(
     DeclaratorPtr declarator,
     std::vector<DeclarationStatementNodePtr> declaration_statement_list,
-    ASTNodePtr body) {
+    CompoundStatementNodePtr body) {
   return std::make_shared<FunctionDeclarationNode>(
       std::move(declarator), std::move(declaration_statement_list),
       std::move(body));

@@ -79,7 +79,7 @@ TEST(CFG, BuildCFGWithGoto) {
 
 TEST(CFG, BuildCFGWithIfTrueGoto) {
   auto code_builder = CreateCodeBuilder();
-  AddressPtr expression = Address::constant("constant");
+  auto expression = Address::constant("constant");
   auto label1 = code_builder->new_label();
   // group1
   code_builder->append_nope();

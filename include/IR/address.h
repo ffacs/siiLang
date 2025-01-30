@@ -48,13 +48,6 @@ struct VariableAddress : public Address {
   std::string name_;
 };
 
-struct ConstantAddress : public Address {
-  explicit ConstantAddress(const std::string &literal)
-      : Address(AddressType::CONSTANT), literal_(literal) {}
-  std::string to_string() const override;
-  std::string literal_;
-};
-
 struct TemporaryAddress : public Address {
   TemporaryAddress(SiiIRCode *src, std::string name)
       : Address(AddressType::TEMPORARY), name_(std::move(name)) {}
@@ -62,6 +55,16 @@ struct TemporaryAddress : public Address {
   SiiIRCode *src_{};
   std::string name_;
 };
+
+struct ConstantAddress : public TemporaryAddress {
+  explicit ConstantAddress(const std::string &literal)
+      : TemporaryAddress(nullptr, ""), literal_(literal) {
+    type_ = AddressType::CONSTANT;
+  }
+  std::string to_string() const override;
+  std::string literal_;
+};
+
 
 struct FunctionAddress : public Address {
   FunctionAddress(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,

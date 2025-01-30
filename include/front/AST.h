@@ -97,11 +97,11 @@ struct ASTNode {
   static VariableDeclarationNodePtr
   variable_declaration(DeclaratorPtr declarator, ASTNodePtr initializer);
   static FunctionDeclarationNodePtr
-  function_declaration(DeclaratorPtr declarator, ASTNodePtr body);
+  function_declaration(DeclaratorPtr declarator, CompoundStatementNodePtr body);
   static FunctionDeclarationNodePtr function_declaration(
       DeclaratorPtr declarator,
       std::vector<DeclarationStatementNodePtr> declaration_statement_list,
-      ASTNodePtr body);
+      CompoundStatementNodePtr body);
   static DeclarationNodePtr declaration(DeclaratorPtr declarator,
                                         ASTNodePtr initializer);
   static DeclarationStatementNodePtr
@@ -233,19 +233,19 @@ struct VariableDeclarationNode : public DeclarationNode {
 };
 
 struct FunctionDeclarationNode : public DeclarationNode {
-  ASTNodePtr body_;
+  CompoundStatementNodePtr body_;
   std::vector<DeclarationStatementNodePtr> declaration_statement_list_;
 
   FunctionDeclarationNode(
       DeclaratorPtr declarator,
       std::vector<DeclarationStatementNodePtr> declaration_statement_list,
-      ASTNodePtr body)
+      CompoundStatementNodePtr body)
       : DeclarationNode(ASTNodeKind::FUNCTION_DECLARATION,
                         std::move(declarator)),
         declaration_statement_list_(std::move(declaration_statement_list)),
         body_(std::move(body)) {}
 
-  FunctionDeclarationNode(DeclaratorPtr declarator, ASTNodePtr body)
+  FunctionDeclarationNode(DeclaratorPtr declarator, CompoundStatementNodePtr body)
       : DeclarationNode(ASTNodeKind::FUNCTION_DECLARATION,
                         std::move(declarator)),
         body_(std::move(body)) {}

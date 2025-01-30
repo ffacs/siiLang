@@ -53,11 +53,6 @@ std::string SiiIRBinaryOperation::to_string() const {
   }
 }
 
-std::string SiiIRAssign::to_string() const {
-  auto prefix = SiiIRCode::to_string();
-  return prefix + "  " + dest_->to_string() + " = " + src_->to_string() + ";";
-}
-
 std::string SiiIRUnaryOperation::to_string() const {
   auto prefix = SiiIRCode::to_string();
   switch (kind_) {
@@ -101,6 +96,16 @@ std::string SiiIRFunctionDefinition::to_string() const {
 std::string SiiIRAlloca::to_string() const {
   return SiiIRCode::to_string() + "  " + dest_->to_string() +
          " = alloca size " + std::to_string(size_) + ";";
+}
+
+std::string SiiIRLoad::to_string() const {
+  return SiiIRCode::to_string() + "  " + dest_->to_string() + " = load " +
+         src_->to_string() + ";";
+}
+
+std::string SiiIRStore::to_string() const {
+  return SiiIRCode::to_string() + "  store " + src_->to_string() + " to " +
+         dest_->to_string() + ";";
 }
 
 } // namespace SiiIR
