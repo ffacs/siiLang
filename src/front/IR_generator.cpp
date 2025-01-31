@@ -414,9 +414,13 @@ void IRGeneratorImpl::generate_for_if_else_node(const ASTNodePtr &node,
   auto cond_address = generate_for_rvalue_node(cond, code_builder);
 
   // IF
-  auto false_label_future = code_builder->append_if_false_goto(cond_address);
+  auto [true_label_future, false_label_future] =
+      code_builder->append_condition_branch(cond_address);
+  auto true_label = ctx_manager_->function_ctx()->allocate_label();
+  true_label_future->set_label(true_label);
+  code_builder->append_label(true_label);
   generate_for_non_value_node(if_true_statement, code_builder);
-  auto end_label_future = code_builder->append_goto();
+  auto true_end_label_future = code_builder->append_goto();
 
   // Else
   auto false_label = ctx_manager_->function_ctx()->allocate_label();
@@ -425,9 +429,11 @@ void IRGeneratorImpl::generate_for_if_else_node(const ASTNodePtr &node,
   if (else_statement != nullptr) {
     generate_for_non_value_node(else_statement, code_builder);
   }
+  auto false_end_label_future = code_builder->append_goto();
 
   auto end_label = ctx_manager_->function_ctx()->allocate_label();
-  end_label_future->set_label(end_label);
+  true_end_label_future->set_label(end_label);
+  false_end_label_future->set_label(end_label);
   code_builder->append_label(end_label);
 }
 
@@ -442,19 +448,25 @@ void IRGeneratorImpl::generate_for_for_loop_node(const ASTNodePtr &node,
   generate_for_non_value_node(init, code_builder);
   auto cond_label = ctx_manager_->function_ctx()->allocate_label();
   code_builder->append_label(cond_label);
-  LabelFuturePtr end_label_future = nullptr;
+  LabelFuturePtr false_label_future = nullptr;
+  LabelFuturePtr true_label_future = nullptr;
   if (cond->kind_ != ASTNodeKind::EMPTY) {
     auto cond_address = generate_for_rvalue_node(cond, code_builder);
-    end_label_future = code_builder->append_if_false_goto(cond_address);
+    std::tie(true_label_future, false_label_future) =
+        code_builder->append_condition_branch(cond_address);
+
+    auto true_label = ctx_manager_->function_ctx()->allocate_label();
+    true_label_future->set_label(true_label);
+    code_builder->append_label(true_label);
   }
   generate_for_non_value_node(statement, code_builder);
   generate_for_non_value_node(incr, code_builder);
   code_builder->append_goto(cond_label);
-  auto end_label = ctx_manager_->function_ctx()->allocate_label();
-  if (end_label_future != nullptr) {
-    end_label_future->set_label(end_label);
+  if (false_label_future != nullptr) {
+    auto false_label = ctx_manager_->function_ctx()->allocate_label();
+    false_label_future->set_label(false_label);
+    code_builder->append_label(false_label);
   }
-  code_builder->append_label(end_label);
 }
 
 void IRGeneratorImpl::generate_for_while_loop_node(
@@ -468,14 +480,18 @@ void IRGeneratorImpl::generate_for_while_loop_node(
   code_builder->append_label(cond_label);
 
   auto cond_address = generate_for_rvalue_node(cond, code_builder);
-  auto end_label_future = code_builder->append_if_false_goto(cond_address);
+  auto [true_label_future, false_label_future] =
+      code_builder->append_condition_branch(cond_address);
 
+  auto true_label = ctx_manager_->function_ctx()->allocate_label();
+  true_label_future->set_label(true_label);
+  code_builder->append_label(true_label);
   generate_for_non_value_node(statement, code_builder);
   code_builder->append_goto(cond_label);
-  auto end_label = ctx_manager_->function_ctx()->allocate_label();
 
-  end_label_future->set_label(end_label);
-  code_builder->append_label(end_label);
+  auto false_label = ctx_manager_->function_ctx()->allocate_label();
+  false_label_future->set_label(false_label);
+  code_builder->append_label(false_label);
 }
 
 void IRGeneratorImpl::generate_for_do_while_node(const ASTNodePtr &node,
@@ -485,13 +501,14 @@ void IRGeneratorImpl::generate_for_do_while_node(const ASTNodePtr &node,
   auto statement = do_while_node->statement_;
   auto cond = do_while_node->condition_expression_;
 
-  auto statement_label = ctx_manager_->function_ctx()->allocate_label();
-
-  code_builder->append_label(statement_label);
+  auto true_label = ctx_manager_->function_ctx()->allocate_label();
+  code_builder->append_label(true_label);
   generate_for_non_value_node(statement, code_builder);
   auto cond_address = generate_for_rvalue_node(cond, code_builder);
-  auto statement_label_future = code_builder->append_if_true_goto(cond_address);
-  statement_label_future->set_label(statement_label);
+
+  auto false_label = ctx_manager_->function_ctx()->allocate_label();
+  code_builder->append_condition_branch(cond_address, true_label, false_label);
+  code_builder->append_label(false_label);
 }
 
 void IRGeneratorImpl::generate_for_compound_statement_node(

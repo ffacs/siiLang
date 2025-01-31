@@ -68,16 +68,10 @@ std::string SiiIRUnaryOperation::to_string() const {
   }
 }
 
-std::string SiiIRIfTrueGoto::to_string() const {
+std::string SiiIRConditionBarnch::to_string() const {
   auto prefix = SiiIRCode::to_string();
   return prefix + "  if " + condition_->to_string() + " goto " +
-         dest_label_->to_string() + ";";
-}
-
-std::string SiiIRIfFalseGoto::to_string() const {
-  auto prefix = SiiIRCode::to_string();
-  return prefix + "  if-false " + condition_->to_string() + " goto " +
-         dest_label_->to_string() + ";";
+         true_label_->to_string() + " else " + false_label_->to_string() + ";";
 }
 
 std::string SiiIRGoto::to_string() const {

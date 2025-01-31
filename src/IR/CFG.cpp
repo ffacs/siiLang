@@ -40,15 +40,18 @@ private:
         result->follows_.push_back(next_group);
         break;
       }
-      if (current->kind_ == SiiIRCodeKind::IF_TRUE_GOTO ||
-          current->kind_ == SiiIRCodeKind::IF_FALSE_GOTO) {
-        BasicGroupNode *next_group = build_basic_group_starting_from(
-            static_cast<SiiIRIfTrueGoto *>(current)->dest_label_->dest_code_);
-        result->follows_.push_back(next_group);
-        next_group->precedes_.push_back(result.get());
-        next_group = build_basic_group_starting_from(current->next_);
-        result->follows_.push_back(next_group);
-        next_group->precedes_.push_back(result.get());
+      if (current->kind_ == SiiIRCodeKind::CONDITION_BRANCH) {
+        BasicGroupNode *true_group = build_basic_group_starting_from(
+            static_cast<SiiIRConditionBarnch *>(current)
+                ->true_label_->dest_code_);
+        result->follows_.push_back(true_group);
+        true_group->precedes_.push_back(result.get());
+
+        BasicGroupNode *false_group = build_basic_group_starting_from(
+            static_cast<SiiIRConditionBarnch *>(current)
+                ->false_label_->dest_code_);
+        result->follows_.push_back(false_group);
+        false_group->precedes_.push_back(result.get());
         break;
       }
       current = current->next_;
@@ -78,9 +81,9 @@ public:
     result_cfg->entry_ = entry.get();
 
     if (!codes_->empty()) {
-        auto follow = build_basic_group_starting_from(codes_->front().get());
-        entry->follows_.push_back(follow);
-        follow->precedes_.push_back(entry.get());
+      auto follow = build_basic_group_starting_from(codes_->front().get());
+      entry->follows_.push_back(follow);
+      follow->precedes_.push_back(entry.get());
     }
     result_cfg->basic_groups_ = std::move(basic_groups_);
     result_cfg->codes_in_order_ = std::move(codes_);

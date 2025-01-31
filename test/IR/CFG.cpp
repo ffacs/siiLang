@@ -4,8 +4,8 @@
 
 namespace SiiIR {
 
-static LabelPtr CreateLabel() {
-  return std::make_shared<Label>(nullptr, "label");
+static LabelPtr CreateLabel(std::string name) {
+  return std::make_shared<Label>(nullptr, name);
 }  
 
 TEST(CFG, BuildCFGFromEmptyCodes) {
@@ -40,7 +40,7 @@ TEST(CFG, BuildSingleBasicGroup) {
 
 TEST(CFG, BuildCFGWithLabel) {
   auto code_builder = CreateCodeBuilder();
-  code_builder->append_label(CreateLabel());
+  code_builder->append_label(CreateLabel("l2"));
   code_builder->append_nope();
   auto codes = code_builder->finish();
   auto cfg = BuildCFG(codes);
@@ -57,7 +57,7 @@ TEST(CFG, BuildCFGWithLabel) {
 
 TEST(CFG, BuildCFGWithGoto) {
   auto code_builder = CreateCodeBuilder();
-  auto label1 = CreateLabel();
+  auto label1 = CreateLabel("l1");
   code_builder->append_nope();
   code_builder->append_label(label1);
   code_builder->append_nope();
@@ -82,18 +82,20 @@ TEST(CFG, BuildCFGWithGoto) {
   EXPECT_EQ(group2->follows_[0], group2);
 }
 
-TEST(CFG, BuildCFGWithIfTrueGoto) {
+TEST(CFG, BuildCFGWithConditionBranch) {
   auto code_builder = CreateCodeBuilder();
   auto expression = Address::constant("constant");
-  auto label1 = CreateLabel();
+  auto true_label = CreateLabel("true");
+  auto false_label = CreateLabel("false");
   // group1
   code_builder->append_nope();
-  code_builder->append_if_true_goto(expression, label1);
+  code_builder->append_condition_branch(expression, true_label, false_label);
   // group3
+  code_builder->append_label(true_label);
   code_builder->append_nope();
   code_builder->append_nope();
   // group2
-  code_builder->append_label(label1);
+  code_builder->append_label(false_label);
   code_builder->append_nope();
   auto codes = code_builder->finish();
   auto cfg = BuildCFG(codes);
@@ -106,17 +108,24 @@ TEST(CFG, BuildCFGWithIfTrueGoto) {
   EXPECT_EQ(group1->basic_group_->codes_[0], codes->at(0).get());
   EXPECT_EQ(group1->basic_group_->codes_[1], codes->at(1).get());
   EXPECT_EQ(group1->follows_.size(), 2);
+  EXPECT_EQ(group1->precedes_.size(), 1);
+  EXPECT_EQ(group1->precedes_[0], entry);
 
-  auto group2 = group1->follows_[0];
+  auto group2 = group1->follows_[1];
   EXPECT_EQ(group2->basic_group_->codes_.size(), 1LL);
   EXPECT_EQ(group2->basic_group_->codes_[0], codes->at(4).get());
   EXPECT_EQ(group2->follows_.size(), 0);
+  EXPECT_EQ(group2->precedes_.size(), 1);
+  EXPECT_EQ(group2->precedes_[0], group1);
+
   
-  auto group3 = group1->follows_[1];
+  auto group3 = group1->follows_[0];
   EXPECT_EQ(group3->basic_group_->codes_.size(), 2LL);
   EXPECT_EQ(group3->basic_group_->codes_[0], codes->at(2).get());
   EXPECT_EQ(group3->basic_group_->codes_[1], codes->at(3).get());
   EXPECT_EQ(group3->follows_.size(), 1);
+  EXPECT_EQ(group3->precedes_.size(), 1);
+  EXPECT_EQ(group3->precedes_[0], group1);
 
 }
 

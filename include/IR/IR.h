@@ -16,8 +16,7 @@ enum class SiiIRCodeKind : uint32_t {
   LESS_THAN = 7,
   LESS_EQUAL = 8,
   GOTO = 9,
-  IF_TRUE_GOTO = 10,
-  IF_FALSE_GOTO = 11,
+  CONDITION_BRANCH = 11,
   NOPE = 12,
   FUNCTION_DEFINITION = 13,
   ALLOCA = 14,
@@ -31,9 +30,8 @@ struct SiiIRBinaryOperation;
 struct SiiIRUnaryOperation;
 struct SiiIRAssign;
 struct SiiIRGoto;
-struct SiiIRIfTrueGoto;
-struct SiiIRIfFalseGoto;
 struct SiiIRNope;
+struct SiiIRConditionBarnch;
 struct SiiIRFunctionDefinition;
 struct SiiIRAlloca;
 struct SiiIRStore;
@@ -42,9 +40,8 @@ using SiiIRCodePtr = std::shared_ptr<SiiIRCode>;
 using SiiIRBinaryOperationPtr = std::shared_ptr<SiiIRBinaryOperation>;
 using SiiIRUnaryOperationPtr = std::shared_ptr<SiiIRUnaryOperation>;
 using SiiIRGotoPtr = std::shared_ptr<SiiIRGoto>;
-using SiiIRIfTrueGotoPtr = std::shared_ptr<SiiIRIfTrueGoto>;
-using SiiIRIfFalseGotoPtr = std::shared_ptr<SiiIRIfFalseGoto>;
 using SiiIRNopePtr = std::shared_ptr<SiiIRNope>;
+using SiiIRConditionBarnchPtr = std::shared_ptr<SiiIRConditionBarnch>;
 using SiiIRFunctionDefinitionPtr = std::shared_ptr<SiiIRFunctionDefinition>;
 using SiiIRAllocaPtr = std::shared_ptr<SiiIRAlloca>;
 using SiiIRStorePtr = std::shared_ptr<SiiIRStore>;
@@ -87,22 +84,15 @@ struct SiiIRGoto : public SiiIRCode {
   LabelPtr dest_label_;
 };
 
-struct SiiIRIfTrueGoto : public SiiIRCode {
-  SiiIRIfTrueGoto(AddressPtr condition, LabelPtr dest)
-      : SiiIRCode(SiiIRCodeKind::IF_TRUE_GOTO),
-        condition_(std::move(condition)), dest_label_(std::move(dest)) {}
+struct SiiIRConditionBarnch : public SiiIRCode {
+  SiiIRConditionBarnch(AddressPtr condition, LabelPtr true_label, LabelPtr false_label)
+      : SiiIRCode(SiiIRCodeKind::CONDITION_BRANCH),
+        condition_(std::move(condition)), true_label_(std::move(true_label)),
+                                          false_label_(std::move(false_label)) {}
   std::string to_string() const override;
   AddressPtr condition_;
-  LabelPtr dest_label_;
-};
-
-struct SiiIRIfFalseGoto : public SiiIRCode {
-  SiiIRIfFalseGoto(AddressPtr condition, LabelPtr dest)
-      : SiiIRCode(SiiIRCodeKind::IF_FALSE_GOTO),
-        condition_(std::move(condition)), dest_label_(std::move(dest)) {}
-  std::string to_string() const override;
-  AddressPtr condition_;
-  LabelPtr dest_label_;
+  LabelPtr true_label_;
+  LabelPtr false_label_;
 };
 
 struct SiiIRNope : public SiiIRCode {
