@@ -3,6 +3,11 @@
 #include "gtest/gtest.h"
 
 namespace SiiIR {
+
+static LabelPtr CreateLabel() {
+  return std::make_shared<Label>(nullptr, "label");
+}  
+
 TEST(CFG, BuildCFGFromEmptyCodes) {
   auto codes = std::make_shared<std::vector<SiiIRCodePtr>>();
   auto cfg = BuildCFG(codes);
@@ -35,7 +40,7 @@ TEST(CFG, BuildSingleBasicGroup) {
 
 TEST(CFG, BuildCFGWithLabel) {
   auto code_builder = CreateCodeBuilder();
-  code_builder->append_label(code_builder->new_label());
+  code_builder->append_label(CreateLabel());
   code_builder->append_nope();
   auto codes = code_builder->finish();
   auto cfg = BuildCFG(codes);
@@ -52,7 +57,7 @@ TEST(CFG, BuildCFGWithLabel) {
 
 TEST(CFG, BuildCFGWithGoto) {
   auto code_builder = CreateCodeBuilder();
-  auto label1 = code_builder->new_label();
+  auto label1 = CreateLabel();
   code_builder->append_nope();
   code_builder->append_label(label1);
   code_builder->append_nope();
@@ -80,7 +85,7 @@ TEST(CFG, BuildCFGWithGoto) {
 TEST(CFG, BuildCFGWithIfTrueGoto) {
   auto code_builder = CreateCodeBuilder();
   auto expression = Address::constant("constant");
-  auto label1 = code_builder->new_label();
+  auto label1 = CreateLabel();
   // group1
   code_builder->append_nope();
   code_builder->append_if_true_goto(expression, label1);

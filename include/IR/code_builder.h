@@ -26,7 +26,6 @@ public:
                                 TemporaryAddressPtr result) = 0;
   virtual void append_less_equal(TemporaryAddressPtr left, TemporaryAddressPtr right,
                                  TemporaryAddressPtr result) = 0;
-  virtual LabelPtr new_label(const std::string &name = "") = 0;
   virtual void append_if_false_goto(TemporaryAddressPtr expression, LabelPtr label) = 0;
   virtual void append_if_true_goto(TemporaryAddressPtr expression, LabelPtr label) = 0;
   virtual void append_goto(LabelPtr label) = 0;

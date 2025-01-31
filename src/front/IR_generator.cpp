@@ -419,14 +419,14 @@ void IRGeneratorImpl::generate_for_if_else_node(const ASTNodePtr &node,
   auto end_label_future = code_builder->append_goto();
 
   // Else
-  auto false_label = code_builder->new_label();
+  auto false_label = ctx_manager_->function_ctx()->allocate_label();
   false_label_future->set_label(false_label);
   code_builder->append_label(false_label);
   if (else_statement != nullptr) {
     generate_for_non_value_node(else_statement, code_builder);
   }
 
-  auto end_label = code_builder->new_label();
+  auto end_label = ctx_manager_->function_ctx()->allocate_label();
   end_label_future->set_label(end_label);
   code_builder->append_label(end_label);
 }
@@ -440,7 +440,7 @@ void IRGeneratorImpl::generate_for_for_loop_node(const ASTNodePtr &node,
   auto incr = for_loop_node->increment_expression_;
   auto statement = for_loop_node->statement_;
   generate_for_non_value_node(init, code_builder);
-  auto cond_label = code_builder->new_label();
+  auto cond_label = ctx_manager_->function_ctx()->allocate_label();
   code_builder->append_label(cond_label);
   LabelFuturePtr end_label_future = nullptr;
   if (cond->kind_ != ASTNodeKind::EMPTY) {
@@ -450,7 +450,7 @@ void IRGeneratorImpl::generate_for_for_loop_node(const ASTNodePtr &node,
   generate_for_non_value_node(statement, code_builder);
   generate_for_non_value_node(incr, code_builder);
   code_builder->append_goto(cond_label);
-  auto end_label = code_builder->new_label();
+  auto end_label = ctx_manager_->function_ctx()->allocate_label();
   if (end_label_future != nullptr) {
     end_label_future->set_label(end_label);
   }
@@ -464,7 +464,7 @@ void IRGeneratorImpl::generate_for_while_loop_node(
   auto cond = while_loop_node->condition_expression_;
   auto statement = while_loop_node->statement_;
 
-  auto cond_label = code_builder->new_label();
+  auto cond_label = ctx_manager_->function_ctx()->allocate_label();
   code_builder->append_label(cond_label);
 
   auto cond_address = generate_for_rvalue_node(cond, code_builder);
@@ -472,7 +472,7 @@ void IRGeneratorImpl::generate_for_while_loop_node(
 
   generate_for_non_value_node(statement, code_builder);
   code_builder->append_goto(cond_label);
-  auto end_label = code_builder->new_label();
+  auto end_label = ctx_manager_->function_ctx()->allocate_label();
 
   end_label_future->set_label(end_label);
   code_builder->append_label(end_label);
@@ -485,7 +485,7 @@ void IRGeneratorImpl::generate_for_do_while_node(const ASTNodePtr &node,
   auto statement = do_while_node->statement_;
   auto cond = do_while_node->condition_expression_;
 
-  auto statement_label = code_builder->new_label();
+  auto statement_label = ctx_manager_->function_ctx()->allocate_label();
 
   code_builder->append_label(statement_label);
   generate_for_non_value_node(statement, code_builder);
@@ -557,7 +557,6 @@ FunctionAddressPtr IRGeneratorImpl::generate_for_function_declaration_node(
     ctx_manager_->pop_symbol_ctx();
   }
   auto function_ctx = ctx_manager_->leave_function();
-  function_ctx->rename_all_addresses();
   FunctionAddressPtr function_address =
       Address::function(function_codes, function_ctx, function_name);
   ctx_manager_->append_function(function_name,

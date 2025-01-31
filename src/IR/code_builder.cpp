@@ -21,7 +21,6 @@ public:
                         TemporaryAddressPtr result) override;
   void append_less_equal(TemporaryAddressPtr left, TemporaryAddressPtr right,
                          TemporaryAddressPtr result) override;
-  LabelPtr new_label(const std::string &name = "") override;
   void append_if_true_goto(TemporaryAddressPtr expression, LabelPtr label) override;
   void append_if_false_goto(TemporaryAddressPtr expression, LabelPtr label) override;
   void append_goto(LabelPtr label) override;
@@ -133,14 +132,6 @@ VariableAddressPtr CodeBuilderImpl::append_store(TemporaryAddressPtr source, Var
 void CodeBuilderImpl::append_load(VariableAddressPtr source, TemporaryAddressPtr dest) {
   SiiIRLoadPtr new_code = std::make_shared<SiiIRLoad>(std::move(source), dest);
   append_new_code(std::move(new_code));
-}
-
-LabelPtr CodeBuilderImpl::new_label(const std::string &name) {
-  auto new_label_name = name;
-  if (new_label_name.empty()) {
-    new_label_name = std::to_string(unnamed_label_count_++);
-  }
-  return std::make_shared<Label>(nullptr, new_label_name);
 }
 
 void CodeBuilderImpl::append_if_true_goto(TemporaryAddressPtr expression, LabelPtr label) {
