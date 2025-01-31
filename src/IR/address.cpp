@@ -18,8 +18,8 @@ TemporaryAddressPtr Address::temporary(SiiIRCode *src,
 
 FunctionAddressPtr
 Address::function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
-                  const std::string &name) {
-  return std::make_shared<FunctionAddress>(std::move(codes), name);
+                  FunctionContextPtr ctx, const std::string &name) {
+  return std::make_shared<FunctionAddress>(std::move(codes), ctx, name);
 }
 
 std::string VariableAddress::to_string() const {

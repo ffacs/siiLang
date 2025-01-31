@@ -1,5 +1,6 @@
 #pragma once
 #include "IR/address.h"
+#include "IR/function_ctx.h"
 #include "front/type.h"
 #include <map>
 #include <memory>
@@ -9,12 +10,10 @@ namespace front {
 class Symbol;
 class SymbolTable;
 struct SymbolContext;
-struct FunctionContext;
 struct ContextManager;
 typedef std::shared_ptr<Symbol> SymbolPtr;
 typedef std::shared_ptr<SymbolTable> SymbolTablePtr;
 typedef std::shared_ptr<SymbolContext> SymbolContextPtr;
-typedef std::shared_ptr<FunctionContext> FunctionContextPtr;
 typedef std::shared_ptr<ContextManager> ContextManagerPtr;
 
 struct Symbol {
@@ -43,18 +42,6 @@ struct SymbolContext {
   SymbolTablePtr symble_table_;
 };
 
-struct FunctionContext {
-  std::vector<SiiIR::TemporaryAddressPtr> temporary_addresses_;
-  std::vector<SiiIR::VariableAddressPtr> variable_addresses_;
-  std::vector<SiiIR::VariableAddressPtr> parameter_addresses_;
-  ~FunctionContext() { rename_all_addresses(); }
-
-  SiiIR::TemporaryAddressPtr allocate_temporary_address();
-  SiiIR::VariableAddressPtr allocate_variable_address();
-  SiiIR::VariableAddressPtr allocate_parameter_address();
-  void rename_all_addresses();
-};
-
 class ContextManager {
 public:
   virtual ~ContextManager() {}
@@ -64,9 +51,9 @@ public:
   virtual void append_variable(const std::string &name, SymbolPtr variable) = 0;
   virtual void append_function(const std::string &name, SymbolPtr function) = 0;
 
-  virtual FunctionContext *function_ctx() = 0;
+  virtual SiiIR::FunctionContext *function_ctx() = 0;
   virtual void enter_function() = 0;
-  virtual void leave_function() = 0;
+  virtual SiiIR::FunctionContextPtr leave_function() = 0;
 };
 
 ContextManagerPtr CreateContextManager();

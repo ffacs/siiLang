@@ -27,11 +27,12 @@ public:
   virtual void append_less_equal(TemporaryAddressPtr left, TemporaryAddressPtr right,
                                  TemporaryAddressPtr result) = 0;
   virtual LabelPtr new_label(const std::string &name = "") = 0;
-  virtual void append_if_true_goto(TemporaryAddressPtr expression,
-                                   LabelPtr target_label) = 0;
-  virtual void append_if_false_goto(TemporaryAddressPtr expression,
-                                    LabelPtr target_label) = 0;
-  virtual void append_goto(LabelPtr target_label) = 0;
+  virtual void append_if_false_goto(TemporaryAddressPtr expression, LabelPtr label) = 0;
+  virtual void append_if_true_goto(TemporaryAddressPtr expression, LabelPtr label) = 0;
+  virtual void append_goto(LabelPtr label) = 0;
+  virtual LabelFuturePtr append_if_true_goto(TemporaryAddressPtr expression) = 0;
+  virtual LabelFuturePtr append_if_false_goto(TemporaryAddressPtr expression) = 0;
+  virtual LabelFuturePtr append_goto() = 0;
   virtual void append_label(LabelPtr label) = 0;
   virtual void append_nope() = 0;
   virtual void append_function(FunctionAddressPtr left) = 0;

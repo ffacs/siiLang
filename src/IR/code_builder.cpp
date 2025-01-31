@@ -22,11 +22,12 @@ public:
   void append_less_equal(TemporaryAddressPtr left, TemporaryAddressPtr right,
                          TemporaryAddressPtr result) override;
   LabelPtr new_label(const std::string &name = "") override;
-  void append_if_true_goto(TemporaryAddressPtr expression,
-                           LabelPtr target_label) override;
-  void append_if_false_goto(TemporaryAddressPtr expression,
-                            LabelPtr target_label) override;
-  void append_goto(LabelPtr target_label) override;
+  void append_if_true_goto(TemporaryAddressPtr expression, LabelPtr label) override;
+  void append_if_false_goto(TemporaryAddressPtr expression, LabelPtr label) override;
+  void append_goto(LabelPtr label) override;
+  LabelFuturePtr append_if_true_goto(TemporaryAddressPtr expression) override;
+  LabelFuturePtr append_if_false_goto(TemporaryAddressPtr expression) override;
+  LabelFuturePtr append_goto() override;
   void append_label(LabelPtr label) override;
   void append_nope() override;
   void append_function(FunctionAddressPtr func) override;
@@ -142,28 +143,50 @@ LabelPtr CodeBuilderImpl::new_label(const std::string &name) {
   return std::make_shared<Label>(nullptr, new_label_name);
 }
 
-void CodeBuilderImpl::append_if_true_goto(TemporaryAddressPtr expression,
-                                          LabelPtr target_label) {
+void CodeBuilderImpl::append_if_true_goto(TemporaryAddressPtr expression, LabelPtr label) {
   SiiIRIfTrueGotoPtr if_true_goto = std::make_shared<SiiIRIfTrueGoto>(
-      std::move(expression), std::move(target_label));
+      std::move(expression), std::move(label));
   append_new_code(std::move(if_true_goto));
 }
 
-void CodeBuilderImpl::append_if_false_goto(TemporaryAddressPtr expression,
-                                           LabelPtr target_label) {
+void CodeBuilderImpl::append_if_false_goto(TemporaryAddressPtr expression, LabelPtr label) {
   SiiIRIfFalseGotoPtr if_false_goto = std::make_shared<SiiIRIfFalseGoto>(
-      std::move(expression), std::move(target_label));
+      std::move(expression), std::move(label));
   append_new_code(std::move(if_false_goto));
 }
 
-void CodeBuilderImpl::append_goto(LabelPtr target_label) {
-  SiiIRGotoPtr then_goto = std::make_shared<SiiIRGoto>(std::move(target_label));
+void CodeBuilderImpl::append_goto(LabelPtr label) {
+  SiiIRGotoPtr then_goto = std::make_shared<SiiIRGoto>(std::move(label));
   append_new_code(std::move(then_goto));
+}
+
+LabelFuturePtr CodeBuilderImpl::append_if_true_goto(TemporaryAddressPtr expression) {
+  SiiIRIfTrueGotoPtr if_true_goto = std::make_shared<SiiIRIfTrueGoto>(
+      std::move(expression), nullptr);
+  auto labelFuture = std::make_shared<LabelFuture>(&(if_true_goto->dest_label_));
+  append_new_code(std::move(if_true_goto));
+  return labelFuture;
+}
+
+LabelFuturePtr CodeBuilderImpl::append_if_false_goto(TemporaryAddressPtr expression) {
+  SiiIRIfFalseGotoPtr if_false_goto = std::make_shared<SiiIRIfFalseGoto>(
+      std::move(expression), nullptr);
+  auto labelFuture = std::make_shared<LabelFuture>(&(if_false_goto->dest_label_));
+  append_new_code(std::move(if_false_goto));
+  return labelFuture;
+}
+
+LabelFuturePtr CodeBuilderImpl::append_goto() {
+  SiiIRGotoPtr then_goto = std::make_shared<SiiIRGoto>(nullptr);
+  auto labelFuture = std::make_shared<LabelFuture>(&(then_goto->dest_label_));
+  append_new_code(std::move(then_goto));
+  return labelFuture;
 }
 
 void CodeBuilderImpl::append_label(LabelPtr label) {
   if (appended_label_ != nullptr) {
-    append_goto(label);
+    auto future = append_goto();
+    future->set_label(label);
     appended_label_ = nullptr;
   }
   appended_label_ = std::move(label);

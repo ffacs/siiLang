@@ -56,41 +56,6 @@ static SymbolContextPtr CreateSymbolContext(SymbolContext *father) {
 static FunctionContextPtr CreateFunctionContext() {
   return std::make_shared<FunctionContext>();
 }
-
-TemporaryAddressPtr FunctionContext::allocate_temporary_address() {
-  auto new_temporary = std::make_shared<TemporaryAddress>(
-      nullptr, "tmp" + std::to_string(temporary_addresses_.size()));
-  temporary_addresses_.emplace_back(new_temporary);
-  return new_temporary;
-}
-
-VariableAddressPtr FunctionContext::allocate_variable_address() {
-  auto new_variable = std::make_shared<VariableAddress>(
-      "var" + std::to_string(variable_addresses_.size()));
-  variable_addresses_.emplace_back(new_variable);
-  return new_variable;
-}
-
-VariableAddressPtr FunctionContext::allocate_parameter_address() {
-  auto new_variable = std::make_shared<VariableAddress>(
-      "par" + std::to_string(variable_addresses_.size()));
-  variable_addresses_.emplace_back(new_variable);
-  return new_variable;
-}
-
-void FunctionContext::rename_all_addresses() {
-  uint32_t idx = 0;
-  for (auto &variable : parameter_addresses_) {
-    variable->name_ = std::to_string(idx++);
-  }
-  for (auto &variable : variable_addresses_) {
-    variable->name_ = std::to_string(idx++);
-  }
-  for (auto &temporary : temporary_addresses_) {
-    temporary->name_ = std::to_string(idx++);
-  }
-}
-
 class ContextManagerImpl : public ContextManager {
 public:
   ContextManagerImpl();
@@ -103,7 +68,7 @@ public:
   void append_function(const std::string &name, SymbolPtr function) override;
 
   void enter_function() override;
-  void leave_function() override;
+  FunctionContextPtr leave_function() override;
 
 protected:
   SymbolContextPtr root_symbol_ctx_;
@@ -147,7 +112,11 @@ void ContextManagerImpl::enter_function() {
   current_function_ctx_ = CreateFunctionContext();
 }
 
-void ContextManagerImpl::leave_function() { current_function_ctx_ = nullptr; }
+FunctionContextPtr ContextManagerImpl::leave_function() {
+  auto result = current_function_ctx_;
+  current_function_ctx_ = nullptr;
+  return result;
+}
 
 ContextManagerPtr CreateContextManager() {
   return std::make_shared<ContextManagerImpl>();

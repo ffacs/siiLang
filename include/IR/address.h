@@ -5,11 +5,14 @@
 #include <vector>
 
 namespace SiiIR {
+struct FunctionContext;
+typedef std::shared_ptr<FunctionContext> FunctionContextPtr;
 enum class AddressType : uint32_t {
   VARIABLE = 0,
   CONSTANT = 1,
   TEMPORARY = 2,
-  FUNCTION = 3
+  FUNCTION = 3,
+  LABEL = 4
 };
 
 struct SiiIRCode;
@@ -19,6 +22,7 @@ struct ConstantAddress;
 struct TemporaryAddress;
 struct FunctionAddress;
 struct Label;
+struct LabelFuture;
 using SiiIRCodePtr = std::shared_ptr<SiiIRCode>;
 typedef std::shared_ptr<Address> AddressPtr;
 typedef std::shared_ptr<VariableAddress> VariableAddressPtr;
@@ -26,6 +30,7 @@ typedef std::shared_ptr<ConstantAddress> ConstantAddressPtr;
 typedef std::shared_ptr<TemporaryAddress> TemporaryAddressPtr;
 typedef std::shared_ptr<FunctionAddress> FunctionAddressPtr;
 typedef std::shared_ptr<Label> LabelPtr;
+typedef std::shared_ptr<LabelFuture> LabelFuturePtr;
 
 struct Address {
   explicit Address(AddressType type) : type_(type) {}
@@ -38,7 +43,7 @@ struct Address {
   static TemporaryAddressPtr temporary(SiiIRCode *src, const std::string &name);
   static FunctionAddressPtr
   function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
-           const std::string &name);
+           FunctionContextPtr ctx, const std::string &name);
 };
 
 struct VariableAddress : public Address {
@@ -65,23 +70,32 @@ struct ConstantAddress : public TemporaryAddress {
   std::string literal_;
 };
 
-
 struct FunctionAddress : public Address {
   FunctionAddress(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
-                  std::string name)
+                  FunctionContextPtr ctx, std::string name)
       : Address(AddressType::FUNCTION), codes_(std::move(codes)),
-        name_(std::move(name)) {}
+        ctx_(std::move(ctx)), name_(std::move(name)) {}
   std::string to_string() const override;
   std::shared_ptr<std::vector<SiiIRCodePtr>> codes_;
+  FunctionContextPtr ctx_;
   std::string name_;
 };
 
-struct Label {
+struct Label : public Address {
   SiiIRCode *dest_code_;
   std::string name_;
   Label(SiiIRCode *dest, std::string name)
-      : dest_code_(dest), name_(std::move(name)) {}
+      : Address(AddressType::LABEL), dest_code_(dest), name_(std::move(name)) {}
   std::string to_string() const;
   bool operator<(const Label &rhs) const { return name_ < rhs.name_; }
 };
+
+struct LabelFuture {
+  LabelPtr* dest_;
+  LabelFuture(LabelPtr* dest) : dest_(dest) {}
+  void set_label(LabelPtr label) {
+    *dest_ = label;
+  }
+};
+
 } // namespace SiiIR
