@@ -100,7 +100,7 @@ ASTNodePtr ParserImpl::parse_declaration_or_function_definition() {
     auto declaration_list = parse_declaration_list();
     auto function_body = parse_compound_statement();
 
-    result = ASTNode::normalize_declaration(ASTNode::function_declaration(
+    result = ASTNode::Normalize_declaration(ASTNode::Function_declaration(
         Declarator::Create(type_builder->get(), identifier->literal_),
         std::move(declaration_list), std::move(function_body)));
     goto done;
@@ -111,7 +111,7 @@ ASTNodePtr ParserImpl::parse_declaration_or_function_definition() {
     auto function_body = parse_compound_statement();
     auto declarator =
         Declarator::Create(type_builder->get(), identifier->literal_);
-    result = ASTNode::normalize_declaration(ASTNode::function_declaration(
+    result = ASTNode::Normalize_declaration(ASTNode::Function_declaration(
         std::move(declarator), std::move(declaration_list),
         std::move(function_body)));
     goto done;
@@ -154,7 +154,7 @@ DeclarationNodePtr ParserImpl::parse_init_declarator(TypePtr base_type) {
     lexer_->expect_next("=");
     initializer = parse_assignment();
   }
-  result = ASTNode::normalize_declaration(ASTNode::declaration(
+  result = ASTNode::Normalize_declaration(ASTNode::Declaration(
       Declarator::Create(type_builder->get(), identifier->literal_),
       std::move(initializer)));
   result->lex_info_ = lexer_->get_lex_info(begin_pos);
@@ -264,12 +264,12 @@ void ParserImpl::parse_function_array_suffix(TypeBuilderPtr builder) {
 // DIRECT_DECLATATOR => {VARIABLE | '(' DECLARATOR ')'}? FUNCTION_ARRAY_SUFFIX
 LiteralNodePtr ParserImpl::parse_direct_declatator(TypeBuilderPtr builder,
                                                    bool expect_identifier) {
-  LiteralNodePtr result = ASTNode::identifier("");
+  LiteralNodePtr result = ASTNode::Identifier("");
   LexPosition begin_pos = lexer_->current_position();
   auto next_token = lexer_->peek();
   if (next_token->type_ == TokenType::IDENTIFIER) {
     next_token = lexer_->next();
-    result = ASTNode::identifier(next_token->literal_);
+    result = ASTNode::Identifier(next_token->literal_);
   } else if (next_token->type_ == TokenType::LEFT_PARENTHESE) {
     lexer_->expect_next("(");
     auto old_builder = builder->building_of();
@@ -320,21 +320,21 @@ ParserImpl::parse_declaration(TypePtr base_type,
     } else if (next_token->type_ == TokenType::COMMA) {
       lexer_->expect_next(",");
     }
-    declaration_list.emplace_back(ASTNode::normalize_declaration(
-        ASTNode::declaration(parsed_declarator, std::move(initializer))));
+    declaration_list.emplace_back(ASTNode::Normalize_declaration(
+        ASTNode::Declaration(parsed_declarator, std::move(initializer))));
   }
   while (true) {
     auto next_token = lexer_->peek();
     if (next_token->type_ == TokenType::SEMICOLON) {
       lexer_->expect_next(";");
-      result = ASTNode::declaration_statement(std::move(declaration_list));
+      result = ASTNode::Declaration_statement(std::move(declaration_list));
       goto done;
     }
     declaration_list.emplace_back(parse_init_declarator(base_type));
     next_token = lexer_->peek();
     if (next_token->type_ == TokenType::SEMICOLON) {
       lexer_->expect_next(";");
-      result = ASTNode::declaration_statement(std::move(declaration_list));
+      result = ASTNode::Declaration_statement(std::move(declaration_list));
       goto done;
     }
     lexer_->expect_next(",");
@@ -397,7 +397,7 @@ CompoundStatementNodePtr ParserImpl::parse_compound_statement() {
       children.emplace_back(std::move(next_node));
     }
   }
-  result = ASTNode::compound_statement(children);
+  result = ASTNode::Compound_statement(children);
 done:
   result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
@@ -449,7 +449,7 @@ ASTNodePtr ParserImpl::parse_iteration_statement() {
                               : parse_expression();
     lexer_->expect_next(")");
     statement = parse_statement();
-    result = ASTNode::for_loop(
+    result = ASTNode::For_loop(
         std::move(init_expression), std::move(condition_expression),
         std::move(increment_expession), std::move(statement));
     goto done;
@@ -461,7 +461,7 @@ ASTNodePtr ParserImpl::parse_iteration_statement() {
     condition_expression = parse_expression();
     lexer_->expect_next(")");
     lexer_->expect_next(";");
-    result = ASTNode::do_while(std::move(statement),
+    result = ASTNode::Do_while(std::move(statement),
                                std::move(condition_expression));
     goto done;
   } else {
@@ -470,7 +470,7 @@ ASTNodePtr ParserImpl::parse_iteration_statement() {
     condition_expression = parse_expression();
     lexer_->expect_next(")");
     statement = parse_statement();
-    result = ASTNode::while_loop(std::move(condition_expression),
+    result = ASTNode::While_loop(std::move(condition_expression),
                                  std::move(statement));
     goto done;
   }
@@ -496,7 +496,7 @@ ASTNodePtr ParserImpl::parse_select_statement() {
     lexer_->expect_next("else");
     else_statement = parse_statement();
   }
-  result = ASTNode::if_else(expression, if_statement, else_statement);
+  result = ASTNode::If_else(expression, if_statement, else_statement);
 done:
   result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
@@ -517,7 +517,7 @@ ASTNodePtr ParserImpl::parse_assignment() {
     goto done;
   }
   next_token = lexer_->next();
-  result = ASTNode::assign(lhs, parse_assignment());
+  result = ASTNode::Assign(lhs, parse_assignment());
 done:
   result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
@@ -540,9 +540,9 @@ ASTNodePtr ParserImpl::parse_equality() {
     next_token = lexer_->next();
     ASTNodePtr rhs = parse_relation();
     if (is_equal) {
-      lhs = ASTNode::equal(lhs, rhs);
+      lhs = ASTNode::Equal(lhs, rhs);
     } else {
-      lhs = ASTNode::not_equal(lhs, rhs);
+      lhs = ASTNode::Not_equal(lhs, rhs);
     }
   }
 done:
@@ -572,13 +572,13 @@ ASTNodePtr ParserImpl::parse_relation() {
     next_token = lexer_->next();
     ASTNodePtr rhs = parse_add_and_subtraction();
     if (is_less_than) {
-      lhs = ASTNode::less_than(lhs, rhs);
+      lhs = ASTNode::Less_than(lhs, rhs);
     } else if (is_less_equal) {
-      lhs = ASTNode::less_equal(lhs, rhs);
+      lhs = ASTNode::Less_equal(lhs, rhs);
     } else if (is_greater_than) {
-      lhs = ASTNode::less_than(rhs, lhs);
+      lhs = ASTNode::Less_than(rhs, lhs);
     } else {
-      lhs = ASTNode::less_equal(rhs, lhs);
+      lhs = ASTNode::Less_equal(rhs, lhs);
     }
   }
 done:
@@ -601,7 +601,7 @@ ASTNodePtr ParserImpl::parse_add_and_subtraction() {
     }
     next_token = lexer_->next();
     ASTNodePtr rhs = parse_multiply_and_division();
-    lhs = is_add ? ASTNode::add(lhs, rhs) : ASTNode::subtract(lhs, rhs);
+    lhs = is_add ? ASTNode::Add(lhs, rhs) : ASTNode::Subtract(lhs, rhs);
   }
 done:
   result->lex_info_ = lexer_->get_lex_info(begin_pos);
@@ -623,7 +623,7 @@ ASTNodePtr ParserImpl::parse_multiply_and_division() {
     }
     next_token = lexer_->next();
     ASTNodePtr rhs = parse_unary();
-    lhs = is_mul ? ASTNode::multiply(lhs, rhs) : ASTNode::divide(lhs, rhs);
+    lhs = is_mul ? ASTNode::Multiply(lhs, rhs) : ASTNode::Divide(lhs, rhs);
   }
 done:
   result->lex_info_ = lexer_->get_lex_info(begin_pos);
@@ -641,7 +641,7 @@ ASTNodePtr ParserImpl::parse_unary() {
     goto done;
   } else if (next_token->type_ == TokenType::HYPHEN) {
     next_token = lexer_->next();
-    result = ASTNode::negtive(parse_unary());
+    result = ASTNode::Negtive(parse_unary());
     goto done;
   }
   result = parse_primary();
@@ -657,11 +657,11 @@ ASTNodePtr ParserImpl::parse_primary() {
   TokenPtr next_token = lexer_->next();
   switch (next_token->type_) {
   case TokenType::IDENTIFIER: {
-    result = ASTNode::identifier(next_token->literal_);
+    result = ASTNode::Identifier(next_token->literal_);
     goto done;
   }
   case TokenType::INTEGER: {
-    result = ASTNode::integer(next_token->literal_);
+    result = ASTNode::Integer(next_token->literal_);
     goto done;
   }
   case TokenType::LEFT_PARENTHESE: {

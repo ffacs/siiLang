@@ -50,99 +50,99 @@ static TokenPtr token(TokenType type, std::string_view literal,
   return std::make_shared<Token>(type, literal, std::move(lex_info));
 }
 
-TokenPtr Token::unknow(std::string_view literal, LexInfo lex_info) {
+TokenPtr Token::Unknow(std::string_view literal, LexInfo lex_info) {
   return token(TokenType::UNKNOWN, literal, std::move(lex_info));
 }
 
-TokenPtr Token::integer(std::string_view literal, LexInfo lex_info) {
+TokenPtr Token::Integer(std::string_view literal, LexInfo lex_info) {
   return token(TokenType::INTEGER, literal, std::move(lex_info));
 }
 
-TokenPtr Token::identifier(std::string_view literal, LexInfo lex_info) {
+TokenPtr Token::Identifier(std::string_view literal, LexInfo lex_info) {
   return token(TokenType::IDENTIFIER, literal, std::move(lex_info));
 }
 
-TokenPtr Token::plus(LexInfo lex_info) {
+TokenPtr Token::Plus(LexInfo lex_info) {
   return token(TokenType::PLUS, "+", std::move(lex_info));
 }
 
-TokenPtr Token::hyphen(LexInfo lex_info) {
+TokenPtr Token::Hyphen(LexInfo lex_info) {
   return token(TokenType::HYPHEN, "-", std::move(lex_info));
 }
 
-TokenPtr Token::asterisk(LexInfo lex_info) {
+TokenPtr Token::Asterisk(LexInfo lex_info) {
   return token(TokenType::ASTERISK, "*", std::move(lex_info));
 }
 
-TokenPtr Token::slash(LexInfo lex_info) {
+TokenPtr Token::Slash(LexInfo lex_info) {
   return token(TokenType::SLASH, "/", std::move(lex_info));
 }
 
-TokenPtr Token::left_parenthese(LexInfo lex_info) {
+TokenPtr Token::Left_parenthese(LexInfo lex_info) {
   return token(TokenType::LEFT_PARENTHESE, "(", std::move(lex_info));
 }
 
-TokenPtr Token::right_parenthese(LexInfo lex_info) {
+TokenPtr Token::Right_parenthese(LexInfo lex_info) {
   return token(TokenType::RIGHT_PARENTHESE, ")", std::move(lex_info));
 }
 
-TokenPtr Token::semicolon(LexInfo lex_info) {
+TokenPtr Token::Semicolon(LexInfo lex_info) {
   return token(TokenType::SEMICOLON, ";", std::move(lex_info));
 }
 
-TokenPtr Token::equal(LexInfo lex_info) {
+TokenPtr Token::Equal(LexInfo lex_info) {
   return token(TokenType::EQUAL, "==", std::move(lex_info));
 }
 
-TokenPtr Token::not_equal(LexInfo lex_info) {
+TokenPtr Token::Not_equal(LexInfo lex_info) {
   return token(TokenType::NOT_EQUAL, "!=", std::move(lex_info));
 }
 
-TokenPtr Token::left_angle(LexInfo lex_info) {
+TokenPtr Token::Left_angle(LexInfo lex_info) {
   return token(TokenType::LEFT_ANGLE, "<", std::move(lex_info));
 }
 
-TokenPtr Token::less_equal(LexInfo lex_info) {
+TokenPtr Token::Less_equal(LexInfo lex_info) {
   return token(TokenType::LESS_EQUAL, "<=", std::move(lex_info));
 }
 
-TokenPtr Token::right_angle(LexInfo lex_info) {
+TokenPtr Token::Right_angle(LexInfo lex_info) {
   return token(TokenType::RIGHT_ANGLE, ">", std::move(lex_info));
 }
 
-TokenPtr Token::greater_equal(LexInfo lex_info) {
+TokenPtr Token::Greater_equal(LexInfo lex_info) {
   return token(TokenType::GREATER_EQUAL, ">=", std::move(lex_info));
 }
 
-TokenPtr Token::assgin(LexInfo lex_info) {
+TokenPtr Token::Assgin(LexInfo lex_info) {
   return token(TokenType::ASSIGN, "=", std::move(lex_info));
 }
 
-TokenPtr Token::left_brace(LexInfo lex_info) {
+TokenPtr Token::Left_brace(LexInfo lex_info) {
   return token(TokenType::LEFT_BRACE, "{", std::move(lex_info));
 }
 
-TokenPtr Token::right_brace(LexInfo lex_info) {
+TokenPtr Token::Right_brace(LexInfo lex_info) {
   return token(TokenType::RIGHT_BRACE, "}", std::move(lex_info));
 }
 
-TokenPtr Token::keyword(std::string_view literal, LexInfo lex_info) {
+TokenPtr Token::Keyword(std::string_view literal, LexInfo lex_info) {
   return token(TokenType::KEYWORD, literal, std::move(lex_info));
 }
 
-TokenPtr Token::type_specifier(std::string_view literal, LexInfo lex_info) {
+TokenPtr Token::Type_specifier(std::string_view literal, LexInfo lex_info) {
   return token(TokenType::TYPE_SPECIFER, literal, std::move(lex_info));
 }
 
-TokenPtr Token::comma(LexInfo lex_info) {
+TokenPtr Token::Comma(LexInfo lex_info) {
   return token(TokenType::COMMA, ",", std::move(lex_info));
 }
 
-TokenPtr Token::left_bracket(LexInfo lex_info) {
+TokenPtr Token::Left_bracket(LexInfo lex_info) {
   return token(TokenType::LEFT_BRACKET, "[", std::move(lex_info));
 }
 
-TokenPtr Token::right_bracket(LexInfo lex_info) {
+TokenPtr Token::Right_bracket(LexInfo lex_info) {
   return token(TokenType::RIGHT_BRACKET, "]", std::move(lex_info));
 }
 
@@ -205,46 +205,46 @@ private:
     switch (current_char()) {
     case '+': {
       index_++;
-      result = Token::plus(get_lex_info(begin_position));
+      result = Token::Plus(get_lex_info(begin_position));
       break;
     }
     case '-': {
       index_++;
-      result = Token::hyphen(get_lex_info(begin_position));
+      result = Token::Hyphen(get_lex_info(begin_position));
       break;
     }
     case '*': {
       index_++;
-      result = Token::asterisk(get_lex_info(begin_position));
+      result = Token::Asterisk(get_lex_info(begin_position));
       break;
     }
     case '/': {
       index_++;
-      result = Token::slash(get_lex_info(begin_position));
+      result = Token::Slash(get_lex_info(begin_position));
       break;
     }
     case '(': {
       index_++;
-      result = Token::left_parenthese(get_lex_info(begin_position));
+      result = Token::Left_parenthese(get_lex_info(begin_position));
       break;
     }
     case ')': {
       index_++;
-      result = Token::right_parenthese(get_lex_info(begin_position));
+      result = Token::Right_parenthese(get_lex_info(begin_position));
       break;
     }
     case ';': {
       index_++;
-      result = Token::semicolon(get_lex_info(begin_position));
+      result = Token::Semicolon(get_lex_info(begin_position));
       break;
     }
     case '=': {
       index_++;
       if (index_ < contents_.size() && current_char() == '=') {
         index_++;
-        result = Token::equal(get_lex_info(begin_position));
+        result = Token::Equal(get_lex_info(begin_position));
       } else {
-        result = Token::assgin(get_lex_info(begin_position));
+        result = Token::Assgin(get_lex_info(begin_position));
       }
       break;
     }
@@ -252,10 +252,10 @@ private:
       index_++;
       if (index_ < contents_.size() && current_char() == '=') {
         index_++;
-        result = Token::not_equal(get_lex_info(begin_position));
+        result = Token::Not_equal(get_lex_info(begin_position));
       } else {
         index_++;
-        result = Token::unknow(contents_.substr(index_ - 2, 2),
+        result = Token::Unknow(contents_.substr(index_ - 2, 2),
                                get_lex_info(begin_position));
       }
       break;
@@ -264,9 +264,9 @@ private:
       index_++;
       if (index_ < contents_.size() && current_char() == '=') {
         index_++;
-        result = Token::less_equal(get_lex_info(begin_position));
+        result = Token::Less_equal(get_lex_info(begin_position));
       } else {
-        result = Token::left_angle(get_lex_info(begin_position));
+        result = Token::Left_angle(get_lex_info(begin_position));
       }
       break;
     }
@@ -274,40 +274,40 @@ private:
       index_++;
       if (index_ < contents_.size() && current_char() == '=') {
         index_++;
-        result = Token::greater_equal(get_lex_info(begin_position));
+        result = Token::Greater_equal(get_lex_info(begin_position));
       } else {
-        result = Token::right_angle(get_lex_info(begin_position));
+        result = Token::Right_angle(get_lex_info(begin_position));
       }
       break;
     }
     case '{': {
       index_++;
-      result = Token::left_brace(get_lex_info(begin_position));
+      result = Token::Left_brace(get_lex_info(begin_position));
       break;
     }
     case '}': {
       index_++;
-      result = Token::right_brace(get_lex_info(begin_position));
+      result = Token::Right_brace(get_lex_info(begin_position));
       break;
     }
     case '[': {
       index_++;
-      result = Token::left_bracket(get_lex_info(begin_position));
+      result = Token::Left_bracket(get_lex_info(begin_position));
       break;
     }
     case ']': {
       index_++;
-      result = Token::right_bracket(get_lex_info(begin_position));
+      result = Token::Right_bracket(get_lex_info(begin_position));
       break;
     }
     case ',': {
       index_++;
-      result = Token::comma(get_lex_info(begin_position));
+      result = Token::Comma(get_lex_info(begin_position));
       break;
     }
     default: {
       index_++;
-      result = Token::unknow(contents_.substr(index_ - 1, 1),
+      result = Token::Unknow(contents_.substr(index_ - 1, 1),
                              get_lex_info(begin_position));
     }
     }
@@ -321,7 +321,7 @@ private:
       index_++;
       column_++;
     }
-    return Token::integer(
+    return Token::Integer(
         std::string_view(contents_.data() + begin, index_ - begin),
         get_lex_info(begin_position));
   }
@@ -335,12 +335,12 @@ private:
     }
     std::string literal(contents_.data() + begin, index_ - begin);
     if (KeyWords.find(literal) != KeyWords.end()) {
-      return Token::keyword(literal, get_lex_info(begin_position));
+      return Token::Keyword(literal, get_lex_info(begin_position));
     }
     if (TypeSpcifiers.find(literal) != TypeSpcifiers.end()) {
-      return Token::type_specifier(literal, get_lex_info(begin_position));
+      return Token::Type_specifier(literal, get_lex_info(begin_position));
     }
-    return Token::identifier(literal, get_lex_info(begin_position));
+    return Token::Identifier(literal, get_lex_info(begin_position));
   }
 
   char current_char() { return contents_[index_]; }
@@ -366,7 +366,7 @@ private:
       return next_variable();
     }
 
-    return Token::unknow(std::string_view(contents_.data() + index_, 1),
+    return Token::Unknow(std::string_view(contents_.data() + index_, 1),
                          get_lex_info(begin_position));
   }
 

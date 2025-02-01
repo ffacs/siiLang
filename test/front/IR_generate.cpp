@@ -20,45 +20,45 @@ static std::string IRStringGenerate(const ASTNodePtr root) {
 TEST(IRGenerator, FunctionDeclaration) {
   EXPECT_EQ(
       "@function1:\n",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
-          ASTNode::compound_statement({}))));
+          ASTNode::Compound_statement({}))));
   EXPECT_EQ(
       "@function1:\n"
       "  %0 = alloca size 4;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
-          ASTNode::compound_statement({ASTNode::declaration(
+          ASTNode::Compound_statement({ASTNode::Declaration(
               Declarator::Create(Type::basic(TypeKind::INT), "var1"),
               nullptr)}))));
   EXPECT_EQ(
       "@function1:\n"
       "  %0 = alloca size 4;\n"
       "  store 1 to %0;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
-          ASTNode::compound_statement({ASTNode::declaration(
+          ASTNode::Compound_statement({ASTNode::Declaration(
               Declarator::Create(Type::basic(TypeKind::INT), "var1"),
-              ASTNode::integer("1"))}))));
+              ASTNode::Integer("1"))}))));
   EXPECT_EQ(
       "@function1:\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  store 0 to %0;\n"
       "  store 1 to %1;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
-          ASTNode::compound_statement({
-              ASTNode::declaration(
+          ASTNode::Compound_statement({
+              ASTNode::Declaration(
                   Declarator::Create(Type::basic(TypeKind::INT), "var1"),
-                  ASTNode::integer("0")),
-              ASTNode::declaration(
+                  ASTNode::Integer("0")),
+              ASTNode::Declaration(
                   Declarator::Create(Type::basic(TypeKind::INT), "var2"),
-                  ASTNode::integer("1")),
+                  ASTNode::Integer("1")),
           }))));
   EXPECT_EQ(
       "@function1:\n"
@@ -68,18 +68,18 @@ TEST(IRGenerator, FunctionDeclaration) {
       "  store 1 to %1;\n"
       "  %2 = load %1;\n"
       "  store %2 to %0;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
-                   ASTNode::integer("0")),
-               ASTNode::declaration(
+                   ASTNode::Integer("0")),
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var2"),
-                   ASTNode::integer("1")),
-               ASTNode::assign(ASTNode::identifier("var1"),
-                               ASTNode::identifier("var2"))}))));
+                   ASTNode::Integer("1")),
+               ASTNode::Assign(ASTNode::Identifier("var1"),
+                               ASTNode::Identifier("var2"))}))));
   EXPECT_EQ(
       "@function1:\n"
       "  %0 = alloca size 4;\n"
@@ -90,21 +90,21 @@ TEST(IRGenerator, FunctionDeclaration) {
       "  %3 = 1 + 2;\n"
       "  %4 = %2 + %3;\n"
       "  store %4 to %0;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
-                   ASTNode::integer("0")),
-               ASTNode::declaration(
+                   ASTNode::Integer("0")),
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var2"),
-                   ASTNode::integer("1")),
-               ASTNode::assign(
-                   ASTNode::identifier("var1"),
-                   ASTNode::add(ASTNode::identifier("var2"),
-                                ASTNode::add(ASTNode::integer("1"),
-                                             ASTNode::integer("2"))))}))));
+                   ASTNode::Integer("1")),
+               ASTNode::Assign(
+                   ASTNode::Identifier("var1"),
+                   ASTNode::Add(ASTNode::Identifier("var2"),
+                                ASTNode::Add(ASTNode::Integer("1"),
+                                             ASTNode::Integer("2"))))}))));
   EXPECT_EQ(
       "@function1:\n"
       "  %0 = alloca size 4;\n"
@@ -113,24 +113,24 @@ TEST(IRGenerator, FunctionDeclaration) {
       "  %1 = 1 + 2;\n"
       "  store %1 to %0;\n"
       "  store 1 to %2;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function1"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
-                   ASTNode::integer("0")),
-               ASTNode::assign(
-                   ASTNode::identifier("var1"),
-                   ASTNode::add(ASTNode::integer("1"), ASTNode::integer("2"))),
-               ASTNode::declaration(
+                   ASTNode::Integer("0")),
+               ASTNode::Assign(
+                   ASTNode::Identifier("var1"),
+                   ASTNode::Add(ASTNode::Integer("1"), ASTNode::Integer("2"))),
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var2"),
-                   ASTNode::integer("1"))}))));
+                   ASTNode::Integer("1"))}))));
 }
 
 TEST(IRGenerator, FunctionDeclarationWithParameter) {
   EXPECT_EQ("@function1:\n",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(
                         Type::basic(TypeKind::INT),
@@ -138,9 +138,9 @@ TEST(IRGenerator, FunctionDeclarationWithParameter) {
                             Declarator::Create(Type::basic(TypeKind::INT), "a"),
                         }),
                     "function1"),
-                ASTNode::compound_statement({}))));
+                ASTNode::Compound_statement({}))));
   EXPECT_THROW(
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(
               Type::function(
                   Type::basic(TypeKind::INT),
@@ -149,11 +149,11 @@ TEST(IRGenerator, FunctionDeclarationWithParameter) {
                       Declarator::Create(Type::basic(TypeKind::INT), "a"),
                   }),
               "function1"),
-          ASTNode::compound_statement({}))),
+          ASTNode::Compound_statement({}))),
       std::invalid_argument);
   EXPECT_EQ("@function1:\n"
             "  store 1 to %0;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(
                         Type::basic(TypeKind::INT),
@@ -161,141 +161,141 @@ TEST(IRGenerator, FunctionDeclarationWithParameter) {
                             Declarator::Create(Type::basic(TypeKind::INT), "a"),
                         }),
                     "function1"),
-                ASTNode::compound_statement({ASTNode::assign(
-                    ASTNode::identifier("a"), ASTNode::integer("1"))}))));
+                ASTNode::Compound_statement({ASTNode::Assign(
+                    ASTNode::Identifier("a"), ASTNode::Integer("1"))}))));
 }
 
 TEST(IRGenerator, Multiply) {
   EXPECT_EQ("@function:\n"
             "  %0 = 1 * 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::multiply(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Multiply(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
             "  %2 = load %1;\n"
             "  %3 = load %0;\n"
             "  %4 = %2 * %3;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement(
-                    {ASTNode::declaration(
+                ASTNode::Compound_statement(
+                    {ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                          nullptr),
-                     ASTNode::declaration(
+                     ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                          nullptr),
-                     ASTNode::multiply(ASTNode::identifier("var1"),
-                                       ASTNode::identifier("var2"))}))));
+                     ASTNode::Multiply(ASTNode::Identifier("var1"),
+                                       ASTNode::Identifier("var2"))}))));
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
             "  %2 = load %0;\n"
             "  %3 = load %1;\n"
             "  %4 = %2 * %3;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement(
-                    {ASTNode::declaration(
+                ASTNode::Compound_statement(
+                    {ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                          nullptr),
-                     ASTNode::declaration(
+                     ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                          nullptr),
-                     ASTNode::multiply(ASTNode::identifier("var2"),
-                                       ASTNode::identifier("var1"))}))));
+                     ASTNode::Multiply(ASTNode::Identifier("var2"),
+                                       ASTNode::Identifier("var1"))}))));
 }
 
 TEST(IRGenerator, Divide) {
   EXPECT_EQ("@function:\n"
             "  %0 = 1 / 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::divide(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Divide(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
   EXPECT_EQ("@function:\n"
             "  %0 = 1 / 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::divide(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Divide(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
 }
 
 TEST(IRGenerator, Addition) {
   EXPECT_EQ("@function:\n"
             "  %0 = 1 + 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::add(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Add(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
 }
 
 TEST(IRGenerator, Subtraction) {
   EXPECT_EQ("@function:\n"
             "  %0 = 1 + 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::add(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Add(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
 }
 
 TEST(IRGenerator, Equal) {
   EXPECT_EQ("@function:\n"
             "  %0 = 1 == 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::equal(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Equal(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
 }
 
 TEST(IRGenerator, NotEqual) {
   EXPECT_EQ("@function:\n"
             "  %0 = 1 != 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::not_equal(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Not_equal(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
 }
 
 TEST(IRGenerator, LessThan) {
   EXPECT_EQ("@function:\n"
             "  %0 = 1 < 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::less_than(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Less_than(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
 }
 
 TEST(IRGenerator, LessEqual) {
   EXPECT_EQ("@function:\n"
             "  %0 = 1 <= 2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::less_equal(
-                    ASTNode::integer("1"), ASTNode::integer("2"))}))));
+                ASTNode::Compound_statement({ASTNode::Less_equal(
+                    ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
 }
 
 TEST(IRGenerator, Negtive) {
   EXPECT_EQ("@function:\n"
             "  %0 = -1;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement(
-                    {ASTNode::negtive(ASTNode::integer("1"))}))));
+                ASTNode::Compound_statement(
+                    {ASTNode::Negtive(ASTNode::Integer("1"))}))));
 }
 
 TEST(IRGenerator, Statements) {
@@ -303,12 +303,12 @@ TEST(IRGenerator, Statements) {
       "@function:\n"
       "  %0 = 1 + 2;\n"
       "  %1 = 1 - 2;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement({
-              ASTNode::add(ASTNode::integer("1"), ASTNode::integer("2")),
-              ASTNode::subtract(ASTNode::integer("1"), ASTNode::integer("2")),
+          ASTNode::Compound_statement({
+              ASTNode::Add(ASTNode::Integer("1"), ASTNode::Integer("2")),
+              ASTNode::Subtract(ASTNode::Integer("1"), ASTNode::Integer("2")),
           }))));
 }
 
@@ -318,12 +318,12 @@ TEST(IRGenerator, Recursive) {
       "  %0 = 1 * 2;\n"
       "  %1 = -3;\n"
       "  %2 = %0 * %1;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement({ASTNode::multiply(
-              ASTNode::multiply(ASTNode::integer("1"), ASTNode::integer("2")),
-              ASTNode::negtive(ASTNode::integer("3")))}))));
+          ASTNode::Compound_statement({ASTNode::Multiply(
+              ASTNode::Multiply(ASTNode::Integer("1"), ASTNode::Integer("2")),
+              ASTNode::Negtive(ASTNode::Integer("3")))}))));
 }
 
 TEST(IRGenerator, Assign) {
@@ -333,19 +333,19 @@ TEST(IRGenerator, Assign) {
       "  %1 = alloca size 4;\n"
       "  store 2 to %1;\n"
       "  store 2 to %0;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                    nullptr),
-               ASTNode::declaration(
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                    nullptr),
-               ASTNode::assign(ASTNode::identifier("var1"),
-                               ASTNode::assign(ASTNode::identifier("var2"),
-                                               ASTNode::integer("2")))}))));
+               ASTNode::Assign(ASTNode::Identifier("var1"),
+                               ASTNode::Assign(ASTNode::Identifier("var2"),
+                                               ASTNode::Integer("2")))}))));
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
@@ -354,22 +354,22 @@ TEST(IRGenerator, Assign) {
             "  %4 = %2 + %3;\n"
             "  store %4 to %1;\n"
             "  store %4 to %0;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement(
-                    {ASTNode::declaration(
+                ASTNode::Compound_statement(
+                    {ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                          nullptr),
-                     ASTNode::declaration(
+                     ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                          nullptr),
-                     ASTNode::assign(
-                         ASTNode::identifier("var1"),
-                         ASTNode::assign(
-                             ASTNode::identifier("var2"),
-                             ASTNode::add(ASTNode::identifier("var1"),
-                                          ASTNode::identifier("var1"))))}))));
+                     ASTNode::Assign(
+                         ASTNode::Identifier("var1"),
+                         ASTNode::Assign(
+                             ASTNode::Identifier("var2"),
+                             ASTNode::Add(ASTNode::Identifier("var1"),
+                                          ASTNode::Identifier("var1"))))}))));
 }
 
 TEST(IRGenerator, CompoundStatement) {
@@ -381,26 +381,26 @@ TEST(IRGenerator, CompoundStatement) {
       "  %2 = load %1;\n"
       "  store %2 to %0;\n"
       "  store 2 to %3;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement(
-              {ASTNode::compound_statement(
-                   {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Compound_statement(
+                   {ASTNode::Declaration(
                         Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                         nullptr),
-                    ASTNode::declaration(
+                    ASTNode::Declaration(
                         Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                         nullptr),
-                    ASTNode::assign(ASTNode::identifier("var1"),
-                                    ASTNode::identifier("var2"))}),
-               ASTNode::compound_statement(
-                   {ASTNode::declaration(
+                    ASTNode::Assign(ASTNode::Identifier("var1"),
+                                    ASTNode::Identifier("var2"))}),
+               ASTNode::Compound_statement(
+                   {ASTNode::Declaration(
                         Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                         nullptr),
-                    ASTNode::compound_statement({ASTNode::assign(
-                        ASTNode::identifier("var1"), ASTNode::integer("2"))})}),
-               ASTNode::compound_statement({})}))));
+                    ASTNode::Compound_statement({ASTNode::Assign(
+                        ASTNode::Identifier("var1"), ASTNode::Integer("2"))})}),
+               ASTNode::Compound_statement({})}))));
   EXPECT_EQ(
       "@function:\n"
       "  %0 = alloca size 4;\n"
@@ -413,25 +413,25 @@ TEST(IRGenerator, CompoundStatement) {
       "  store 3 to %3;\n"
       "  %5 = load %3;\n"
       "  store %5 to %4;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement({
-              ASTNode::compound_statement({
-                  ASTNode::declaration(
+          ASTNode::Compound_statement({
+              ASTNode::Compound_statement({
+                  ASTNode::Declaration(
                       Declarator::Create(Type::basic(TypeKind::INT), "var1"),
-                      ASTNode::integer("2")),
-                  ASTNode::declaration(
+                      ASTNode::Integer("2")),
+                  ASTNode::Declaration(
                       Declarator::Create(Type::basic(TypeKind::INT), "var2"),
-                      ASTNode::identifier("var1")),
+                      ASTNode::Identifier("var1")),
               }),
-              ASTNode::compound_statement({
-                  ASTNode::declaration(
+              ASTNode::Compound_statement({
+                  ASTNode::Declaration(
                       Declarator::Create(Type::basic(TypeKind::INT), "var1"),
-                      ASTNode::integer("3")),
-                  ASTNode::declaration(
+                      ASTNode::Integer("3")),
+                  ASTNode::Declaration(
                       Declarator::Create(Type::basic(TypeKind::INT), "var2"),
-                      ASTNode::identifier("var1")),
+                      ASTNode::Identifier("var1")),
               }),
           }))));
 }
@@ -458,30 +458,30 @@ TEST(IRGenerator, SelectStatement) {
             "  goto Label.9;\n"
             "Label.9:\n"
             "  nope;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement(
-                    {ASTNode::declaration(
+                ASTNode::Compound_statement(
+                    {ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                          nullptr),
-                     ASTNode::declaration(
+                     ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                          nullptr),
-                     ASTNode::if_else(
-                         ASTNode::identifier("var1"),
-                         ASTNode::compound_statement({
-                             ASTNode::assign(ASTNode::identifier("var1"),
-                                             ASTNode::integer("1")),
+                     ASTNode::If_else(
+                         ASTNode::Identifier("var1"),
+                         ASTNode::Compound_statement({
+                             ASTNode::Assign(ASTNode::Identifier("var1"),
+                                             ASTNode::Integer("1")),
                          }),
-                         ASTNode::if_else(
-                             ASTNode::identifier("var2"),
-                             ASTNode::compound_statement(
-                                 {ASTNode::assign(ASTNode::identifier("var2"),
-                                                  ASTNode::integer("2"))}),
-                             ASTNode::compound_statement({ASTNode::assign(
-                                 ASTNode::identifier("var1"),
-                                 ASTNode::integer("3"))})))}))));
+                         ASTNode::If_else(
+                             ASTNode::Identifier("var2"),
+                             ASTNode::Compound_statement(
+                                 {ASTNode::Assign(ASTNode::Identifier("var2"),
+                                                  ASTNode::Integer("2"))}),
+                             ASTNode::Compound_statement({ASTNode::Assign(
+                                 ASTNode::Identifier("var1"),
+                                 ASTNode::Integer("3"))})))}))));
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
@@ -506,50 +506,50 @@ TEST(IRGenerator, SelectStatement) {
             "Label.11:\n"
             "  %12 = load %3;\n"
             "  store %12 to %2;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement(
-                    {ASTNode::declaration(
+                ASTNode::Compound_statement(
+                    {ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                          nullptr),
-                     ASTNode::declaration(
+                     ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                          nullptr),
-                     ASTNode::declaration(
+                     ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var3"),
                          nullptr),
-                     ASTNode::declaration(
+                     ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var4"),
                          nullptr),
-                     ASTNode::if_else(
-                         ASTNode::identifier("var1"),
-                         ASTNode::compound_statement({
-                             ASTNode::assign(ASTNode::identifier("var1"),
-                                             ASTNode::integer("1")),
+                     ASTNode::If_else(
+                         ASTNode::Identifier("var1"),
+                         ASTNode::Compound_statement({
+                             ASTNode::Assign(ASTNode::Identifier("var1"),
+                                             ASTNode::Integer("1")),
                          }),
-                         ASTNode::if_else(
-                             ASTNode::identifier("var2"),
-                             ASTNode::compound_statement(
-                                 {ASTNode::assign(ASTNode::identifier("var2"),
-                                                  ASTNode::integer("2"))}),
-                             ASTNode::compound_statement(
-                                 {ASTNode::assign(ASTNode::identifier("var1"),
-                                                  ASTNode::integer("3"))}))),
-                     ASTNode::assign(ASTNode::identifier("var3"),
-                                     ASTNode::identifier("var4"))}))));
+                         ASTNode::If_else(
+                             ASTNode::Identifier("var2"),
+                             ASTNode::Compound_statement(
+                                 {ASTNode::Assign(ASTNode::Identifier("var2"),
+                                                  ASTNode::Integer("2"))}),
+                             ASTNode::Compound_statement(
+                                 {ASTNode::Assign(ASTNode::Identifier("var1"),
+                                                  ASTNode::Integer("3"))}))),
+                     ASTNode::Assign(ASTNode::Identifier("var3"),
+                                     ASTNode::Identifier("var4"))}))));
 }
 
 TEST(IRGenerator, IterationStatement) {
   EXPECT_EQ("@function:\n"
             "Label.0:\n"
             "  goto Label.0;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement({ASTNode::for_loop(
+                ASTNode::Compound_statement({ASTNode::For_loop(
                     ASTNode::empty(), ASTNode::empty(), ASTNode::empty(),
-                    ASTNode::compound_statement({}))}))));
+                    ASTNode::Compound_statement({}))}))));
   EXPECT_EQ(
       "@function:\n"
       "  %0 = alloca size 4;\n"
@@ -564,26 +564,26 @@ TEST(IRGenerator, IterationStatement) {
       "  goto Label.3;\n"
       "Label.6:\n"
       "  nope;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                    nullptr),
-               ASTNode::declaration(
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                    nullptr),
-               ASTNode::declaration(
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var3"),
                    nullptr),
-               ASTNode::for_loop(
-                   ASTNode::assign(ASTNode::identifier("var1"),
-                                   ASTNode::integer("1")),
-                   ASTNode::identifier("var2"), ASTNode::identifier("var3"),
-                   ASTNode::compound_statement(
-                       {ASTNode::assign(ASTNode::identifier("var1"),
-                                        ASTNode::integer("3"))}))}))));
+               ASTNode::For_loop(
+                   ASTNode::Assign(ASTNode::Identifier("var1"),
+                                   ASTNode::Integer("1")),
+                   ASTNode::Identifier("var2"), ASTNode::Identifier("var3"),
+                   ASTNode::Compound_statement(
+                       {ASTNode::Assign(ASTNode::Identifier("var1"),
+                                        ASTNode::Integer("3"))}))}))));
   EXPECT_EQ(
       "@function:\n"
       "  %0 = alloca size 4;\n"
@@ -599,27 +599,27 @@ TEST(IRGenerator, IterationStatement) {
       "  goto Label.3;\n"
       "Label.6:\n"
       "  nope;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                    nullptr),
-               ASTNode::declaration(
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                    nullptr),
-               ASTNode::declaration(
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var3"),
                    nullptr),
-               ASTNode::for_loop(ASTNode::assign(ASTNode::identifier("var1"),
-                                                 ASTNode::integer("1")),
-                                 ASTNode::identifier("var2"),
-                                 ASTNode::assign(ASTNode::identifier("var3"),
-                                                 ASTNode::integer("1")),
-                                 ASTNode::compound_statement({ASTNode::assign(
-                                     ASTNode::identifier("var1"),
-                                     ASTNode::integer("3"))}))}))));
+               ASTNode::For_loop(ASTNode::Assign(ASTNode::Identifier("var1"),
+                                                 ASTNode::Integer("1")),
+                                 ASTNode::Identifier("var2"),
+                                 ASTNode::Assign(ASTNode::Identifier("var3"),
+                                                 ASTNode::Integer("1")),
+                                 ASTNode::Compound_statement({ASTNode::Assign(
+                                     ASTNode::Identifier("var1"),
+                                     ASTNode::Integer("3"))}))}))));
   EXPECT_EQ(
       "@function:\n"
       "  %0 = alloca size 4;\n"
@@ -630,27 +630,27 @@ TEST(IRGenerator, IterationStatement) {
       "  store 3 to %0;\n"
       "  store 1 to %2;\n"
       "  goto Label.3;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                    nullptr),
-               ASTNode::declaration(
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var2"),
                    nullptr),
-               ASTNode::declaration(
+               ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var3"),
                    nullptr),
-               ASTNode::for_loop(ASTNode::assign(ASTNode::identifier("var1"),
-                                                 ASTNode::integer("1")),
+               ASTNode::For_loop(ASTNode::Assign(ASTNode::Identifier("var1"),
+                                                 ASTNode::Integer("1")),
                                  ASTNode::empty(),
-                                 ASTNode::assign(ASTNode::identifier("var3"),
-                                                 ASTNode::integer("1")),
-                                 ASTNode::compound_statement({ASTNode::assign(
-                                     ASTNode::identifier("var1"),
-                                     ASTNode::integer("3"))}))}))));
+                                 ASTNode::Assign(ASTNode::Identifier("var3"),
+                                                 ASTNode::Integer("1")),
+                                 ASTNode::Compound_statement({ASTNode::Assign(
+                                     ASTNode::Identifier("var1"),
+                                     ASTNode::Integer("3"))}))}))));
 
   EXPECT_EQ("@function:\n"
             "  %0 = alloca size 4;\n"
@@ -661,14 +661,14 @@ TEST(IRGenerator, IterationStatement) {
             "  goto Label.1;\n"
             "Label.4:\n"
             "  nope;",
-            IRStringGenerate(ASTNode::function_declaration(
+            IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "function"),
-                ASTNode::compound_statement(
-                    {ASTNode::declaration(
+                ASTNode::Compound_statement(
+                    {ASTNode::Declaration(
                          Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                          nullptr),
-                     ASTNode::while_loop(ASTNode::identifier("var1"),
+                     ASTNode::While_loop(ASTNode::Identifier("var1"),
                                          ASTNode::empty())}))));
   EXPECT_EQ(
       "@function:\n"
@@ -681,16 +681,16 @@ TEST(IRGenerator, IterationStatement) {
       "  goto Label.1;\n"
       "Label.4:\n"
       "  nope;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                    nullptr),
-               ASTNode::while_loop(ASTNode::identifier("var1"),
-                                   ASTNode::assign(ASTNode::identifier("var1"),
-                                                   ASTNode::integer("3")))}))));
+               ASTNode::While_loop(ASTNode::Identifier("var1"),
+                                   ASTNode::Assign(ASTNode::Identifier("var1"),
+                                                   ASTNode::Integer("3")))}))));
   EXPECT_EQ(
       "@function:\n"
       "  %0 = alloca size 4;\n"
@@ -700,16 +700,16 @@ TEST(IRGenerator, IterationStatement) {
       "  if %2 goto Label.1 else Label.3;\n"
       "Label.3:\n"
       "  nope;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                    nullptr),
-               ASTNode::do_while(ASTNode::assign(ASTNode::identifier("var1"),
-                                                 ASTNode::integer("3")),
-                                 ASTNode::identifier("var1"))}))));
+               ASTNode::Do_while(ASTNode::Assign(ASTNode::Identifier("var1"),
+                                                 ASTNode::Integer("3")),
+                                 ASTNode::Identifier("var1"))}))));
   EXPECT_EQ(
       "@function:\n"
       "  %0 = alloca size 4;\n"
@@ -718,16 +718,16 @@ TEST(IRGenerator, IterationStatement) {
       "  if 3 goto Label.1 else Label.2;\n"
       "Label.2:\n"
       "  nope;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration(
                    Declarator::Create(Type::basic(TypeKind::INT), "var1"),
                    nullptr),
-               ASTNode::do_while(ASTNode::empty(),
-                                 ASTNode::assign(ASTNode::identifier("var1"),
-                                                 ASTNode::integer("3")))}))));
+               ASTNode::Do_while(ASTNode::empty(),
+                                 ASTNode::Assign(ASTNode::Identifier("var1"),
+                                                 ASTNode::Integer("3")))}))));
 }
 
 TEST(IRGenerator, Declaration) {
@@ -740,46 +740,46 @@ TEST(IRGenerator, Declaration) {
       "  %4 = %3 + 10;\n"
       "  store %4 to %0;\n"
       "  store %4 to %2;",
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement({ASTNode::declaration_statement({
-              ASTNode::declaration(
+          ASTNode::Compound_statement({ASTNode::Declaration_statement({
+              ASTNode::Declaration(
                   Declarator::Create(Type::basic(TypeKind::INT), "c"), nullptr),
-              ASTNode::declaration(
+              ASTNode::Declaration(
                   Declarator::Create(Type::basic(TypeKind::INT), "b"), nullptr),
-              ASTNode::declaration(
+              ASTNode::Declaration(
                   Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                      "a"),
-                  ASTNode::assign(ASTNode::identifier("c"),
-                                  ASTNode::add(ASTNode::identifier("b"),
-                                               ASTNode::integer("10")))),
+                  ASTNode::Assign(ASTNode::Identifier("c"),
+                                  ASTNode::Add(ASTNode::Identifier("b"),
+                                               ASTNode::Integer("10")))),
           })}))));
   EXPECT_THROW(
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement({ASTNode::declaration_statement({
-              ASTNode::declaration(
+          ASTNode::Compound_statement({ASTNode::Declaration_statement({
+              ASTNode::Declaration(
                   Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                      "a"),
                   nullptr),
-              ASTNode::declaration(
+              ASTNode::Declaration(
                   Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                      "a"),
                   nullptr),
           })}))),
       std::invalid_argument);
   EXPECT_THROW(
-      IRStringGenerate(ASTNode::function_declaration(
+      IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "function"),
-          ASTNode::compound_statement({ASTNode::declaration_statement({
-              ASTNode::declaration(
+          ASTNode::Compound_statement({ASTNode::Declaration_statement({
+              ASTNode::Declaration(
                   Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                      "a"),
                   nullptr),
-              ASTNode::declaration(
+              ASTNode::Declaration(
                   Declarator::Create(Type::basic(TypeKind::INT), "a"), nullptr),
           })}))),
       std::invalid_argument);

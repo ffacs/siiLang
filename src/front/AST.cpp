@@ -9,72 +9,72 @@ ASTNodePtr ASTNode::empty() {
   return std::make_shared<ASTNode>(ASTNodeKind::EMPTY);
 }
 
-BinaryOperationNodePtr ASTNode::multiply(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Multiply(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::MUL);
 }
 
-BinaryOperationNodePtr ASTNode::divide(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Divide(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::DIV);
 }
 
-BinaryOperationNodePtr ASTNode::add(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Add(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::ADD);
 }
 
-BinaryOperationNodePtr ASTNode::subtract(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Subtract(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::SUB);
 }
 
-BinaryOperationNodePtr ASTNode::equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Equal(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::EQUAL);
 }
 
-BinaryOperationNodePtr ASTNode::not_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Not_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::NOT_EQUAL);
 }
 
-BinaryOperationNodePtr ASTNode::less_than(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Less_than(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::LESS_THAN);
 }
 
-BinaryOperationNodePtr ASTNode::less_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Less_equal(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::LESS_EQUAL);
 }
 
-BinaryOperationNodePtr ASTNode::assign(ASTNodePtr lhs, ASTNodePtr rhs) {
+BinaryOperationNodePtr ASTNode::Assign(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
                                                ASTNodeKind::ASSIGN);
 }
 
-LiteralNodePtr ASTNode::integer(const std::string &literal) {
+LiteralNodePtr ASTNode::Integer(const std::string &literal) {
   return std::make_shared<LiteralNode>(literal, ASTNodeKind::INTEGER);
 }
 
-LiteralNodePtr ASTNode::identifier(const std::string &name) {
+LiteralNodePtr ASTNode::Identifier(const std::string &name) {
   return std::make_shared<LiteralNode>(name, ASTNodeKind::IDENTIFIER);
 }
 
-UnaryOperationNodePtr ASTNode::negtive(ASTNodePtr operand) {
+UnaryOperationNodePtr ASTNode::Negtive(ASTNodePtr operand) {
   return std::make_shared<UnaryOperationNode>(std::move(operand),
                                               ASTNodeKind::NEG);
 }
 
-IfElseNodePtr ASTNode::if_else(ASTNodePtr expression, ASTNodePtr if_statement,
+IfElseNodePtr ASTNode::If_else(ASTNodePtr expression, ASTNodePtr if_statement,
                                ASTNodePtr else_statement) {
   return std::make_shared<IfElseNode>(std::move(expression),
                                       std::move(if_statement),
                                       std::move(else_statement));
 }
 
-ForLoopNodePtr ASTNode::for_loop(ASTNodePtr init_expression,
+ForLoopNodePtr ASTNode::For_loop(ASTNodePtr init_expression,
                                  ASTNodePtr condition_expression,
                                  ASTNodePtr increment_expression,
                                  ASTNodePtr statement) {
@@ -83,43 +83,43 @@ ForLoopNodePtr ASTNode::for_loop(ASTNodePtr init_expression,
       std::move(increment_expression), std::move(statement));
 }
 
-DoWhileNodePtr ASTNode::do_while(ASTNodePtr statement,
+DoWhileNodePtr ASTNode::Do_while(ASTNodePtr statement,
                                  ASTNodePtr condition_expression) {
   return std::make_shared<DoWhileNode>(std::move(statement),
                                        std::move(condition_expression));
 }
 
-WhileLoopNodePtr ASTNode::while_loop(ASTNodePtr condition_expression,
+WhileLoopNodePtr ASTNode::While_loop(ASTNodePtr condition_expression,
                                      ASTNodePtr statement) {
   return std::make_shared<WhileLoopNode>(std::move(condition_expression),
                                          std::move(statement));
 }
 
 CompoundStatementNodePtr
-ASTNode::compound_statement(std::vector<ASTNodePtr> children) {
+ASTNode::Compound_statement(std::vector<ASTNodePtr> children) {
   return std::make_shared<CompoundStatementNode>(std::move(children));
 }
 
 VariableDeclarationNodePtr
-ASTNode::variable_declaration(DeclaratorPtr declarator,
+ASTNode::Variable_declaration(DeclaratorPtr declarator,
                               ASTNodePtr initializer) {
   return std::make_shared<VariableDeclarationNode>(std::move(declarator),
                                                    std::move(initializer));
 }
 
-DeclarationStatementNodePtr ASTNode::declaration_statement(
+DeclarationStatementNodePtr ASTNode::Declaration_statement(
     std::vector<DeclarationNodePtr> declaration_list) {
   return std::make_shared<DeclarationStatementNode>(
       std::move(declaration_list));
 }
 
 FunctionDeclarationNodePtr
-ASTNode::function_declaration(DeclaratorPtr declarator, CompoundStatementNodePtr body) {
+ASTNode::Function_declaration(DeclaratorPtr declarator, CompoundStatementNodePtr body) {
   return std::make_shared<FunctionDeclarationNode>(std::move(declarator),
                                                    std::move(body));
 }
 
-FunctionDeclarationNodePtr ASTNode::function_declaration(
+FunctionDeclarationNodePtr ASTNode::Function_declaration(
     DeclaratorPtr declarator,
     std::vector<DeclarationStatementNodePtr> declaration_statement_list,
     CompoundStatementNodePtr body) {
@@ -128,7 +128,7 @@ FunctionDeclarationNodePtr ASTNode::function_declaration(
       std::move(body));
 }
 
-DeclarationNodePtr ASTNode::normalize_declaration(ASTNodePtr node) {
+DeclarationNodePtr ASTNode::Normalize_declaration(ASTNodePtr node) {
   auto &declaration_node = static_cast<DeclarationNode &>(*node);
   auto &declarator = declaration_node.declarator_;
   const auto &type = declarator->type_;
@@ -136,23 +136,23 @@ DeclarationNodePtr ASTNode::normalize_declaration(ASTNodePtr node) {
     throw std::invalid_argument("Expect type for a declaration");
   }
   if (type->kind_ == TypeKind::FUNCTION) {
-    return normalize_function_declaration(node);
+    return Normalize_function_declaration(node);
   }
-  return ASTNode::normalize_variable_declaration(node);
+  return ASTNode::Normalize_variable_declaration(node);
 }
 
 VariableDeclarationNodePtr
-ASTNode::normalize_variable_declaration(ASTNodePtr node) {
+ASTNode::Normalize_variable_declaration(ASTNodePtr node) {
   auto &variable_node = static_cast<VariableDeclarationNode &>(*node);
   auto &declarator = variable_node.declarator_;
   auto &initializer = variable_node.initializer_;
   declarator->type_ = Type::NormalizeVariableDeclaration(declarator->type_);
-  return ASTNode::variable_declaration(std::move(declarator),
+  return ASTNode::Variable_declaration(std::move(declarator),
                                        std::move(initializer));
 }
 
 FunctionDeclarationNodePtr
-ASTNode::normalize_function_declaration(ASTNodePtr node) {
+ASTNode::Normalize_function_declaration(ASTNodePtr node) {
   auto &function_node = static_cast<FunctionDeclarationNode &>(*node);
   auto &declarator = function_node.declarator_;
   auto &declaration_statement_list = function_node.declaration_statement_list_;
@@ -251,7 +251,7 @@ ASTNode::normalize_function_declaration(ASTNodePtr node) {
                                                    std::move(body));
 }
 
-DeclarationNodePtr ASTNode::declaration(DeclaratorPtr declarator,
+DeclarationNodePtr ASTNode::Declaration(DeclaratorPtr declarator,
                                         ASTNodePtr initializer) {
   const auto &type = declarator->type_;
   if (type == nullptr) {
@@ -262,9 +262,9 @@ DeclarationNodePtr ASTNode::declaration(DeclaratorPtr declarator,
       throw std::invalid_argument(
           "illegal initializer (only variables can be initialized)");
     }
-    return ASTNode::function_declaration(std::move(declarator), {}, nullptr);
+    return ASTNode::Function_declaration(std::move(declarator), {}, nullptr);
   }
-  return ASTNode::variable_declaration(std::move(declarator),
+  return ASTNode::Variable_declaration(std::move(declarator),
                                        std::move(initializer));
 }
 

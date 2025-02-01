@@ -70,47 +70,47 @@ struct ASTNode {
   void accept(ASTVisitor &visitor);
 
   static ASTNodePtr empty();
-  static BinaryOperationNodePtr multiply(ASTNodePtr lhs, ASTNodePtr rhs);
-  static BinaryOperationNodePtr divide(ASTNodePtr lhs, ASTNodePtr rhs);
-  static BinaryOperationNodePtr add(ASTNodePtr lhs, ASTNodePtr rhs);
-  static BinaryOperationNodePtr subtract(ASTNodePtr lhs, ASTNodePtr rhs);
-  static BinaryOperationNodePtr equal(ASTNodePtr lhs, ASTNodePtr rhs);
-  static BinaryOperationNodePtr not_equal(ASTNodePtr lhs, ASTNodePtr rhs);
-  static BinaryOperationNodePtr less_than(ASTNodePtr lhs, ASTNodePtr rhs);
-  static BinaryOperationNodePtr less_equal(ASTNodePtr lhs, ASTNodePtr rhs);
-  static BinaryOperationNodePtr assign(ASTNodePtr lhs, ASTNodePtr rhs);
-  static LiteralNodePtr identifier(const std::string &name);
-  static LiteralNodePtr integer(const std::string &literal);
-  static UnaryOperationNodePtr negtive(ASTNodePtr operand);
-  static IfElseNodePtr if_else(ASTNodePtr expression, ASTNodePtr if_statement,
+  static BinaryOperationNodePtr Multiply(ASTNodePtr lhs, ASTNodePtr rhs);
+  static BinaryOperationNodePtr Divide(ASTNodePtr lhs, ASTNodePtr rhs);
+  static BinaryOperationNodePtr Add(ASTNodePtr lhs, ASTNodePtr rhs);
+  static BinaryOperationNodePtr Subtract(ASTNodePtr lhs, ASTNodePtr rhs);
+  static BinaryOperationNodePtr Equal(ASTNodePtr lhs, ASTNodePtr rhs);
+  static BinaryOperationNodePtr Not_equal(ASTNodePtr lhs, ASTNodePtr rhs);
+  static BinaryOperationNodePtr Less_than(ASTNodePtr lhs, ASTNodePtr rhs);
+  static BinaryOperationNodePtr Less_equal(ASTNodePtr lhs, ASTNodePtr rhs);
+  static BinaryOperationNodePtr Assign(ASTNodePtr lhs, ASTNodePtr rhs);
+  static LiteralNodePtr Identifier(const std::string &name);
+  static LiteralNodePtr Integer(const std::string &literal);
+  static UnaryOperationNodePtr Negtive(ASTNodePtr operand);
+  static IfElseNodePtr If_else(ASTNodePtr expression, ASTNodePtr if_statement,
                                ASTNodePtr else_statement);
-  static ForLoopNodePtr for_loop(ASTNodePtr init_expression,
+  static ForLoopNodePtr For_loop(ASTNodePtr init_expression,
                                  ASTNodePtr condition_expression,
                                  ASTNodePtr add_expression,
                                  ASTNodePtr statement);
-  static DoWhileNodePtr do_while(ASTNodePtr statement,
+  static DoWhileNodePtr Do_while(ASTNodePtr statement,
                                  ASTNodePtr condition_expression);
-  static WhileLoopNodePtr while_loop(ASTNodePtr condition_expression,
+  static WhileLoopNodePtr While_loop(ASTNodePtr condition_expression,
                                      ASTNodePtr statement);
   static CompoundStatementNodePtr
-  compound_statement(std::vector<ASTNodePtr> children);
+  Compound_statement(std::vector<ASTNodePtr> children);
   static VariableDeclarationNodePtr
-  variable_declaration(DeclaratorPtr declarator, ASTNodePtr initializer);
+  Variable_declaration(DeclaratorPtr declarator, ASTNodePtr initializer);
   static FunctionDeclarationNodePtr
-  function_declaration(DeclaratorPtr declarator, CompoundStatementNodePtr body);
-  static FunctionDeclarationNodePtr function_declaration(
+  Function_declaration(DeclaratorPtr declarator, CompoundStatementNodePtr body);
+  static FunctionDeclarationNodePtr Function_declaration(
       DeclaratorPtr declarator,
       std::vector<DeclarationStatementNodePtr> declaration_statement_list,
       CompoundStatementNodePtr body);
-  static DeclarationNodePtr declaration(DeclaratorPtr declarator,
+  static DeclarationNodePtr Declaration(DeclaratorPtr declarator,
                                         ASTNodePtr initializer);
   static DeclarationStatementNodePtr
-  declaration_statement(std::vector<DeclarationNodePtr> declaration_list);
+  Declaration_statement(std::vector<DeclarationNodePtr> declaration_list);
   static VariableDeclarationNodePtr
-  normalize_variable_declaration(ASTNodePtr node);
+  Normalize_variable_declaration(ASTNodePtr node);
   static FunctionDeclarationNodePtr
-  normalize_function_declaration(ASTNodePtr node);
-  static DeclarationNodePtr normalize_declaration(ASTNodePtr node);
+  Normalize_function_declaration(ASTNodePtr node);
+  static DeclarationNodePtr Normalize_declaration(ASTNodePtr node);
 };
 
 class ASTVisitor {

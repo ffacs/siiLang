@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -47,30 +46,30 @@ struct Token {
   LexInfo lex_info_;
 
   std::string to_string() const;
-  static TokenPtr unknow(std::string_view literal, LexInfo position);
-  static TokenPtr integer(std::string_view literal, LexInfo position);
-  static TokenPtr identifier(std::string_view literal, LexInfo position);
-  static TokenPtr keyword(std::string_view literal, LexInfo position);
-  static TokenPtr type_specifier(std::string_view literal, LexInfo position);
-  static TokenPtr plus(LexInfo position);
-  static TokenPtr hyphen(LexInfo position);
-  static TokenPtr asterisk(LexInfo position);
-  static TokenPtr slash(LexInfo position);
-  static TokenPtr left_parenthese(LexInfo position);
-  static TokenPtr right_parenthese(LexInfo position);
-  static TokenPtr semicolon(LexInfo position);
-  static TokenPtr equal(LexInfo position);
-  static TokenPtr not_equal(LexInfo position);
-  static TokenPtr left_angle(LexInfo position);
-  static TokenPtr less_equal(LexInfo position);
-  static TokenPtr right_angle(LexInfo position);
-  static TokenPtr greater_equal(LexInfo position);
-  static TokenPtr assgin(LexInfo position);
-  static TokenPtr left_brace(LexInfo position);
-  static TokenPtr right_brace(LexInfo position);
-  static TokenPtr comma(LexInfo position);
-  static TokenPtr left_bracket(LexInfo position);
-  static TokenPtr right_bracket(LexInfo position);
+  static TokenPtr Unknow(std::string_view literal, LexInfo position);
+  static TokenPtr Integer(std::string_view literal, LexInfo position);
+  static TokenPtr Identifier(std::string_view literal, LexInfo position);
+  static TokenPtr Keyword(std::string_view literal, LexInfo position);
+  static TokenPtr Type_specifier(std::string_view literal, LexInfo position);
+  static TokenPtr Plus(LexInfo position);
+  static TokenPtr Hyphen(LexInfo position);
+  static TokenPtr Asterisk(LexInfo position);
+  static TokenPtr Slash(LexInfo position);
+  static TokenPtr Left_parenthese(LexInfo position);
+  static TokenPtr Right_parenthese(LexInfo position);
+  static TokenPtr Semicolon(LexInfo position);
+  static TokenPtr Equal(LexInfo position);
+  static TokenPtr Not_equal(LexInfo position);
+  static TokenPtr Left_angle(LexInfo position);
+  static TokenPtr Less_equal(LexInfo position);
+  static TokenPtr Right_angle(LexInfo position);
+  static TokenPtr Greater_equal(LexInfo position);
+  static TokenPtr Assgin(LexInfo position);
+  static TokenPtr Left_brace(LexInfo position);
+  static TokenPtr Right_brace(LexInfo position);
+  static TokenPtr Comma(LexInfo position);
+  static TokenPtr Left_bracket(LexInfo position);
+  static TokenPtr Right_bracket(LexInfo position);
 };
 
 class Lexer {

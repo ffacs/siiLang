@@ -19,45 +19,45 @@ static std::string ASTToString(const ASTNodePtr &node) {
 TEST(Parser, ArithmeticPrimary) {
   std::string case1 = "{1;}";
   EXPECT_EQ(ASTToString(CreateParser(case1)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::integer("1")})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Integer("1")})));
   std::string case2 = "{1; 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case2)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::integer("1"), ASTNode::integer("2")})));
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Integer("1"), ASTNode::Integer("2")})));
   std::string case3 = "{var1; var2;}";
   EXPECT_EQ(ASTToString(CreateParser(case3)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::identifier("var1"), ASTNode::identifier("var2")})));
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Identifier("var1"), ASTNode::Identifier("var2")})));
   std::string case4 = "{(var1);}";
   EXPECT_EQ(
       ASTToString(CreateParser(case4)->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::identifier("var1")})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::Identifier("var1")})));
 }
 
 TEST(Parser, ArithmeticUnary) {
   std::string case1 = "{-1;}";
   EXPECT_EQ(ASTToString(CreateParser(case1)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::negtive(ASTNode::integer("1"))})));
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Negtive(ASTNode::Integer("1"))})));
   std::string case2 = "{-1; -2;}";
   EXPECT_EQ(ASTToString(CreateParser(case2)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::negtive(ASTNode::integer("1")),
-                 ASTNode::negtive(ASTNode::integer("2"))})));
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Negtive(ASTNode::Integer("1")),
+                 ASTNode::Negtive(ASTNode::Integer("2"))})));
   std::string case3 = "{-var1; -var2;}";
   EXPECT_EQ(ASTToString(CreateParser(case3)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::negtive(ASTNode::identifier("var1")),
-                 ASTNode::negtive(ASTNode::identifier("var2"))})));
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Negtive(ASTNode::Identifier("var1")),
+                 ASTNode::Negtive(ASTNode::Identifier("var2"))})));
   std::string case4 = "{(-var1);}";
   EXPECT_EQ(ASTToString(CreateParser(case4)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({
-                ASTNode::negtive(ASTNode::identifier("var1")),
+            ASTToString(ASTNode::Compound_statement({
+                ASTNode::Negtive(ASTNode::Identifier("var1")),
             })));
   std::string case5 = "{-(-var1);}";
   EXPECT_EQ(ASTToString(CreateParser(case5)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({
-                ASTNode::negtive(ASTNode::negtive(ASTNode::identifier("var1"))),
+            ASTToString(ASTNode::Compound_statement({
+                ASTNode::Negtive(ASTNode::Negtive(ASTNode::Identifier("var1"))),
             })));
 }
 
@@ -65,218 +65,218 @@ TEST(Parser, ArithmeticMulAndDiv) {
   std::string case1 = "{+1 * -2;}";
   EXPECT_EQ(
       ASTToString(CreateParser(case1)->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::multiply(
-          ASTNode::integer("1"), ASTNode::negtive(ASTNode::integer("2")))})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::Multiply(
+          ASTNode::Integer("1"), ASTNode::Negtive(ASTNode::Integer("2")))})));
   std::string case2 = "{1 * 2;2 * 2;}";
   EXPECT_EQ(
       ASTToString(CreateParser(case2)->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::multiply(ASTNode::integer("1"), ASTNode::integer("2")),
-           ASTNode::multiply(ASTNode::integer("2"), ASTNode::integer("2"))})));
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Multiply(ASTNode::Integer("1"), ASTNode::Integer("2")),
+           ASTNode::Multiply(ASTNode::Integer("2"), ASTNode::Integer("2"))})));
   std::string case3 = "{+1 * +2 * -3;}";
   EXPECT_EQ(ASTToString(CreateParser(case3)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::multiply(
-                ASTNode::multiply(ASTNode::integer("1"), ASTNode::integer("2")),
-                ASTNode::negtive(ASTNode::integer("3")))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Multiply(
+                ASTNode::Multiply(ASTNode::Integer("1"), ASTNode::Integer("2")),
+                ASTNode::Negtive(ASTNode::Integer("3")))})));
   std::string case4 = "{1 / 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case4)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::divide(
-                ASTNode::integer("1"), ASTNode::integer("2"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Divide(
+                ASTNode::Integer("1"), ASTNode::Integer("2"))})));
   std::string case5 = "{1 / 2 * 3;}";
   EXPECT_EQ(ASTToString(CreateParser(case5)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::multiply(
-                ASTNode::divide(ASTNode::integer("1"), ASTNode::integer("2")),
-                ASTNode::integer("3"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Multiply(
+                ASTNode::Divide(ASTNode::Integer("1"), ASTNode::Integer("2")),
+                ASTNode::Integer("3"))})));
 }
 
 TEST(Parser, ArithmeticAddAndSub) {
   std::string case1 = "{1 + 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case1)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::add(ASTNode::integer("1"), ASTNode::integer("2"))})));
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Add(ASTNode::Integer("1"), ASTNode::Integer("2"))})));
   std::string case2 = "{1 + 2;2 + 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case2)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({
-                ASTNode::add(ASTNode::integer("1"), ASTNode::integer("2")),
-                ASTNode::add(ASTNode::integer("2"), ASTNode::integer("2")),
+            ASTToString(ASTNode::Compound_statement({
+                ASTNode::Add(ASTNode::Integer("1"), ASTNode::Integer("2")),
+                ASTNode::Add(ASTNode::Integer("2"), ASTNode::Integer("2")),
             })));
   std::string case3 = "{1 + 2 + 3;}";
   EXPECT_EQ(ASTToString(CreateParser(case3)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::add(
-                ASTNode::add(ASTNode::integer("1"), ASTNode::integer("2")),
-                ASTNode::integer("3"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Add(
+                ASTNode::Add(ASTNode::Integer("1"), ASTNode::Integer("2")),
+                ASTNode::Integer("3"))})));
   std::string case4 = "{1 - 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case4)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::subtract(
-                ASTNode::integer("1"), ASTNode::integer("2"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Subtract(
+                ASTNode::Integer("1"), ASTNode::Integer("2"))})));
   std::string case5 = "{1 - 2 + 3;}";
   EXPECT_EQ(ASTToString(CreateParser(case5)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::add(
-                ASTNode::subtract(ASTNode::integer("1"), ASTNode::integer("2")),
-                ASTNode::integer("3"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Add(
+                ASTNode::Subtract(ASTNode::Integer("1"), ASTNode::Integer("2")),
+                ASTNode::Integer("3"))})));
   std::string case6 = "{1 - (2 * (var1 + 3)) + (1 + var2);}";
   EXPECT_EQ(
       ASTToString(CreateParser(case6)->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::add(
-          ASTNode::subtract(
-              ASTNode::integer("1"),
-              ASTNode::multiply(ASTNode::integer("2"),
-                                ASTNode::add(ASTNode::identifier("var1"),
-                                             ASTNode::integer("3")))),
-          ASTNode::add(ASTNode::integer("1"), ASTNode::identifier("var2")))})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::Add(
+          ASTNode::Subtract(
+              ASTNode::Integer("1"),
+              ASTNode::Multiply(ASTNode::Integer("2"),
+                                ASTNode::Add(ASTNode::Identifier("var1"),
+                                             ASTNode::Integer("3")))),
+          ASTNode::Add(ASTNode::Integer("1"), ASTNode::Identifier("var2")))})));
 }
 
 TEST(Parser, ArithmeticRelation) {
   std::string case1 = "{1 > 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case1)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::less_than(
-                ASTNode::integer("2"), ASTNode::integer("1"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Less_than(
+                ASTNode::Integer("2"), ASTNode::Integer("1"))})));
   std::string case2 = "{1 >= 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case2)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::less_equal(
-                ASTNode::integer("2"), ASTNode::integer("1"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Less_equal(
+                ASTNode::Integer("2"), ASTNode::Integer("1"))})));
   std::string case3 = "{1 < 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case3)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::less_than(
-                ASTNode::integer("1"), ASTNode::integer("2"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Less_than(
+                ASTNode::Integer("1"), ASTNode::Integer("2"))})));
   std::string case4 = "{1 <= 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case4)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::less_equal(
-                ASTNode::integer("1"), ASTNode::integer("2"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Less_equal(
+                ASTNode::Integer("1"), ASTNode::Integer("2"))})));
   std::string case5 = "{1 < 2 <= 2;}";
   EXPECT_EQ(
       ASTToString(CreateParser(case5)->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::less_equal(
-          ASTNode::less_than(ASTNode::integer("1"), ASTNode::integer("2")),
-          ASTNode::integer("2"))})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::Less_equal(
+          ASTNode::Less_than(ASTNode::Integer("1"), ASTNode::Integer("2")),
+          ASTNode::Integer("2"))})));
 }
 
 TEST(Parser, ArithmeticEquality) {
   std::string case1 = "{1 == 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case1)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::equal(
-                ASTNode::integer("1"), ASTNode::integer("2"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Equal(
+                ASTNode::Integer("1"), ASTNode::Integer("2"))})));
   std::string case2 = "{1 != 2;}";
   EXPECT_EQ(ASTToString(CreateParser(case2)->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::not_equal(
-                ASTNode::integer("1"), ASTNode::integer("2"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Not_equal(
+                ASTNode::Integer("1"), ASTNode::Integer("2"))})));
   std::string case3 = "{1 < 2 != 2;}";
   EXPECT_EQ(
       ASTToString(CreateParser(case3)->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::not_equal(
-          ASTNode::less_than(ASTNode::integer("1"), ASTNode::integer("2")),
-          ASTNode::integer("2"))})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::Not_equal(
+          ASTNode::Less_than(ASTNode::Integer("1"), ASTNode::Integer("2")),
+          ASTNode::Integer("2"))})));
 }
 
 TEST(Parser, Assignment) {
   EXPECT_EQ(
       ASTToString(CreateParser("{1 = 2 = 3;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::assign(
-          ASTNode::integer("1"),
-          ASTNode::assign(ASTNode::integer("2"), ASTNode::integer("3")))})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::Assign(
+          ASTNode::Integer("1"),
+          ASTNode::Assign(ASTNode::Integer("2"), ASTNode::Integer("3")))})));
   EXPECT_EQ(ASTToString(CreateParser("{1 == 2 = var2 = 3 + var3;}")
                             ->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::assign(
-                ASTNode::equal(ASTNode::integer("1"), ASTNode::integer("2")),
-                ASTNode::assign(ASTNode::identifier("var2"),
-                                ASTNode::add(ASTNode::integer("3"),
-                                             ASTNode::identifier("var3"))))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Assign(
+                ASTNode::Equal(ASTNode::Integer("1"), ASTNode::Integer("2")),
+                ASTNode::Assign(ASTNode::Identifier("var2"),
+                                ASTNode::Add(ASTNode::Integer("3"),
+                                             ASTNode::Identifier("var3"))))})));
 }
 
 TEST(Parser, CompoundStatement) {
   EXPECT_EQ(
       ASTToString(
           CreateParser("{ {var1;} {{var2;}} {} }")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::compound_statement({ASTNode::identifier("var1")}),
-           ASTNode::compound_statement(
-               {ASTNode::compound_statement({ASTNode::identifier("var2")})}),
-           ASTNode::compound_statement({})})));
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Compound_statement({ASTNode::Identifier("var1")}),
+           ASTNode::Compound_statement(
+               {ASTNode::Compound_statement({ASTNode::Identifier("var2")})}),
+           ASTNode::Compound_statement({})})));
 }
 
 TEST(Parser, SelectStatement) {
   EXPECT_EQ(
       ASTToString(
           CreateParser("{if(var1) { var1 = 1;}}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::if_else(ASTNode::identifier("var1"),
-                            ASTNode::compound_statement({
-                                ASTNode::assign(ASTNode::identifier("var1"),
-                                                ASTNode::integer("1")),
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::If_else(ASTNode::Identifier("var1"),
+                            ASTNode::Compound_statement({
+                                ASTNode::Assign(ASTNode::Identifier("var1"),
+                                                ASTNode::Integer("1")),
                             }),
                             nullptr)})));
   EXPECT_EQ(ASTToString(CreateParser("{if(var1) { var1 = 1;} else {var1=2;}}")
                             ->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::if_else(
-                ASTNode::identifier("var1"),
-                ASTNode::compound_statement({
-                    ASTNode::assign(ASTNode::identifier("var1"),
-                                    ASTNode::integer("1")),
+            ASTToString(ASTNode::Compound_statement({ASTNode::If_else(
+                ASTNode::Identifier("var1"),
+                ASTNode::Compound_statement({
+                    ASTNode::Assign(ASTNode::Identifier("var1"),
+                                    ASTNode::Integer("1")),
                 }),
-                ASTNode::compound_statement({
-                    ASTNode::assign(ASTNode::identifier("var1"),
-                                    ASTNode::integer("2")),
+                ASTNode::Compound_statement({
+                    ASTNode::Assign(ASTNode::Identifier("var1"),
+                                    ASTNode::Integer("2")),
                 }))})));
   EXPECT_EQ(
       ASTToString(CreateParser("{if(var1) { var1 = 1;} else if (var2) "
                                "{var2=2;} else {var1 = 3;}}")
                       ->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::if_else(
-          ASTNode::identifier("var1"),
-          ASTNode::compound_statement({
-              ASTNode::assign(ASTNode::identifier("var1"),
-                              ASTNode::integer("1")),
+      ASTToString(ASTNode::Compound_statement({ASTNode::If_else(
+          ASTNode::Identifier("var1"),
+          ASTNode::Compound_statement({
+              ASTNode::Assign(ASTNode::Identifier("var1"),
+                              ASTNode::Integer("1")),
           }),
-          ASTNode::if_else(
-              ASTNode::identifier("var2"),
-              ASTNode::compound_statement({ASTNode::assign(
-                  ASTNode::identifier("var2"), ASTNode::integer("2"))}),
-              ASTNode::compound_statement({ASTNode::assign(
-                  ASTNode::identifier("var1"), ASTNode::integer("3"))})))})));
+          ASTNode::If_else(
+              ASTNode::Identifier("var2"),
+              ASTNode::Compound_statement({ASTNode::Assign(
+                  ASTNode::Identifier("var2"), ASTNode::Integer("2"))}),
+              ASTNode::Compound_statement({ASTNode::Assign(
+                  ASTNode::Identifier("var1"), ASTNode::Integer("3"))})))})));
 }
 
 TEST(Parser, IterationStatement) {
   EXPECT_EQ(
       ASTToString(CreateParser("{for(;;) {}}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::for_loop(
+      ASTToString(ASTNode::Compound_statement({ASTNode::For_loop(
           ASTNode::empty(), ASTNode::empty(), ASTNode::empty(),
-          ASTNode::compound_statement({}))})));
+          ASTNode::Compound_statement({}))})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{for(var1;var2;var3) {}}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::for_loop(
-          ASTNode::identifier("var1"), ASTNode::identifier("var2"),
-          ASTNode::identifier("var3"), ASTNode::compound_statement({}))})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::For_loop(
+          ASTNode::Identifier("var1"), ASTNode::Identifier("var2"),
+          ASTNode::Identifier("var3"), ASTNode::Compound_statement({}))})));
   EXPECT_EQ(ASTToString(CreateParser("{for(var1; var2; var3) { var1 = 3; } }")
                             ->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::for_loop(
-                ASTNode::identifier("var1"), ASTNode::identifier("var2"),
-                ASTNode::identifier("var3"),
-                ASTNode::compound_statement({ASTNode::assign(
-                    ASTNode::identifier("var1"), ASTNode::integer("3"))}))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::For_loop(
+                ASTNode::Identifier("var1"), ASTNode::Identifier("var2"),
+                ASTNode::Identifier("var3"),
+                ASTNode::Compound_statement({ASTNode::Assign(
+                    ASTNode::Identifier("var1"), ASTNode::Integer("3"))}))})));
   EXPECT_EQ(
       ASTToString(CreateParser("{while(var1) {}}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::while_loop(
-          ASTNode::identifier("var1"), ASTNode::compound_statement({}))})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::While_loop(
+          ASTNode::Identifier("var1"), ASTNode::Compound_statement({}))})));
   EXPECT_EQ(ASTToString(CreateParser("{while(var1) { var1 = 3; }}")
                             ->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::while_loop(
-                ASTNode::identifier("var1"),
-                ASTNode::compound_statement({ASTNode::assign(
-                    ASTNode::identifier("var1"), ASTNode::integer("3"))}))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::While_loop(
+                ASTNode::Identifier("var1"),
+                ASTNode::Compound_statement({ASTNode::Assign(
+                    ASTNode::Identifier("var1"), ASTNode::Integer("3"))}))})));
   EXPECT_ANY_THROW(CreateParser("{while() {}}")->parse_compound_statement());
   EXPECT_EQ(ASTToString(CreateParser("{do {var1 = 3;} while(var1);}")
                             ->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement({ASTNode::do_while(
-                ASTNode::compound_statement({ASTNode::assign(
-                    ASTNode::identifier("var1"), ASTNode::integer("3"))}),
-                ASTNode::identifier("var1"))})));
+            ASTToString(ASTNode::Compound_statement({ASTNode::Do_while(
+                ASTNode::Compound_statement({ASTNode::Assign(
+                    ASTNode::Identifier("var1"), ASTNode::Integer("3"))}),
+                ASTNode::Identifier("var1"))})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{do ; while(var1 = 3);}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::do_while(
-          ASTNode::empty(), ASTNode::assign(ASTNode::identifier("var1"),
-                                            ASTNode::integer("3")))})));
+      ASTToString(ASTNode::Compound_statement({ASTNode::Do_while(
+          ASTNode::empty(), ASTNode::Assign(ASTNode::Identifier("var1"),
+                                            ASTNode::Integer("3")))})));
   EXPECT_ANY_THROW(
       CreateParser("{do while(var1);}")->parse_compound_statement());
   EXPECT_ANY_THROW(CreateParser("{do ;while();}")->parse_compound_statement());
@@ -300,24 +300,24 @@ TEST(Parser, Declaration) {
   EXPECT_THROW(CreateParser("{int a[2]();}")->parse_compound_statement(),
                std::invalid_argument);
   EXPECT_EQ(ASTToString(CreateParser("{int ;}")->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::declaration_statement({})})));
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Declaration_statement({})})));
   EXPECT_EQ(ASTToString(CreateParser("{int a;}")->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::declaration_statement({ASTNode::variable_declaration(
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Declaration_statement({ASTNode::Variable_declaration(
                     Declarator::Create(Type::basic(TypeKind::INT), "a"),
                     nullptr)})})));
   EXPECT_EQ(ASTToString(CreateParser("{int a();}")->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::declaration_statement({ASTNode::function_declaration(
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Declaration_statement({ASTNode::Function_declaration(
                     Declarator::Create(
                         Type::function(Type::basic(TypeKind::INT), {}), "a"),
                     nullptr)})})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int a(int b, int* c);}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::declaration_statement({ASTNode::function_declaration(
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
                   Type::function(
                       Type::basic(TypeKind::INT),
@@ -329,8 +329,8 @@ TEST(Parser, Declaration) {
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int a(int b[2]);}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::declaration_statement({ASTNode::function_declaration(
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
                   Type::function(
                       Type::basic(TypeKind::INT),
@@ -344,8 +344,8 @@ TEST(Parser, Declaration) {
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int a(int b());}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::declaration_statement({ASTNode::function_declaration(
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
                   Type::function(Type::basic(TypeKind::INT),
                                  {
@@ -359,8 +359,8 @@ TEST(Parser, Declaration) {
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int a(int b(int c[]));}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::declaration_statement({ASTNode::function_declaration(
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
                   Type::function(
                       Type::basic(TypeKind::INT),
@@ -378,8 +378,8 @@ TEST(Parser, Declaration) {
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int a(int b(int c()));}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::declaration_statement({ASTNode::function_declaration(
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
                   Type::function(
                       Type::basic(TypeKind::INT),
@@ -397,30 +397,30 @@ TEST(Parser, Declaration) {
               nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int a[2];}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::declaration_statement({ASTNode::variable_declaration(
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Declaration_statement({ASTNode::Variable_declaration(
               Declarator::Create(Type::array(Type::basic(TypeKind::INT), 2),
                                  "a"),
               nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int a, b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(Type::basic(TypeKind::INT), "a"), nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::basic(TypeKind::INT), "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int (*a);}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement(
-          {ASTNode::declaration_statement({ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement(
+          {ASTNode::Declaration_statement({ASTNode::Declaration(
               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                  "a"),
               nullptr)})})));
   EXPECT_EQ(ASTToString(
                 CreateParser("{int *(*a[4])();}")->parse_compound_statement()),
-            ASTToString(ASTNode::compound_statement(
-                {ASTNode::declaration_statement({ASTNode::declaration(
+            ASTToString(ASTNode::Compound_statement(
+                {ASTNode::Declaration_statement({ASTNode::Declaration(
                     Declarator::Create(
                         Type::array(
                             Type::pointer(Type::function(
@@ -430,45 +430,45 @@ TEST(Parser, Declaration) {
                     nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int **a, *b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(
                    Type::pointer(Type::pointer(Type::basic(TypeKind::INT))),
                    "a"),
                nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int a[4], *b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(Type::array(Type::basic(TypeKind::INT), 4),
                                   "a"),
                nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int a[4][3], *b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(
                    Type::array(Type::array(Type::basic(TypeKind::INT), 3), 4),
                    "a"),
                nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int *a[4][3], *b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(
                    Type::array(
                        Type::array(Type::pointer(Type::basic(TypeKind::INT)),
@@ -476,53 +476,53 @@ TEST(Parser, Declaration) {
                        4),
                    "a"),
                nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int (*a)[4][3], *b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(
                    Type::pointer(Type::array(
                        Type::array(Type::basic(TypeKind::INT), 3), 4)),
                    "a"),
                nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int a(), *b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(
                    Type::function(Type::basic(TypeKind::INT), {}), "a"),
                nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int (*a)(), *b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::function(
                                       Type::basic(TypeKind::INT), {})),
                                   "a"),
                nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int *(*a[4])(), *b;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement(
-          {ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
+          {ASTNode::Declaration(
                Declarator::Create(
                    Type::array(
                        Type::pointer(Type::function(
@@ -530,20 +530,20 @@ TEST(Parser, Declaration) {
                        4),
                    "a"),
                nullptr),
-           ASTNode::declaration(
+           ASTNode::Declaration(
                Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("{int *a = c = b + 10;}")->parse_compound_statement()),
-      ASTToString(ASTNode::compound_statement({ASTNode::declaration_statement({
-          ASTNode::declaration(
+      ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement({
+          ASTNode::Declaration(
               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                  "a"),
-              ASTNode::assign(ASTNode::identifier("c"),
-                              ASTNode::add(ASTNode::identifier("b"),
-                                           ASTNode::integer("10")))),
+              ASTNode::Assign(ASTNode::Identifier("c"),
+                              ASTNode::Add(ASTNode::Identifier("b"),
+                                           ASTNode::Integer("10")))),
       })})));
 }
 
@@ -580,100 +580,100 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
   EXPECT_EQ(
       ASTToString(
           CreateParser("int;")->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::declaration_statement({})));
+      ASTToString(ASTNode::Declaration_statement({})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("int a;")->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::declaration_statement({ASTNode::declaration(
+      ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
           Declarator::Create(Type::basic(TypeKind::INT), "a"), nullptr)})));
   EXPECT_EQ(
       ASTToString(CreateParser("int a[4];")
                       ->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::declaration_statement({ASTNode::declaration(
+      ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
           Declarator::Create(Type::array(Type::basic(TypeKind::INT), 4), "a"),
           nullptr)})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("int a();")->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::declaration_statement({ASTNode::declaration(
+      ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "a"),
           nullptr)})));
   EXPECT_EQ(ASTToString(CreateParser("int a = b;")
                             ->parse_declaration_or_function_definition()),
-            ASTToString(ASTNode::declaration_statement({ASTNode::declaration(
+            ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
                 Declarator::Create(Type::basic(TypeKind::INT), "a"),
-                ASTNode::identifier("b"))})));
+                ASTNode::Identifier("b"))})));
   EXPECT_EQ(
       ASTToString(CreateParser("int a, *b, c = a = 10;")
                       ->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::declaration_statement({
-          ASTNode::declaration(
+      ASTToString(ASTNode::Declaration_statement({
+          ASTNode::Declaration(
               Declarator::Create(Type::basic(TypeKind::INT), "a"), nullptr),
-          ASTNode::declaration(
+          ASTNode::Declaration(
               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
                                  "b"),
               nullptr),
-          ASTNode::declaration(
+          ASTNode::Declaration(
               Declarator::Create(Type::basic(TypeKind::INT), "c"),
-              ASTNode::assign(ASTNode::identifier("a"),
-                              ASTNode::integer("10"))),
+              ASTNode::Assign(ASTNode::Identifier("a"),
+                              ASTNode::Integer("10"))),
       })));
   EXPECT_EQ(ASTToString(CreateParser("int a = 10, *b, c = a = 10;")
                             ->parse_declaration_or_function_definition()),
-            ASTToString(ASTNode::declaration_statement({
-                ASTNode::declaration(
+            ASTToString(ASTNode::Declaration_statement({
+                ASTNode::Declaration(
                     Declarator::Create(Type::basic(TypeKind::INT), "a"),
-                    ASTNode::integer("10")),
-                ASTNode::declaration(
+                    ASTNode::Integer("10")),
+                ASTNode::Declaration(
                     Declarator::Create(
                         Type::pointer(Type::basic(TypeKind::INT)), "b"),
                     nullptr),
-                ASTNode::declaration(
+                ASTNode::Declaration(
                     Declarator::Create(Type::basic(TypeKind::INT), "c"),
-                    ASTNode::assign(ASTNode::identifier("a"),
-                                    ASTNode::integer("10"))),
+                    ASTNode::Assign(ASTNode::Identifier("a"),
+                                    ASTNode::Integer("10"))),
             })));
   EXPECT_EQ(ASTToString(CreateParser("int a() {}")
                             ->parse_declaration_or_function_definition()),
-            ASTToString(ASTNode::function_declaration(
+            ASTToString(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(Type::basic(TypeKind::INT), {}), "a"),
-                {}, ASTNode::compound_statement({}))));
+                {}, ASTNode::Compound_statement({}))));
   EXPECT_EQ(
       ASTToString(
           CreateParser("a() {}")->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::function_declaration(
+      ASTToString(ASTNode::Function_declaration(
           Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
                              "a"),
-          {}, ASTNode::compound_statement({}))));
+          {}, ASTNode::Compound_statement({}))));
   EXPECT_EQ(
       ASTToString(CreateParser("int* a() { int x = y; }")
                       ->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::function_declaration(
+      ASTToString(ASTNode::Function_declaration(
           Declarator::Create(
               Type::function(Type::pointer(Type::basic(TypeKind::INT)), {}),
               "a"),
           {},
-          ASTNode::compound_statement(
-              {ASTNode::declaration_statement({ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration_statement({ASTNode::Declaration(
                   Declarator::Create(Type::basic(TypeKind::INT), "x"),
-                  ASTNode::identifier("y"))})}))));
+                  ASTNode::Identifier("y"))})}))));
   EXPECT_EQ(
       ASTToString(CreateParser("int* a() { int x = y; }")
                       ->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::function_declaration(
+      ASTToString(ASTNode::Function_declaration(
           Declarator::Create(
               Type::function(Type::pointer(Type::basic(TypeKind::INT)), {}),
               "a"),
           {},
-          ASTNode::compound_statement(
-              {ASTNode::declaration_statement({ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration_statement({ASTNode::Declaration(
                   Declarator::Create(Type::basic(TypeKind::INT), "x"),
-                  ASTNode::identifier("y"))})}))));
+                  ASTNode::Identifier("y"))})}))));
   EXPECT_EQ(ASTToString(CreateParser("int a(int i, int j);")
                             ->parse_declaration_or_function_definition()),
-            ASTToString(ASTNode::declaration_statement({ASTNode::declaration(
+            ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
                 Declarator::Create(
                     Type::function(
                         Type::basic(TypeKind::INT),
@@ -686,7 +686,7 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
   EXPECT_EQ(
       ASTToString(CreateParser("int a(int i(), int j[5]);")
                       ->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::declaration_statement({ASTNode::declaration(
+      ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
           Declarator::Create(
               Type::function(
                   Type::basic(TypeKind::INT),
@@ -702,7 +702,7 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
   EXPECT_EQ(
       ASTToString(CreateParser("int a(int i(), int j[][5]);")
                       ->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::declaration_statement({ASTNode::declaration(
+      ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
           Declarator::Create(
               Type::function(
                   Type::basic(TypeKind::INT),
@@ -718,7 +718,7 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
           nullptr)})));
   EXPECT_EQ(ASTToString(CreateParser("int a(i, j);")
                             ->parse_declaration_or_function_definition()),
-            ASTToString(ASTNode::declaration_statement({ASTNode::declaration(
+            ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
                 Declarator::Create(
                     Type::function(
                         Type::basic(TypeKind::INT),
@@ -730,7 +730,7 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                 nullptr)})));
   EXPECT_EQ(ASTToString(CreateParser("int a(i, j, k) int k; {}")
                             ->parse_declaration_or_function_definition()),
-            ASTToString(ASTNode::function_declaration(
+            ASTToString(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(
                         Type::basic(TypeKind::INT),
@@ -738,11 +738,11 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                          Declarator::Create(Type::basic(TypeKind::INT), "j"),
                          Declarator::Create(Type::basic(TypeKind::INT), "k")}),
                     "a"),
-                ASTNode::compound_statement({}))));
+                ASTNode::Compound_statement({}))));
   EXPECT_EQ(
       ASTToString(CreateParser("int* a(i, j) int i; int j; { int x = y; }")
                       ->parse_declaration_or_function_definition()),
-      ASTToString(ASTNode::function_declaration(
+      ASTToString(ASTNode::Function_declaration(
           Declarator::Create(
               Type::function(
                   Type::pointer(Type::basic(TypeKind::INT)),
@@ -751,13 +751,13 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                       Declarator::Create(Type::basic(TypeKind::INT), "j"),
                   }),
               "a"),
-          ASTNode::compound_statement(
-              {ASTNode::declaration_statement({ASTNode::declaration(
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration_statement({ASTNode::Declaration(
                   Declarator::Create(Type::basic(TypeKind::INT), "x"),
-                  ASTNode::identifier("y"))})}))));
+                  ASTNode::Identifier("y"))})}))));
   EXPECT_EQ(ASTToString(CreateParser("int* a(int i, int j) { int x = y; }")
                             ->parse_declaration_or_function_definition()),
-            ASTToString(ASTNode::function_declaration(
+            ASTToString(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(
                         Type::pointer(Type::basic(TypeKind::INT)),
@@ -767,14 +767,14 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                         }),
                     "a"),
                 {},
-                ASTNode::compound_statement(
-                    {ASTNode::declaration_statement({ASTNode::declaration(
+                ASTNode::Compound_statement(
+                    {ASTNode::Declaration_statement({ASTNode::Declaration(
                         Declarator::Create(Type::basic(TypeKind::INT), "x"),
-                        ASTNode::identifier("y"))})}))));
+                        ASTNode::Identifier("y"))})}))));
   EXPECT_EQ(ASTToString(
                 CreateParser("int a(int (*i)(int, int), int j) { int x = y; }")
                     ->parse_declaration_or_function_definition()),
-            ASTToString(ASTNode::function_declaration(
+            ASTToString(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::function(
                         Type::basic(TypeKind::INT),
@@ -791,10 +791,10 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                         }),
                     "a"),
                 {},
-                ASTNode::compound_statement(
-                    {ASTNode::declaration_statement({ASTNode::declaration(
+                ASTNode::Compound_statement(
+                    {ASTNode::Declaration_statement({ASTNode::Declaration(
                         Declarator::Create(Type::basic(TypeKind::INT), "x"),
-                        ASTNode::identifier("y"))})}))));
+                        ASTNode::Identifier("y"))})}))));
 }
 
 } // namespace front
