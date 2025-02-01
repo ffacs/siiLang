@@ -23,7 +23,8 @@ void ASTPrintVisitor::visit(const ASTNode &node) {
         static_cast<const BinaryOperationNode &>(node);
     return visit(binary_operation_node);
   }
-  case ASTNodeKind::NEG: {
+  case ASTNodeKind::NEG:
+  case ASTNodeKind::GET_ADDRESS: {
     const UnaryOperationNode &unary_operation_node =
         static_cast<const UnaryOperationNode &>(node);
     return visit(unary_operation_node);
@@ -72,7 +73,7 @@ void ASTPrintVisitor::visit(const ASTNode &node) {
   }
   default:
     std::stringstream error_msg;
-    error_msg << "Unknow type of AST Node" << static_cast<uint32_t>(node.kind_);
+    error_msg << "Unknow type of AST Node On printing: " << static_cast<uint32_t>(node.kind_);
     throw std::invalid_argument(error_msg.str());
   }
 }
@@ -116,6 +117,14 @@ void ASTPrintVisitor::visit(const UnaryOperationNode &node) {
   switch (node.kind_) {
   case ASTNodeKind::NEG: {
     os_ << indent_ << "UnaryOperationNode: -"
+        << "\n";
+    ++indent_;
+    visit(*node.operand_);
+    --indent_;
+    return;
+  }
+  case ASTNodeKind::GET_ADDRESS: {
+    os_ << indent_ << "UnaryOperationNode: &"
         << "\n";
     ++indent_;
     visit(*node.operand_);

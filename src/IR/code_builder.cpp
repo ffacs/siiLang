@@ -37,6 +37,8 @@ public:
                    TemporaryAddressPtr dest) override;
   VariableAddressPtr append_store(TemporaryAddressPtr source,
                                   VariableAddressPtr dest) override;
+  VariableAddressPtr append_store(VariableAddressPtr source,
+                                  VariableAddressPtr dest) override;
   std::shared_ptr<std::vector<SiiIRCodePtr>> finish() override;
 
 protected:
@@ -137,6 +139,14 @@ void CodeBuilderImpl::append_less_equal(TemporaryAddressPtr left,
 }
 
 VariableAddressPtr CodeBuilderImpl::append_store(TemporaryAddressPtr source,
+                                                 VariableAddressPtr dest) {
+  SiiIRStorePtr new_code =
+      std::make_shared<SiiIRStore>(std::move(source), dest);
+  append_new_code(std::move(new_code));
+  return dest;
+}
+
+VariableAddressPtr CodeBuilderImpl::append_store(VariableAddressPtr source,
                                                  VariableAddressPtr dest) {
   SiiIRStorePtr new_code =
       std::make_shared<SiiIRStore>(std::move(source), dest);

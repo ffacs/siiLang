@@ -797,4 +797,9 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                         ASTNode::Identifier("y"))})}))));
 }
 
+TEST(Parser, GetAddress) {
+    EXPECT_EQ(ASTToString(CreateParser("&a;")->parse_assignment()),
+              ASTToString(ASTNode::Get_address(ASTNode::Identifier("a"))));    
+}
+
 } // namespace front

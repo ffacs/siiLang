@@ -38,6 +38,8 @@ protected:
                                             CodeBuilderPtr &code_builder);
   TemporaryAddressPtr generate_for_neg_node(const ASTNodePtr &node,
                                             CodeBuilderPtr &code_builder);
+  TemporaryAddressPtr generate_for_get_address_node(const ASTNodePtr &node,
+                                                      CodeBuilderPtr &code_builder);
   TemporaryAddressPtr generate_for_equal_node(const ASTNodePtr &node,
                                               CodeBuilderPtr &code_builder);
   TemporaryAddressPtr generate_for_not_equal_node(const ASTNodePtr &node,
@@ -89,6 +91,8 @@ IRGeneratorImpl::generate_for_rvalue_node(const ASTNodePtr &node,
     return generate_for_sub_node(node, code_builder);
   case ASTNodeKind::NEG:
     return generate_for_neg_node(node, code_builder);
+  case ASTNodeKind::GET_ADDRESS:
+    return generate_for_get_address_node(node, code_builder);
   case ASTNodeKind::EQUAL:
     return generate_for_equal_node(node, code_builder);
   case ASTNodeKind::NOT_EQUAL:
@@ -165,6 +169,9 @@ void IRGeneratorImpl::generate_for_non_value_node(
     return;
   case ASTNodeKind::NEG:
     generate_for_neg_node(node, code_builder);
+    return;
+  case ASTNodeKind::GET_ADDRESS:
+    generate_for_get_address_node(node, code_builder);
     return;
   case ASTNodeKind::INTEGER:
     generate_for_integer_node(node, code_builder);
@@ -291,6 +298,20 @@ IRGeneratorImpl::generate_for_neg_node(const ASTNodePtr &node,
   return result;
 }
 
+TemporaryAddressPtr
+IRGeneratorImpl::generate_for_get_address_node(const ASTNodePtr &node,
+                                               CodeBuilderPtr &code_builder) {
+  const UnaryOperationNode *unary_operation_node =
+      static_cast<const UnaryOperationNode *>(node.get());
+  auto child_address =
+      generate_for_lvalue_node(unary_operation_node->operand_, code_builder);
+  auto result = ctx_manager_->function_ctx()->allocate_variable_address();
+  code_builder->append_alloca(result, 8);
+  code_builder->append_store(std::move(child_address), result);
+  auto loaded = ctx_manager_->function_ctx()->allocate_temporary_address();
+  code_builder->append_load(std::move(result), loaded);
+  return loaded;
+}
 TemporaryAddressPtr
 IRGeneratorImpl::generate_for_equal_node(const ASTNodePtr &node,
                                          CodeBuilderPtr &code_builder) {

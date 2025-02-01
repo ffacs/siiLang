@@ -630,7 +630,7 @@ done:
   return result;
 }
 
-// UNARY => ('-' UNARY | '+' UNARY) | PRIMARY
+// UNARY => ('-' UNARY | '+' UNARY | '&' UNARY) | PRIMARY
 ASTNodePtr ParserImpl::parse_unary() {
   ASTNodePtr result = nullptr;
   LexPosition begin_pos = lexer_->current_position();
@@ -642,6 +642,10 @@ ASTNodePtr ParserImpl::parse_unary() {
   } else if (next_token->type_ == TokenType::HYPHEN) {
     next_token = lexer_->next();
     result = ASTNode::Negtive(parse_unary());
+    goto done;
+  } else if (next_token->type_ == TokenType::BIT_AND) {
+    next_token = lexer_->next();
+    result = ASTNode::Get_address(parse_unary());
     goto done;
   }
   result = parse_primary();

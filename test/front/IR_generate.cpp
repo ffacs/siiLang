@@ -785,4 +785,32 @@ TEST(IRGenerator, Declaration) {
       std::invalid_argument);
 }
 
+TEST(IRGenerator, GetAddress) {
+  EXPECT_EQ(
+  "@function:\n"
+  "  %0 = alloca size 4;\n"
+  "  %1 = alloca size 8;\n"
+  "  %2 = alloca size 8;\n"
+  "  store %0 to %2;\n"
+  "  %3 = load %2;\n"
+  "  store %3 to %1;",
+  IRStringGenerate(ASTNode::Function_declaration(
+    Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}), "function"),
+    ASTNode::Compound_statement({
+      ASTNode::Declaration_statement({
+        ASTNode::Declaration(
+          Declarator::Create(Type::basic(TypeKind::INT), "a"),
+          nullptr
+        ),
+      }),
+      ASTNode::Declaration_statement({
+        ASTNode::Declaration(
+          Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)), "b"),
+          ASTNode::Get_address(ASTNode::Identifier("a"))
+        ),
+      })
+    }) 
+  )));
+}
+
 } // namespace front

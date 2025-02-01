@@ -146,6 +146,10 @@ TokenPtr Token::Right_bracket(LexInfo lex_info) {
   return token(TokenType::RIGHT_BRACKET, "]", std::move(lex_info));
 }
 
+TokenPtr Token::Bit_and(LexInfo position) {
+  return token(TokenType::BIT_AND, "&", std::move(position));
+}
+
 static std::set<std::string> KeyWords = {"if", "else", "for", "do", "while"};
 
 static std::set<std::string> TypeSpcifiers = {
@@ -303,6 +307,11 @@ private:
     case ',': {
       index_++;
       result = Token::Comma(get_lex_info(begin_position));
+      break;
+    }
+    case '&': {
+      index_++;
+      result = Token::Bit_and(get_lex_info(begin_position));
       break;
     }
     default: {

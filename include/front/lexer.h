@@ -32,6 +32,7 @@ enum class TokenType : uint32_t {
   KEYWORD = 22,
   TYPE_SPECIFER = 23,
   COMMA = 24, // ,
+  BIT_AND = 25, // &
 };
 
 struct Token;
@@ -70,6 +71,7 @@ struct Token {
   static TokenPtr Comma(LexInfo position);
   static TokenPtr Left_bracket(LexInfo position);
   static TokenPtr Right_bracket(LexInfo position);
+  static TokenPtr Bit_and(LexInfo position);
 };
 
 class Lexer {

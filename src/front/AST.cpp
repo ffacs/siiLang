@@ -268,6 +268,10 @@ DeclarationNodePtr ASTNode::Declaration(DeclaratorPtr declarator,
                                        std::move(initializer));
 }
 
+GetAddressNodePtr ASTNode::Get_address(ASTNodePtr node) {
+  return std::make_shared<GetAddressNode>(std::move(node));
+}
+
 bool ASTNode::operator==(const ASTNode &other) const {
   return kind_ == other.kind_;
 }
@@ -405,6 +409,14 @@ bool DeclarationStatementNode::operator==(const ASTNode &other) const {
     }
   }
   return true;
+}
+
+bool GetAddressNode::operator==(const ASTNode &other) const {
+  if (kind_ != other.kind_) {
+    return false;
+  }
+  auto typed_other = static_cast<const GetAddressNode &>(other);
+  return *operand_ == *typed_other.operand_;
 }
 
 } // namespace front

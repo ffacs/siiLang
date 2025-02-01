@@ -29,6 +29,7 @@ enum class ASTNodeKind : uint32_t {
   VARIABLE_DECLARATION = 18,
   FUNCTION_DECLARATION = 19,
   DECLARATION_STATEMENT = 20,
+  GET_ADDRESS = 21,
 };
 
 class ASTNode;
@@ -44,6 +45,7 @@ class DeclarationNode;
 class VariableDeclarationNode;
 class FunctionDeclarationNode;
 class DeclarationStatementNode;
+class GetAddressNode;
 class ASTVisitor;
 typedef std::shared_ptr<ASTNode> ASTNodePtr;
 typedef std::shared_ptr<BinaryOperationNode> BinaryOperationNodePtr;
@@ -58,6 +60,7 @@ typedef std::shared_ptr<DeclarationNode> DeclarationNodePtr;
 typedef std::shared_ptr<VariableDeclarationNode> VariableDeclarationNodePtr;
 typedef std::shared_ptr<FunctionDeclarationNode> FunctionDeclarationNodePtr;
 typedef std::shared_ptr<DeclarationStatementNode> DeclarationStatementNodePtr;
+typedef std::shared_ptr<GetAddressNode> GetAddressNodePtr;
 
 struct ASTNode {
   ASTNodeKind kind_;
@@ -111,6 +114,7 @@ struct ASTNode {
   static FunctionDeclarationNodePtr
   Normalize_function_declaration(ASTNodePtr node);
   static DeclarationNodePtr Normalize_declaration(ASTNodePtr node);
+  static GetAddressNodePtr Get_address(ASTNodePtr node);
 };
 
 class ASTVisitor {
@@ -259,6 +263,13 @@ struct DeclarationStatementNode : public ASTNode {
   DeclarationStatementNode(std::vector<DeclarationNodePtr> declaration_list)
       : ASTNode(ASTNodeKind::DECLARATION_STATEMENT),
         declaration_list_(std::move(declaration_list)) {}
+
+  bool operator==(const ASTNode &) const override;
+};
+
+struct GetAddressNode : public UnaryOperationNode {
+  GetAddressNode(ASTNodePtr operand)
+      : UnaryOperationNode(std::move(operand), ASTNodeKind::GET_ADDRESS) {}
 
   bool operator==(const ASTNode &) const override;
 };

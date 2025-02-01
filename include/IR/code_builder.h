@@ -47,6 +47,8 @@ public:
                            TemporaryAddressPtr dest) = 0;
   virtual VariableAddressPtr append_store(TemporaryAddressPtr source,
                                           VariableAddressPtr dest) = 0;
+  virtual VariableAddressPtr append_store(VariableAddressPtr source,
+                                          VariableAddressPtr dest) = 0;
   virtual std::shared_ptr<std::vector<SiiIRCodePtr>> finish() = 0;
 };
 
