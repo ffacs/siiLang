@@ -129,4 +129,26 @@ TEST(CFG, BuildCFGWithConditionBranch) {
 
 }
 
+TEST(CFG, BuildCFGWithAlloca) {
+  auto code_builder = CreateCodeBuilder();
+  VariableAddressPtr variable1 = VariableAddress::variable("variable1");
+  VariableAddressPtr variable2 = VariableAddress::variable("variable2");
+  code_builder->append_alloca(variable1, 4);
+  code_builder->append_alloca(variable2, 4);
+  code_builder->append_nope();
+  auto codes = code_builder->finish();
+  auto cfg = BuildCFG(codes);
+  EXPECT_EQ(cfg->codes_in_order_, codes);
+  EXPECT_EQ(cfg->basic_groups_.size(), 2);
+  auto entry = cfg->entry_;
+  EXPECT_EQ(entry->basic_group_->codes_.size(), 2);
+  EXPECT_EQ(entry->basic_group_->codes_[0], codes->at(0).get());
+  EXPECT_EQ(entry->basic_group_->codes_[1], codes->at(1).get());
+  EXPECT_EQ(entry->follows_.size(), 1);
+  auto group1 = entry->follows_[0];
+  EXPECT_EQ(group1->basic_group_->codes_.size(), 1LL);
+  EXPECT_EQ(group1->basic_group_->codes_[0], codes->at(2).get());
+  EXPECT_EQ(group1->follows_.size(), 0);
+}
+
 } // namespace SiiIR

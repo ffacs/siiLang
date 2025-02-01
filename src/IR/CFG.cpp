@@ -66,22 +66,29 @@ public:
       : codes_(std::move(codes)) {}
 
   CFGPtr build() {
+    CFGPtr result_cfg = std::make_shared<CFG>();
+    // Create an entry node that contains no code.
+    std::shared_ptr<BasicGroupNode> entry = std::make_shared<BasicGroupNode>();
+    basic_groups_.push_back(entry);
+    result_cfg->entry_ = entry.get();
+    SiiIRCode* start = nullptr;
+    if (!codes_->empty()) {
+      start = codes_->front().get();
+    }
     for (size_t i = 0; i < codes_->size(); ++i) {
       if (i + 1 < codes_->size()) {
         codes_->at(i)->next_ = codes_->at(i + 1).get();
       } else {
         codes_->at(i)->next_ = nullptr;
       }
+      if (codes_->at(i)->kind_ == SiiIRCodeKind::ALLOCA) {
+        result_cfg->entry_->basic_group_->codes_.push_back(start);
+        start = codes_->at(i)->next_;
+      }
     }
 
-    CFGPtr result_cfg = std::make_shared<CFG>();
-    // Create an entry node that contains no code.
-    std::shared_ptr<BasicGroupNode> entry = std::make_shared<BasicGroupNode>();
-    basic_groups_.push_back(entry);
-    result_cfg->entry_ = entry.get();
-
-    if (!codes_->empty()) {
-      auto follow = build_basic_group_starting_from(codes_->front().get());
+    if (start != nullptr) {
+      auto follow = build_basic_group_starting_from(start);
       entry->follows_.push_back(follow);
       follow->precedes_.push_back(entry.get());
     }
