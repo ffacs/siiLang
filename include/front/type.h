@@ -44,14 +44,14 @@ struct Type {
   virtual std::string to_string(const std::string &current) const;
   virtual bool operator==(const Type &other) const;
   bool operator!=(const Type &other) const { return !(*this == other); }
-  static TypePtr default_type();
-  static TypePtr basic(TypeKind kind);
-  static TypePtr building(TypeBuilderPtr builder);
-  static TypePtr pointer(TypePtr aim_type, uint64_t offset_limit);
-  static TypePtr pointer(TypePtr aim_type);
-  static TypePtr function(TypePtr return_type,
+  static TypePtr DefaultType();
+  static TypePtr Basic(TypeKind kind);
+  static TypePtr Building(TypeBuilderPtr builder);
+  static TypePtr Pointer(TypePtr aim_type, uint64_t offset_limit);
+  static TypePtr Pointer(TypePtr aim_type);
+  static TypePtr Function(TypePtr return_type,
                           std::vector<DeclaratorPtr> parameter_types);
-  static TypePtr array(TypePtr element_type, int64_t element_count);
+  static TypePtr Array(TypePtr element_type, int64_t element_count);
   static TypePtr TrimBuildingType(const TypePtr &type);
   static TypePtr NormalizePointer(const TypePtr &type);
   static TypePtr NormalizeArrayType(const TypePtr &type, bool force_count);

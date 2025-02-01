@@ -305,13 +305,13 @@ TEST(Parser, Declaration) {
   EXPECT_EQ(ASTToString(CreateParser("{int a;}")->parse_compound_statement()),
             ASTToString(ASTNode::Compound_statement(
                 {ASTNode::Declaration_statement({ASTNode::Variable_declaration(
-                    Declarator::Create(Type::basic(TypeKind::INT), "a"),
+                    Declarator::Create(Type::Basic(TypeKind::INT), "a"),
                     nullptr)})})));
   EXPECT_EQ(ASTToString(CreateParser("{int a();}")->parse_compound_statement()),
             ASTToString(ASTNode::Compound_statement(
                 {ASTNode::Declaration_statement({ASTNode::Function_declaration(
                     Declarator::Create(
-                        Type::function(Type::basic(TypeKind::INT), {}), "a"),
+                        Type::Function(Type::Basic(TypeKind::INT), {}), "a"),
                     nullptr)})})));
   EXPECT_EQ(
       ASTToString(
@@ -319,11 +319,11 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement(
           {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
-                  Type::function(
-                      Type::basic(TypeKind::INT),
-                      {Declarator::Create(Type::basic(TypeKind::INT), "b"),
+                  Type::Function(
+                      Type::Basic(TypeKind::INT),
+                      {Declarator::Create(Type::Basic(TypeKind::INT), "b"),
                        Declarator::Create(
-                           Type::pointer(Type::basic(TypeKind::INT)), "c")}),
+                           Type::Pointer(Type::Basic(TypeKind::INT)), "c")}),
                   "a"),
               nullptr)})})));
   EXPECT_EQ(
@@ -332,11 +332,11 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement(
           {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
-                  Type::function(
-                      Type::basic(TypeKind::INT),
+                  Type::Function(
+                      Type::Basic(TypeKind::INT),
                       {
                           Declarator::Create(
-                              Type::pointer(Type::basic(TypeKind::INT), 2),
+                              Type::Pointer(Type::Basic(TypeKind::INT), 2),
                               "b"),
                       }),
                   "a"),
@@ -347,11 +347,11 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement(
           {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
-                  Type::function(Type::basic(TypeKind::INT),
+                  Type::Function(Type::Basic(TypeKind::INT),
                                  {
                                      Declarator::Create(
-                                         Type::pointer(Type::function(
-                                             Type::basic(TypeKind::INT), {})),
+                                         Type::Pointer(Type::Function(
+                                             Type::Basic(TypeKind::INT), {})),
                                          "b"),
                                  }),
                   "a"),
@@ -362,14 +362,14 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement(
           {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
-                  Type::function(
-                      Type::basic(TypeKind::INT),
+                  Type::Function(
+                      Type::Basic(TypeKind::INT),
                       {
                           Declarator::Create(
-                              Type::pointer(Type::function(
-                                  Type::basic(TypeKind::INT),
+                              Type::Pointer(Type::Function(
+                                  Type::Basic(TypeKind::INT),
                                   {Declarator::Create(
-                                      Type::pointer(Type::basic(TypeKind::INT)),
+                                      Type::Pointer(Type::Basic(TypeKind::INT)),
                                       "c")})),
                               "b"),
                       }),
@@ -381,15 +381,15 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement(
           {ASTNode::Declaration_statement({ASTNode::Function_declaration(
               Declarator::Create(
-                  Type::function(
-                      Type::basic(TypeKind::INT),
+                  Type::Function(
+                      Type::Basic(TypeKind::INT),
                       {
                           Declarator::Create(
-                              Type::pointer(Type::function(
-                                  Type::basic(TypeKind::INT),
+                              Type::Pointer(Type::Function(
+                                  Type::Basic(TypeKind::INT),
                                   {Declarator::Create(
-                                      Type::pointer(Type::function(
-                                          Type::basic(TypeKind::INT), {})),
+                                      Type::Pointer(Type::Function(
+                                          Type::Basic(TypeKind::INT), {})),
                                       "c")})),
                               "b"),
                       }),
@@ -399,22 +399,22 @@ TEST(Parser, Declaration) {
       ASTToString(CreateParser("{int a[2];}")->parse_compound_statement()),
       ASTToString(ASTNode::Compound_statement(
           {ASTNode::Declaration_statement({ASTNode::Variable_declaration(
-              Declarator::Create(Type::array(Type::basic(TypeKind::INT), 2),
+              Declarator::Create(Type::Array(Type::Basic(TypeKind::INT), 2),
                                  "a"),
               nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int a, b;}")->parse_compound_statement()),
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
-               Declarator::Create(Type::basic(TypeKind::INT), "a"), nullptr),
+               Declarator::Create(Type::Basic(TypeKind::INT), "a"), nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::basic(TypeKind::INT), "b"),
+               Declarator::Create(Type::Basic(TypeKind::INT), "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int (*a);}")->parse_compound_statement()),
       ASTToString(ASTNode::Compound_statement(
           {ASTNode::Declaration_statement({ASTNode::Declaration(
-              Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+              Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                  "a"),
               nullptr)})})));
   EXPECT_EQ(ASTToString(
@@ -422,9 +422,9 @@ TEST(Parser, Declaration) {
             ASTToString(ASTNode::Compound_statement(
                 {ASTNode::Declaration_statement({ASTNode::Declaration(
                     Declarator::Create(
-                        Type::array(
-                            Type::pointer(Type::function(
-                                Type::pointer(Type::basic(TypeKind::INT)), {})),
+                        Type::Array(
+                            Type::Pointer(Type::Function(
+                                Type::Pointer(Type::Basic(TypeKind::INT)), {})),
                             4),
                         "a"),
                     nullptr)})})));
@@ -433,22 +433,22 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
                Declarator::Create(
-                   Type::pointer(Type::pointer(Type::basic(TypeKind::INT))),
+                   Type::Pointer(Type::Pointer(Type::Basic(TypeKind::INT))),
                    "a"),
                nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+               Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
       ASTToString(CreateParser("{int a[4], *b;}")->parse_compound_statement()),
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
-               Declarator::Create(Type::array(Type::basic(TypeKind::INT), 4),
+               Declarator::Create(Type::Array(Type::Basic(TypeKind::INT), 4),
                                   "a"),
                nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+               Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
@@ -457,11 +457,11 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
                Declarator::Create(
-                   Type::array(Type::array(Type::basic(TypeKind::INT), 3), 4),
+                   Type::Array(Type::Array(Type::Basic(TypeKind::INT), 3), 4),
                    "a"),
                nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+               Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
@@ -470,14 +470,14 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
                Declarator::Create(
-                   Type::array(
-                       Type::array(Type::pointer(Type::basic(TypeKind::INT)),
+                   Type::Array(
+                       Type::Array(Type::Pointer(Type::Basic(TypeKind::INT)),
                                    3),
                        4),
                    "a"),
                nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+               Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
@@ -486,12 +486,12 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
                Declarator::Create(
-                   Type::pointer(Type::array(
-                       Type::array(Type::basic(TypeKind::INT), 3), 4)),
+                   Type::Pointer(Type::Array(
+                       Type::Array(Type::Basic(TypeKind::INT), 3), 4)),
                    "a"),
                nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+               Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
@@ -499,10 +499,10 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
                Declarator::Create(
-                   Type::function(Type::basic(TypeKind::INT), {}), "a"),
+                   Type::Function(Type::Basic(TypeKind::INT), {}), "a"),
                nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+               Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
@@ -510,12 +510,12 @@ TEST(Parser, Declaration) {
           CreateParser("{int (*a)(), *b;}")->parse_compound_statement()),
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::function(
-                                      Type::basic(TypeKind::INT), {})),
+               Declarator::Create(Type::Pointer(Type::Function(
+                                      Type::Basic(TypeKind::INT), {})),
                                   "a"),
                nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+               Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
@@ -524,14 +524,14 @@ TEST(Parser, Declaration) {
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement(
           {ASTNode::Declaration(
                Declarator::Create(
-                   Type::array(
-                       Type::pointer(Type::function(
-                           Type::pointer(Type::basic(TypeKind::INT)), {})),
+                   Type::Array(
+                       Type::Pointer(Type::Function(
+                           Type::Pointer(Type::Basic(TypeKind::INT)), {})),
                        4),
                    "a"),
                nullptr),
            ASTNode::Declaration(
-               Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+               Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                   "b"),
                nullptr)})})));
   EXPECT_EQ(
@@ -539,7 +539,7 @@ TEST(Parser, Declaration) {
           CreateParser("{int *a = c = b + 10;}")->parse_compound_statement()),
       ASTToString(ASTNode::Compound_statement({ASTNode::Declaration_statement({
           ASTNode::Declaration(
-              Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+              Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                  "a"),
               ASTNode::Assign(ASTNode::Identifier("c"),
                               ASTNode::Add(ASTNode::Identifier("b"),
@@ -585,37 +585,37 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
       ASTToString(
           CreateParser("int a;")->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
-          Declarator::Create(Type::basic(TypeKind::INT), "a"), nullptr)})));
+          Declarator::Create(Type::Basic(TypeKind::INT), "a"), nullptr)})));
   EXPECT_EQ(
       ASTToString(CreateParser("int a[4];")
                       ->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
-          Declarator::Create(Type::array(Type::basic(TypeKind::INT), 4), "a"),
+          Declarator::Create(Type::Array(Type::Basic(TypeKind::INT), 4), "a"),
           nullptr)})));
   EXPECT_EQ(
       ASTToString(
           CreateParser("int a();")->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
-          Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
                              "a"),
           nullptr)})));
   EXPECT_EQ(ASTToString(CreateParser("int a = b;")
                             ->parse_declaration_or_function_definition()),
             ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
-                Declarator::Create(Type::basic(TypeKind::INT), "a"),
+                Declarator::Create(Type::Basic(TypeKind::INT), "a"),
                 ASTNode::Identifier("b"))})));
   EXPECT_EQ(
       ASTToString(CreateParser("int a, *b, c = a = 10;")
                       ->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Declaration_statement({
           ASTNode::Declaration(
-              Declarator::Create(Type::basic(TypeKind::INT), "a"), nullptr),
+              Declarator::Create(Type::Basic(TypeKind::INT), "a"), nullptr),
           ASTNode::Declaration(
-              Declarator::Create(Type::pointer(Type::basic(TypeKind::INT)),
+              Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)),
                                  "b"),
               nullptr),
           ASTNode::Declaration(
-              Declarator::Create(Type::basic(TypeKind::INT), "c"),
+              Declarator::Create(Type::Basic(TypeKind::INT), "c"),
               ASTNode::Assign(ASTNode::Identifier("a"),
                               ASTNode::Integer("10"))),
       })));
@@ -623,14 +623,14 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                             ->parse_declaration_or_function_definition()),
             ASTToString(ASTNode::Declaration_statement({
                 ASTNode::Declaration(
-                    Declarator::Create(Type::basic(TypeKind::INT), "a"),
+                    Declarator::Create(Type::Basic(TypeKind::INT), "a"),
                     ASTNode::Integer("10")),
                 ASTNode::Declaration(
                     Declarator::Create(
-                        Type::pointer(Type::basic(TypeKind::INT)), "b"),
+                        Type::Pointer(Type::Basic(TypeKind::INT)), "b"),
                     nullptr),
                 ASTNode::Declaration(
-                    Declarator::Create(Type::basic(TypeKind::INT), "c"),
+                    Declarator::Create(Type::Basic(TypeKind::INT), "c"),
                     ASTNode::Assign(ASTNode::Identifier("a"),
                                     ASTNode::Integer("10"))),
             })));
@@ -638,13 +638,13 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                             ->parse_declaration_or_function_definition()),
             ASTToString(ASTNode::Function_declaration(
                 Declarator::Create(
-                    Type::function(Type::basic(TypeKind::INT), {}), "a"),
+                    Type::Function(Type::Basic(TypeKind::INT), {}), "a"),
                 {}, ASTNode::Compound_statement({}))));
   EXPECT_EQ(
       ASTToString(
           CreateParser("a() {}")->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Function_declaration(
-          Declarator::Create(Type::function(Type::basic(TypeKind::INT), {}),
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
                              "a"),
           {}, ASTNode::Compound_statement({}))));
   EXPECT_EQ(
@@ -652,34 +652,34 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                       ->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Function_declaration(
           Declarator::Create(
-              Type::function(Type::pointer(Type::basic(TypeKind::INT)), {}),
+              Type::Function(Type::Pointer(Type::Basic(TypeKind::INT)), {}),
               "a"),
           {},
           ASTNode::Compound_statement(
               {ASTNode::Declaration_statement({ASTNode::Declaration(
-                  Declarator::Create(Type::basic(TypeKind::INT), "x"),
+                  Declarator::Create(Type::Basic(TypeKind::INT), "x"),
                   ASTNode::Identifier("y"))})}))));
   EXPECT_EQ(
       ASTToString(CreateParser("int* a() { int x = y; }")
                       ->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Function_declaration(
           Declarator::Create(
-              Type::function(Type::pointer(Type::basic(TypeKind::INT)), {}),
+              Type::Function(Type::Pointer(Type::Basic(TypeKind::INT)), {}),
               "a"),
           {},
           ASTNode::Compound_statement(
               {ASTNode::Declaration_statement({ASTNode::Declaration(
-                  Declarator::Create(Type::basic(TypeKind::INT), "x"),
+                  Declarator::Create(Type::Basic(TypeKind::INT), "x"),
                   ASTNode::Identifier("y"))})}))));
   EXPECT_EQ(ASTToString(CreateParser("int a(int i, int j);")
                             ->parse_declaration_or_function_definition()),
             ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
                 Declarator::Create(
-                    Type::function(
-                        Type::basic(TypeKind::INT),
+                    Type::Function(
+                        Type::Basic(TypeKind::INT),
                         {
-                            Declarator::Create(Type::basic(TypeKind::INT), "i"),
-                            Declarator::Create(Type::basic(TypeKind::INT), "j"),
+                            Declarator::Create(Type::Basic(TypeKind::INT), "i"),
+                            Declarator::Create(Type::Basic(TypeKind::INT), "j"),
                         }),
                     "a"),
                 nullptr)})));
@@ -688,14 +688,14 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                       ->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
           Declarator::Create(
-              Type::function(
-                  Type::basic(TypeKind::INT),
+              Type::Function(
+                  Type::Basic(TypeKind::INT),
                   {
-                      Declarator::Create(Type::pointer(Type::function(
-                                             Type::basic(TypeKind::INT), {})),
+                      Declarator::Create(Type::Pointer(Type::Function(
+                                             Type::Basic(TypeKind::INT), {})),
                                          "i"),
                       Declarator::Create(
-                          Type::pointer(Type::basic(TypeKind::INT), 5), "j"),
+                          Type::Pointer(Type::Basic(TypeKind::INT), 5), "j"),
                   }),
               "a"),
           nullptr)})));
@@ -704,14 +704,14 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                       ->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
           Declarator::Create(
-              Type::function(
-                  Type::basic(TypeKind::INT),
+              Type::Function(
+                  Type::Basic(TypeKind::INT),
                   {
-                      Declarator::Create(Type::pointer(Type::function(
-                                             Type::basic(TypeKind::INT), {})),
+                      Declarator::Create(Type::Pointer(Type::Function(
+                                             Type::Basic(TypeKind::INT), {})),
                                          "i"),
-                      Declarator::Create(Type::pointer(Type::array(
-                                             Type::basic(TypeKind::INT), 5)),
+                      Declarator::Create(Type::Pointer(Type::Array(
+                                             Type::Basic(TypeKind::INT), 5)),
                                          "j"),
                   }),
               "a"),
@@ -720,11 +720,11 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                             ->parse_declaration_or_function_definition()),
             ASTToString(ASTNode::Declaration_statement({ASTNode::Declaration(
                 Declarator::Create(
-                    Type::function(
-                        Type::basic(TypeKind::INT),
+                    Type::Function(
+                        Type::Basic(TypeKind::INT),
                         {
-                            Declarator::Create(Type::basic(TypeKind::INT), "i"),
-                            Declarator::Create(Type::basic(TypeKind::INT), "j"),
+                            Declarator::Create(Type::Basic(TypeKind::INT), "i"),
+                            Declarator::Create(Type::Basic(TypeKind::INT), "j"),
                         }),
                     "a"),
                 nullptr)})));
@@ -732,11 +732,11 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                             ->parse_declaration_or_function_definition()),
             ASTToString(ASTNode::Function_declaration(
                 Declarator::Create(
-                    Type::function(
-                        Type::basic(TypeKind::INT),
-                        {Declarator::Create(Type::basic(TypeKind::INT), "i"),
-                         Declarator::Create(Type::basic(TypeKind::INT), "j"),
-                         Declarator::Create(Type::basic(TypeKind::INT), "k")}),
+                    Type::Function(
+                        Type::Basic(TypeKind::INT),
+                        {Declarator::Create(Type::Basic(TypeKind::INT), "i"),
+                         Declarator::Create(Type::Basic(TypeKind::INT), "j"),
+                         Declarator::Create(Type::Basic(TypeKind::INT), "k")}),
                     "a"),
                 ASTNode::Compound_statement({}))));
   EXPECT_EQ(
@@ -744,56 +744,56 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                       ->parse_declaration_or_function_definition()),
       ASTToString(ASTNode::Function_declaration(
           Declarator::Create(
-              Type::function(
-                  Type::pointer(Type::basic(TypeKind::INT)),
+              Type::Function(
+                  Type::Pointer(Type::Basic(TypeKind::INT)),
                   {
-                      Declarator::Create(Type::basic(TypeKind::INT), "i"),
-                      Declarator::Create(Type::basic(TypeKind::INT), "j"),
+                      Declarator::Create(Type::Basic(TypeKind::INT), "i"),
+                      Declarator::Create(Type::Basic(TypeKind::INT), "j"),
                   }),
               "a"),
           ASTNode::Compound_statement(
               {ASTNode::Declaration_statement({ASTNode::Declaration(
-                  Declarator::Create(Type::basic(TypeKind::INT), "x"),
+                  Declarator::Create(Type::Basic(TypeKind::INT), "x"),
                   ASTNode::Identifier("y"))})}))));
   EXPECT_EQ(ASTToString(CreateParser("int* a(int i, int j) { int x = y; }")
                             ->parse_declaration_or_function_definition()),
             ASTToString(ASTNode::Function_declaration(
                 Declarator::Create(
-                    Type::function(
-                        Type::pointer(Type::basic(TypeKind::INT)),
+                    Type::Function(
+                        Type::Pointer(Type::Basic(TypeKind::INT)),
                         {
-                            Declarator::Create(Type::basic(TypeKind::INT), "i"),
-                            Declarator::Create(Type::basic(TypeKind::INT), "j"),
+                            Declarator::Create(Type::Basic(TypeKind::INT), "i"),
+                            Declarator::Create(Type::Basic(TypeKind::INT), "j"),
                         }),
                     "a"),
                 {},
                 ASTNode::Compound_statement(
                     {ASTNode::Declaration_statement({ASTNode::Declaration(
-                        Declarator::Create(Type::basic(TypeKind::INT), "x"),
+                        Declarator::Create(Type::Basic(TypeKind::INT), "x"),
                         ASTNode::Identifier("y"))})}))));
   EXPECT_EQ(ASTToString(
                 CreateParser("int a(int (*i)(int, int), int j) { int x = y; }")
                     ->parse_declaration_or_function_definition()),
             ASTToString(ASTNode::Function_declaration(
                 Declarator::Create(
-                    Type::function(
-                        Type::basic(TypeKind::INT),
+                    Type::Function(
+                        Type::Basic(TypeKind::INT),
                         {
                             Declarator::Create(
-                                Type::pointer(Type::function(
-                                    Type::basic(TypeKind::INT),
+                                Type::Pointer(Type::Function(
+                                    Type::Basic(TypeKind::INT),
                                     {Declarator::Create(
-                                         Type::basic(TypeKind::INT), ""),
+                                         Type::Basic(TypeKind::INT), ""),
                                      Declarator::Create(
-                                         Type::basic(TypeKind::INT), "")})),
+                                         Type::Basic(TypeKind::INT), "")})),
                                 "i"),
-                            Declarator::Create(Type::basic(TypeKind::INT), "j"),
+                            Declarator::Create(Type::Basic(TypeKind::INT), "j"),
                         }),
                     "a"),
                 {},
                 ASTNode::Compound_statement(
                     {ASTNode::Declaration_statement({ASTNode::Declaration(
-                        Declarator::Create(Type::basic(TypeKind::INT), "x"),
+                        Declarator::Create(Type::Basic(TypeKind::INT), "x"),
                         ASTNode::Identifier("y"))})}))));
 }
 

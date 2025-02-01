@@ -42,7 +42,7 @@ struct Address {
   static ConstantAddressPtr constant(const std::string &literal);
   static TemporaryAddressPtr temporary(SiiIRCode *src, const std::string &name);
   static FunctionAddressPtr
-  function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
+  Function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
            FunctionContextPtr ctx, const std::string &name);
 };
 

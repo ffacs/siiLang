@@ -164,7 +164,7 @@ ASTNode::Normalize_function_declaration(ASTNodePtr node) {
   auto &function_type = static_cast<FunctionType &>(*declarator->type_);
   // If the function dont have a return type, set 'INT' to it
   if (function_type.return_type_ == nullptr) {
-    function_type.return_type_ = Type::default_type();
+    function_type.return_type_ = Type::DefaultType();
   }
 
   auto return_type = function_type.return_type_;
@@ -241,7 +241,7 @@ ASTNode::Normalize_function_declaration(ASTNodePtr node) {
     // Fill the default type 'INT' to untyped parameters
     for (auto &name_to_parameter_pair : name_to_parameter) {
       if (name_to_parameter_pair.second->type_ == nullptr) {
-        name_to_parameter_pair.second->type_ = Type::default_type();
+        name_to_parameter_pair.second->type_ = Type::DefaultType();
       }
     }
   }

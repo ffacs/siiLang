@@ -17,7 +17,7 @@ TemporaryAddressPtr Address::temporary(SiiIRCode *src,
 }
 
 FunctionAddressPtr
-Address::function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
+Address::Function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
                   FunctionContextPtr ctx, const std::string &name) {
   return std::make_shared<FunctionAddress>(std::move(codes), ctx, name);
 }

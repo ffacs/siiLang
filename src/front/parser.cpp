@@ -105,7 +105,7 @@ ASTNodePtr ParserImpl::parse_declaration_or_function_definition() {
         std::move(declaration_list), std::move(function_body)));
     goto done;
   } else {
-    auto type_builder = CreateTypeBuilder(Type::default_type());
+    auto type_builder = CreateTypeBuilder(Type::DefaultType());
     auto identifier = parse_declarator(type_builder, true);
     auto declaration_list = parse_declaration_list();
     auto function_body = parse_compound_statement();
@@ -137,7 +137,7 @@ std::vector<DeclarationStatementNodePtr> ParserImpl::parse_declaration_list() {
 TypePtr ParserImpl::parse_type_specifier() {
   auto type_specifier = lexer_->next();
   if (type_specifier->literal_ == "int") {
-    return Type::basic(TypeKind::INT);
+    return Type::Basic(TypeKind::INT);
   }
   diagnose_handler_->mismatch(DiagnoseLevel::kError, type_specifier->lex_info_,
                               "Type specifier", type_specifier->literal_);

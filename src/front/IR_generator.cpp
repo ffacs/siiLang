@@ -596,7 +596,7 @@ FunctionAddressPtr IRGeneratorImpl::generate_for_function_declaration_node(
   }
   auto function_ctx = ctx_manager_->leave_function();
   FunctionAddressPtr function_address =
-      Address::function(function_codes, function_ctx, function_name);
+      Address::Function(function_codes, function_ctx, function_name);
   ctx_manager_->append_function(function_name,
                                 Symbol::symbol(type, function_address));
   if (function_body) {
