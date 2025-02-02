@@ -3,23 +3,25 @@
 #include <sstream>
 
 namespace SiiIR {
-VariableAddressPtr Address::variable(const std::string &name) {
-  return std::make_shared<VariableAddress>(name);
+VariableAddressPtr Address::variable(const std::string &name, TypePtr type) {
+  return std::make_shared<VariableAddress>(name, std::move(type));
 }
 
-ConstantAddressPtr Address::constant(const std::string &literal) {
-  return std::make_shared<ConstantAddress>(literal);
+ConstantAddressPtr Address::constant(const std::string &literal, TypePtr type) {
+  return std::make_shared<ConstantAddress>(literal, std::move(type));
 }
 
-TemporaryAddressPtr Address::temporary(SiiIRCode *src,
-                                       const std::string &name) {
-  return std::make_shared<TemporaryAddress>(src, name);
+TemporaryAddressPtr Address::temporary(SiiIRCode *src, const std::string &name,
+                                       TypePtr type) {
+  return std::make_shared<TemporaryAddress>(src, name, std::move(type));
 }
 
 FunctionAddressPtr
 Address::Function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
-                  FunctionContextPtr ctx, const std::string &name) {
-  return std::make_shared<FunctionAddress>(std::move(codes), ctx, name);
+                  FunctionContextPtr ctx, const std::string &name,
+                  TypePtr type) {
+  return std::make_shared<FunctionAddress>(std::move(codes), std::move(ctx),
+                                           name, std::move(type));
 }
 
 std::string VariableAddress::to_string() const {

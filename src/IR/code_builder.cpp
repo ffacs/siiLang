@@ -114,6 +114,9 @@ void CodeBuilderImpl::append_equal(TemporaryAddressPtr left,
 void CodeBuilderImpl::append_not_equal(TemporaryAddressPtr left,
                                        TemporaryAddressPtr right,
                                        TemporaryAddressPtr result) {
+  if (*left->type_ != *right->type_) {
+    throw std::runtime_error("Not equal must be of same type");
+  }
   SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
       SiiIRCodeKind::NOT_EQUAL, std::move(left), std::move(right), result);
   result->src_ = new_code.get();
@@ -123,6 +126,9 @@ void CodeBuilderImpl::append_not_equal(TemporaryAddressPtr left,
 void CodeBuilderImpl::append_less_than(TemporaryAddressPtr left,
                                        TemporaryAddressPtr right,
                                        TemporaryAddressPtr result) {
+  if (*left->type_ != *right->type_) {
+    throw std::runtime_error("Less than must be of same type");
+  }
   SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
       SiiIRCodeKind::LESS_THAN, std::move(left), std::move(right), result);
   result->src_ = new_code.get();
@@ -132,6 +138,9 @@ void CodeBuilderImpl::append_less_than(TemporaryAddressPtr left,
 void CodeBuilderImpl::append_less_equal(TemporaryAddressPtr left,
                                         TemporaryAddressPtr right,
                                         TemporaryAddressPtr result) {
+  if (*left->type_ != *right->type_) {
+    throw std::runtime_error("Less equal must be of same type");
+  }
   SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
       SiiIRCodeKind::LESS_EQUAL, std::move(left), std::move(right), result);
   result->src_ = new_code.get();
@@ -140,6 +149,13 @@ void CodeBuilderImpl::append_less_equal(TemporaryAddressPtr left,
 
 VariableAddressPtr CodeBuilderImpl::append_store(TemporaryAddressPtr source,
                                                  VariableAddressPtr dest) {
+  if (dest->type_->kind_ != Type::Kind::POINTER) {
+    throw std::runtime_error("Destination must be pointer");
+  }
+  PointerType& pointer_type = static_cast<PointerType&>(*dest->type_);
+  if (*pointer_type.aim_type_ != *source->type_) {
+    throw std::runtime_error("Store must be of same type");
+  }
   SiiIRStorePtr new_code =
       std::make_shared<SiiIRStore>(std::move(source), dest);
   append_new_code(std::move(new_code));
@@ -148,6 +164,12 @@ VariableAddressPtr CodeBuilderImpl::append_store(TemporaryAddressPtr source,
 
 VariableAddressPtr CodeBuilderImpl::append_store(VariableAddressPtr source,
                                                  VariableAddressPtr dest) {
+  if (dest->type_->kind_ != Type::Kind::POINTER) {
+    throw std::runtime_error("Destination must be pointer");
+  }
+  if (*source->type_ != *dest->type_) {
+    throw std::runtime_error("Store must be of same type");
+  }
   SiiIRStorePtr new_code =
       std::make_shared<SiiIRStore>(std::move(source), dest);
   append_new_code(std::move(new_code));
@@ -163,6 +185,9 @@ void CodeBuilderImpl::append_load(VariableAddressPtr source,
 void CodeBuilderImpl::append_condition_branch(TemporaryAddressPtr condition,
                                               LabelPtr true_label,
                                               LabelPtr false_label) {
+  if (*condition->type_ != *Type::Integer(1)) {
+      throw std::runtime_error("Condition branch must be of type bool");
+  }
   SiiIRConditionBarnchPtr new_code = std::make_shared<SiiIRConditionBarnch>(
       std::move(condition), std::move(true_label), std::move(false_label));
   append_new_code(std::move(new_code));
@@ -175,6 +200,9 @@ void CodeBuilderImpl::append_goto(LabelPtr label) {
 
 std::pair<LabelFuturePtr, LabelFuturePtr>
 CodeBuilderImpl::append_condition_branch(TemporaryAddressPtr condition) {
+  if (*condition->type_ != *Type::Integer(1)) {
+    throw std::runtime_error("Condition branch must be of type bool");
+  }
   SiiIRConditionBarnchPtr new_code = std::make_shared<SiiIRConditionBarnch>(
       std::move(condition), nullptr, nullptr);
   auto true_label_future =

@@ -303,4 +303,35 @@ DeclaratorPtr Declarator::Create(TypePtr type, const std::string &identifier) {
   return std::make_shared<Declarator>(std::move(type), identifier);
 }
 
+SiiIR::TypePtr Type::ToIRType(const TypePtr &type) {
+  switch (type->kind_) {
+  case TypeKind::INT:
+    return SiiIR::Type::Integer(32);
+  case TypeKind::POINTER: {
+    auto &pointer_type = static_cast<const PointerType &>(*type);
+    if (pointer_type.offset_limit_ == PointerType::OFFSET_UNLIMIT) {
+      return SiiIR::Type::Pointer(ToIRType(pointer_type.aim_type_));
+    }
+    return SiiIR::Type::Pointer(ToIRType(pointer_type.aim_type_), pointer_type.offset_limit_);
+  }
+  case TypeKind::ARRAY: {
+    auto &array_type = static_cast<const ArrayType &>(*type);
+    return std::make_shared<SiiIR::ArrayType>(
+        ToIRType(array_type.element_type_), array_type.element_count_);
+  }
+  case TypeKind::FUNCTION: {
+    auto &function_type = static_cast<const FunctionType &>(*type);
+    std::vector<SiiIR::TypePtr> parameter_types;
+    for (auto &parameter : function_type.parameter_types_) {
+      parameter_types.emplace_back(ToIRType(parameter->type_));
+    }
+    return std::make_shared<SiiIR::FunctionType>(
+        ToIRType(function_type.return_type_), parameter_types);
+  }
+  case TypeKind::BUILDING: {
+    throw std::invalid_argument("Invalid Building type");
+  }
+  }
+}
+
 } // namespace front

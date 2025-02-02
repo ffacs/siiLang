@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "IR/type.h"
+
 namespace front {
 enum class TypeKind : uint32_t {
   BUILDING = 0,
@@ -59,6 +61,7 @@ struct Type {
   static TypePtr NormalizeParameterDeclaration(const TypePtr &type);
   static TypePtr NormalizeVariableDeclaration(const TypePtr &type);
   static size_t SizeOf(const TypePtr &type);
+  static SiiIR::TypePtr ToIRType(const TypePtr &type);
 };
 
 struct BuildingType : public Type {

@@ -1,4 +1,5 @@
 #include "IR/address.h"
+#include "IR/type.h"
 
 namespace SiiIR {
 struct FunctionContext;
@@ -7,8 +8,8 @@ struct FunctionContext {
   std::vector<AddressPtr> allocated_addresses_;
 
   LabelPtr allocate_label();
-  TemporaryAddressPtr allocate_temporary_address();
-  VariableAddressPtr allocate_variable_address();
+  TemporaryAddressPtr allocate_temporary_address(TypePtr type);
+  VariableAddressPtr allocate_variable_address(TypePtr type);
 };
 
 } // namespace SiiIR

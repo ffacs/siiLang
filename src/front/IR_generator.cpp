@@ -38,8 +38,9 @@ protected:
                                             CodeBuilderPtr &code_builder);
   TemporaryAddressPtr generate_for_neg_node(const ASTNodePtr &node,
                                             CodeBuilderPtr &code_builder);
-  TemporaryAddressPtr generate_for_get_address_node(const ASTNodePtr &node,
-                                                      CodeBuilderPtr &code_builder);
+  TemporaryAddressPtr
+  generate_for_get_address_node(const ASTNodePtr &node,
+                                CodeBuilderPtr &code_builder);
   TemporaryAddressPtr generate_for_equal_node(const ASTNodePtr &node,
                                               CodeBuilderPtr &code_builder);
   TemporaryAddressPtr generate_for_not_equal_node(const ASTNodePtr &node,
@@ -73,6 +74,8 @@ protected:
   FunctionAddressPtr
   generate_for_function_declaration_node(const ASTNodePtr &node,
                                          CodeBuilderPtr &code_builder);
+  void format_condition_address(TemporaryAddressPtr& condition,
+                                               CodeBuilderPtr &code_builder);
 };
 
 TemporaryAddressPtr
@@ -105,7 +108,9 @@ IRGeneratorImpl::generate_for_rvalue_node(const ASTNodePtr &node,
     return generate_for_integer_node(node, code_builder);
   case ASTNodeKind::IDENTIFIER: {
     auto variable = generate_for_identifier_node(node, code_builder);
-    auto temporary = ctx_manager_->function_ctx()->allocate_temporary_address();
+    const SiiIR::PointerType* pointer_type = static_cast<const SiiIR::PointerType*>(variable->type_.get());
+    auto temporary = ctx_manager_->function_ctx()->allocate_temporary_address(
+        pointer_type->aim_type_);
     code_builder->append_load(variable, temporary);
     return temporary;
   }
@@ -235,7 +240,8 @@ IRGeneratorImpl::generate_for_mul_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_address =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      left_address->type_);
   code_builder->append_multiply(std::move(left_address),
                                 std::move(right_address), result);
   return result;
@@ -250,7 +256,8 @@ IRGeneratorImpl::generate_for_div_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_address =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      left_address->type_);
   code_builder->append_divide(std::move(left_address), std::move(right_address),
                               result);
   return result;
@@ -265,7 +272,8 @@ IRGeneratorImpl::generate_for_add_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_address =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      left_address->type_);
   code_builder->append_add(std::move(left_address), std::move(right_address),
                            result);
   return result;
@@ -280,7 +288,8 @@ IRGeneratorImpl::generate_for_sub_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_address =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      left_address->type_);
   code_builder->append_sub(std::move(left_address), std::move(right_address),
                            result);
   return result;
@@ -293,7 +302,8 @@ IRGeneratorImpl::generate_for_neg_node(const ASTNodePtr &node,
       static_cast<const UnaryOperationNode *>(node.get());
   auto child_address =
       generate_for_rvalue_node(unary_operation_node->operand_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      child_address->type_);
   code_builder->append_neg(std::move(child_address), result);
   return result;
 }
@@ -305,10 +315,11 @@ IRGeneratorImpl::generate_for_get_address_node(const ASTNodePtr &node,
       static_cast<const UnaryOperationNode *>(node.get());
   auto child_address =
       generate_for_lvalue_node(unary_operation_node->operand_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_variable_address();
+  auto result = ctx_manager_->function_ctx()->allocate_variable_address(child_address->type_);
   code_builder->append_alloca(result, 8);
   code_builder->append_store(std::move(child_address), result);
-  auto loaded = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto loaded =
+      ctx_manager_->function_ctx()->allocate_temporary_address(result->type_);
   code_builder->append_load(std::move(result), loaded);
   return loaded;
 }
@@ -321,7 +332,8 @@ IRGeneratorImpl::generate_for_equal_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_address =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      SiiIR::Type::Integer(1));
   code_builder->append_equal(std::move(left_address), std::move(right_address),
                              result);
   return result;
@@ -336,7 +348,8 @@ IRGeneratorImpl::generate_for_not_equal_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_address =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      SiiIR::Type::Integer(1));
   code_builder->append_not_equal(std::move(left_address),
                                  std::move(right_address), result);
   return result;
@@ -351,7 +364,8 @@ IRGeneratorImpl::generate_for_less_than_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_address =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      SiiIR::Type::Integer(1));
   code_builder->append_less_than(std::move(left_address),
                                  std::move(right_address), result);
   return result;
@@ -366,7 +380,8 @@ IRGeneratorImpl::generate_for_less_equal_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_address =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_address();
+  auto result = ctx_manager_->function_ctx()->allocate_temporary_address(
+      SiiIR::Type::Integer(1));
   code_builder->append_less_equal(std::move(left_address),
                                   std::move(right_address), result);
   return result;
@@ -377,7 +392,7 @@ IRGeneratorImpl::generate_for_integer_node(const ASTNodePtr &node,
                                            CodeBuilderPtr &code_builder) {
   const LiteralNode *literal_node =
       static_cast<const LiteralNode *>(node.get());
-  return Address::constant(literal_node->literal_);
+  return Address::constant(literal_node->literal_, SiiIR::Type::Integer(32));
 }
 
 VariableAddressPtr
@@ -396,7 +411,7 @@ IRGeneratorImpl::generate_for_identifier_node(const ASTNodePtr &node,
     symbol_ctx = symbol_ctx->father_;
   }
   if (symbol != nullptr) {
-    if (symbol->address_->type_ == AddressType::VARIABLE) {
+    if (symbol->address_->kind_ == AddressKind::VARIABLE) {
       return std::static_pointer_cast<VariableAddress>(symbol->address_);
     } else {
       throw std::invalid_argument("Use of undeclared identifier '" +
@@ -419,7 +434,7 @@ IRGeneratorImpl::generate_for_assign_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
   VariableAddressPtr left_address =
       generate_for_lvalue_node(binary_operation_node->lhs_, code_builder);
-  if (left_address->type_ != AddressType::VARIABLE) {
+  if (left_address->kind_ != AddressKind::VARIABLE) {
     throw std::invalid_argument("Expect Variable on the left of assignment");
   }
   code_builder->append_store(right_address, std::move(left_address));
@@ -433,6 +448,7 @@ void IRGeneratorImpl::generate_for_if_else_node(const ASTNodePtr &node,
   auto if_true_statement = if_else_node->if_statement_;
   auto else_statement = if_else_node->else_statement_;
   auto cond_address = generate_for_rvalue_node(cond, code_builder);
+  format_condition_address(cond_address, code_builder);
 
   // IF
   auto [true_label_future, false_label_future] =
@@ -473,6 +489,7 @@ void IRGeneratorImpl::generate_for_for_loop_node(const ASTNodePtr &node,
   LabelFuturePtr true_label_future = nullptr;
   if (cond->kind_ != ASTNodeKind::EMPTY) {
     auto cond_address = generate_for_rvalue_node(cond, code_builder);
+    format_condition_address(cond_address, code_builder);
     std::tie(true_label_future, false_label_future) =
         code_builder->append_condition_branch(cond_address);
 
@@ -501,6 +518,7 @@ void IRGeneratorImpl::generate_for_while_loop_node(
   code_builder->append_label(cond_label);
 
   auto cond_address = generate_for_rvalue_node(cond, code_builder);
+  format_condition_address(cond_address, code_builder);
   auto [true_label_future, false_label_future] =
       code_builder->append_condition_branch(cond_address);
 
@@ -526,6 +544,7 @@ void IRGeneratorImpl::generate_for_do_while_node(const ASTNodePtr &node,
   code_builder->append_label(true_label);
   generate_for_non_value_node(statement, code_builder);
   auto cond_address = generate_for_rvalue_node(cond, code_builder);
+  format_condition_address(cond_address, code_builder);
 
   auto false_label = ctx_manager_->function_ctx()->allocate_label();
   code_builder->append_condition_branch(cond_address, true_label, false_label);
@@ -558,8 +577,9 @@ void IRGeneratorImpl::generate_for_variable_declaration_node(
   const auto &declarator = declarator_node.declarator_;
   const auto &type = declarator->type_;
   const auto &name = declarator->identifier_;
+  SiiIR::TypePtr ir_type_ptr = SiiIR::Type::Pointer(Type::ToIRType(type));
   VariableAddressPtr identifier_address =
-      ctx_manager_->function_ctx()->allocate_variable_address();
+      ctx_manager_->function_ctx()->allocate_variable_address(ir_type_ptr);
   ctx_manager_->append_variable(
       name, Symbol::symbol(std::move(type), identifier_address));
   code_builder->append_alloca(identifier_address, Type::SizeOf(type));
@@ -584,10 +604,13 @@ FunctionAddressPtr IRGeneratorImpl::generate_for_function_declaration_node(
   if (function_node.body_) {
     ctx_manager_->push_symbol_ctx();
     for (auto &parameter : function_type.parameter_types_) {
+      auto parameter_type = parameter->type_;
+      SiiIR::TypePtr ir_type_ptr = SiiIR::Type::Pointer(Type::ToIRType(parameter_type));
       VariableAddressPtr parameter_variable =
-          ctx_manager_->function_ctx()->allocate_variable_address();
-      ctx_manager_->append_variable(parameter->identifier_,
-                                    Symbol::symbol(type, parameter_variable));
+          ctx_manager_->function_ctx()->allocate_variable_address(ir_type_ptr);
+      ctx_manager_->append_variable(
+          parameter->identifier_,
+          Symbol::symbol(parameter->type_, parameter_variable));
     }
     CodeBuilderPtr body_builder = CreateCodeBuilder();
     generate_for_non_value_node(function_body, body_builder);
@@ -595,14 +618,33 @@ FunctionAddressPtr IRGeneratorImpl::generate_for_function_declaration_node(
     ctx_manager_->pop_symbol_ctx();
   }
   auto function_ctx = ctx_manager_->leave_function();
-  FunctionAddressPtr function_address =
-      Address::Function(function_codes, function_ctx, function_name);
+  SiiIR::TypePtr ir_function_type = Type::ToIRType(type);
+  FunctionAddressPtr function_address = Address::Function(
+      function_codes, function_ctx, function_name, std::move(ir_function_type));
   ctx_manager_->append_function(function_name,
                                 Symbol::symbol(type, function_address));
   if (function_body) {
     code_builder->append_function(function_address);
   }
   return function_address;
+}
+
+void
+IRGeneratorImpl::format_condition_address(TemporaryAddressPtr& address,
+                                          CodeBuilderPtr &code_builder) {
+  if (*address->type_ == *SiiIR::Type::Integer(1)) {
+    return ;
+  }
+  if (address->type_->kind_ == SiiIR::Type::Kind::INT) {
+    auto temporary_constant = SiiIR::Address::constant("0", address->type_);
+    TemporaryAddressPtr result =
+        ctx_manager_->function_ctx()->allocate_temporary_address(
+            SiiIR::Type::Integer(1));
+    code_builder->append_not_equal(address, temporary_constant, result);
+    address = result;
+  } else {
+    throw std::runtime_error("condition type error");
+  }
 }
 
 std::unique_ptr<IRGenerator> CreateIRGenerator(ASTNodePtr ast) {

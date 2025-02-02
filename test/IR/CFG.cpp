@@ -84,7 +84,7 @@ TEST(CFG, BuildCFGWithGoto) {
 
 TEST(CFG, BuildCFGWithConditionBranch) {
   auto code_builder = CreateCodeBuilder();
-  auto expression = Address::constant("constant");
+  auto expression = Address::constant("constant", Type::Integer(1));
   auto true_label = CreateLabel("true");
   auto false_label = CreateLabel("false");
   // group1
@@ -131,8 +131,8 @@ TEST(CFG, BuildCFGWithConditionBranch) {
 
 TEST(CFG, BuildCFGWithAlloca) {
   auto code_builder = CreateCodeBuilder();
-  VariableAddressPtr variable1 = VariableAddress::variable("variable1");
-  VariableAddressPtr variable2 = VariableAddress::variable("variable2");
+  VariableAddressPtr variable1 = VariableAddress::variable("variable1", Type::Integer(8));
+  VariableAddressPtr variable2 = VariableAddress::variable("variable2", Type::Integer(8));
   code_builder->append_alloca(variable1, 4);
   code_builder->append_alloca(variable2, 4);
   code_builder->append_nope();
