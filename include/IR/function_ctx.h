@@ -1,3 +1,4 @@
+#pragma once
 #include "IR/address.h"
 #include "IR/type.h"
 

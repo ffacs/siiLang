@@ -1,3 +1,4 @@
+#pragma once
 #include "IR/IR.h"
 
 namespace SiiIR {
@@ -21,7 +22,6 @@ struct CFG {
   std::shared_ptr<std::vector<SiiIRCodePtr>> codes_in_order_;
   std::vector<BasicGroupNodePtr> basic_groups_;
   BasicGroupNode* entry_;
-  
 };
 
 using CFGPtr = std::shared_ptr<CFG>;
