@@ -38,17 +38,17 @@ private:
 
 class DominatorTreeBuilder {
 public:
-  DominatorTreeBuilder(CFGPtr cfg) : cfg_(std::move(cfg)) {}
+  DominatorTreeBuilder(FunctionPtr func) : func_(std::move(func)) {}
   DominatorTreePtr build_dominator_tree();
-  void assign_index(BasicGroupNode *basic_group_node, int64_t &index);
+  void assign_index(BasicGroup *basic_group_node, int64_t &index);
   void build_immediate_dominators();
   DominatorTreePtr consturct_dominator_tree();
 
 private:
-  CFGPtr cfg_;
-  std::map<BasicGroupNode *, int64_t> basic_group_node_to_index_;
+  FunctionPtr func_;
+  std::map<BasicGroup *, int64_t> basic_group_node_to_index_;
   int64_t node_count = 0;
-  std::vector<BasicGroupNode *> index_to_basic_group_node_;
+  std::vector<BasicGroup *> index_to_basic_group_node_;
   std::vector<int64_t> father_;
   std::vector<std::vector<int64_t>> previous_ids_;
   // bucket[i] is the list of nodes whose semi-dominator is i.
@@ -62,21 +62,21 @@ private:
 DominatorTreePtr DominatorTreeBuilder::build_dominator_tree() {
   node_count = 0;
   father_.clear();
-  father_.resize(cfg_->basic_groups_.size());
+  father_.resize(func_->basic_groups_.size());
   previous_ids_.clear();
-  previous_ids_.resize(cfg_->basic_groups_.size());
+  previous_ids_.resize(func_->basic_groups_.size());
   bucket_.clear();
-  bucket_.resize(cfg_->basic_groups_.size());
+  bucket_.resize(func_->basic_groups_.size());
   semi_dominator_.clear();
-  semi_dominator_.resize(cfg_->basic_groups_.size());
+  semi_dominator_.resize(func_->basic_groups_.size());
   immediate_dominator_.clear();
-  immediate_dominator_.resize(cfg_->basic_groups_.size());
+  immediate_dominator_.resize(func_->basic_groups_.size());
   build_immediate_dominators();
   return consturct_dominator_tree();
 }
 
 void DominatorTreeBuilder::build_immediate_dominators() {
-  assign_index(cfg_->entry_, node_count);
+  assign_index(func_->entry_, node_count);
   UnionFind union_find(semi_dominator_, node_count);
   for (int64_t i = node_count - 1; i > 0; --i) {
     for (auto previous : previous_ids_[i]) {
@@ -105,7 +105,7 @@ void DominatorTreeBuilder::build_immediate_dominators() {
 
 DominatorTreePtr DominatorTreeBuilder::consturct_dominator_tree() {
   DominatorTreePtr dominator_tree = std::make_shared<DominatorTree>(
-      std::make_shared<DominatorTreeNode>(cfg_->entry_));
+      std::make_shared<DominatorTreeNode>(func_->entry_));
   for (int64_t i = 1; i < node_count; ++i) {
     DominatorTreeNodePtr new_dominator_tree_node =
         std::make_shared<DominatorTreeNode>(index_to_basic_group_node_[i]);
@@ -118,7 +118,7 @@ DominatorTreePtr DominatorTreeBuilder::consturct_dominator_tree() {
   return dominator_tree;
 }
 
-void DominatorTreeBuilder::assign_index(BasicGroupNode *basic_group_node,
+void DominatorTreeBuilder::assign_index(BasicGroup *basic_group_node,
                                         int64_t &index) {
   int64_t currnt_index = index++;
   basic_group_node_to_index_[basic_group_node] = currnt_index;
@@ -138,8 +138,8 @@ void DominatorTreeBuilder::assign_index(BasicGroupNode *basic_group_node,
   }
 }
 
-DominatorTreePtr BuildDominatorTree(CFGPtr cfg) {
-  DominatorTreeBuilder builder(cfg);
+DominatorTreePtr BuildDominatorTree(FunctionPtr func) {
+  DominatorTreeBuilder builder(func);
   return builder.build_dominator_tree();
 }
 

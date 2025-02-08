@@ -49,7 +49,6 @@ using SiiIRLoadPtr = std::shared_ptr<SiiIRLoad>;
 
 struct SiiIRCode {
   SiiIRCodeKind kind_;
-  SiiIRCode* next_ = nullptr;
   LabelPtr label_;
   explicit SiiIRCode(SiiIRCodeKind kind) : kind_(kind) {}
 

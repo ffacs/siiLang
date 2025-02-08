@@ -1,11 +1,10 @@
+#include "include/IR/function.h"
 #include "include/front/ASTPrinter.h"
 #include "include/front/IR_generator.h"
 #include "include/front/parser.h"
 #include <cstring>
 #include <fstream>
 #include <iostream>
-#include <sstream>
-#include <vector>
 
 int main(int argc, char *argv[]) {
   if (argc <= 1) {
@@ -23,14 +22,18 @@ int main(int argc, char *argv[]) {
     auto AST = parser->work();
     auto IR_generator = front::CreateIRGenerator(AST);
     auto IR_list = IR_generator->work();
-    std::stringstream result_builder;
-    for (size_t i = 0; i < IR_list->size(); i++) {
-      result_builder << (*IR_list)[i]->to_string();
-      if (i != IR_list->size() - 1) {
-        result_builder << "\n";
+    for (auto &IR : *IR_list) {
+      if (IR->kind_ == SiiIR::SiiIRCodeKind::FUNCTION_DEFINITION) {
+        SiiIR::SiiIRFunctionDefinition *function_definition =
+            static_cast<SiiIR::SiiIRFunctionDefinition *>(IR.get());
+        SiiIR::FunctionPtr func = SiiIR::BuildFunction(
+            std::move(*function_definition->function_->codes_),
+            std::move(function_definition->function_->ctx_),
+            std::move(function_definition->function_->name_));
+        std::cout << func->to_string() << std::endl;
+      } else {
+        throw std::runtime_error("Not a function definition");
       }
     }
-    std::cout << "IR of file: " << file_name << ": \n";
-    std::cout << result_builder.str();
   }
 }

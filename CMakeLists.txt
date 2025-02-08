@@ -17,3 +17,4 @@ add_subdirectory(test)
 
 add_executable(sc main.cpp)
 target_link_libraries(sc sc_front_lib_shared)
+target_link_libraries(sc sc_ir_lib_shared)
