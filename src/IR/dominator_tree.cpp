@@ -1,5 +1,6 @@
 #include "IR/dominator_tree.h"
 #include <map>
+#include <queue>
 
 namespace SiiIR {
 
@@ -46,9 +47,9 @@ public:
 
 private:
   FunctionPtr func_;
-  std::map<BasicGroup *, int64_t> basic_group_node_to_index_;
+  std::map<BasicGroup *, int64_t> basic_group_to_index_;
   int64_t node_count = 0;
-  std::vector<BasicGroup *> index_to_basic_group_node_;
+  std::vector<BasicGroup *> index_to_basic_group_;
   std::vector<int64_t> father_;
   std::vector<std::vector<int64_t>> previous_ids_;
   // bucket[i] is the list of nodes whose semi-dominator is i.
@@ -108,12 +109,23 @@ DominatorTreePtr DominatorTreeBuilder::consturct_dominator_tree() {
       std::make_shared<DominatorTreeNode>(func_->entry_));
   for (int64_t i = 1; i < node_count; ++i) {
     DominatorTreeNodePtr new_dominator_tree_node =
-        std::make_shared<DominatorTreeNode>(index_to_basic_group_node_[i]);
+        std::make_shared<DominatorTreeNode>(index_to_basic_group_[i]);
     const DominatorTreeNodePtr &parent_node =
         dominator_tree->nodes_[immediate_dominator_[i]];
     new_dominator_tree_node->parent_ = parent_node.get();
     parent_node->children_.push_back(new_dominator_tree_node.get());
     dominator_tree->nodes_.push_back(std::move(new_dominator_tree_node));
+  }
+  // Assign level
+  std::queue<DominatorTreeNode *> working_queue;
+  working_queue.push(dominator_tree->root_);
+  while (!working_queue.empty()) {
+    DominatorTreeNode *current_node = working_queue.front();
+    working_queue.pop();
+    for (auto child : current_node->children_) {
+      child->level = current_node->level + 1;
+      working_queue.push(child);
+    }
   }
   return dominator_tree;
 }
@@ -121,18 +133,17 @@ DominatorTreePtr DominatorTreeBuilder::consturct_dominator_tree() {
 void DominatorTreeBuilder::assign_index(BasicGroup *basic_group_node,
                                         int64_t &index) {
   int64_t currnt_index = index++;
-  basic_group_node_to_index_[basic_group_node] = currnt_index;
-  index_to_basic_group_node_.push_back(basic_group_node);
+  basic_group_to_index_[basic_group_node] = currnt_index;
+  index_to_basic_group_.push_back(basic_group_node);
   for (auto *follow : basic_group_node->follows_) {
     int64_t follow_index = 0;
-    if (basic_group_node_to_index_.find(follow) ==
-        basic_group_node_to_index_.end()) {
+    if (basic_group_to_index_.find(follow) == basic_group_to_index_.end()) {
       follow_index = index;
       assign_index(follow, index);
       father_[follow_index] = currnt_index;
       semi_dominator_[follow_index] = follow_index;
     } else {
-      follow_index = basic_group_node_to_index_[follow];
+      follow_index = basic_group_to_index_[follow];
     }
     previous_ids_[follow_index].push_back(currnt_index);
   }

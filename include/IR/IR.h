@@ -108,10 +108,10 @@ struct SiiIRFunctionDefinition : public SiiIRCode {
 };
 
 struct SiiIRAlloca : public SiiIRCode {
-  SiiIRAlloca(AddressPtr dest, uint32_t size)
+  SiiIRAlloca(VariableAddressPtr dest, uint32_t size)
       : SiiIRCode(SiiIRCodeKind::ALLOCA), dest_(std::move(dest)), size_(size) {}
   std::string to_string() const override;
-  AddressPtr dest_;
+  VariableAddressPtr dest_;
   uint32_t size_;
 };
 
