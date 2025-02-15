@@ -16,9 +16,9 @@ struct IDFBuilderImpl : public IDFBuilder {
   IDFBuilderImpl(FunctionPtr func) : IDFBuilder(std::move(func)) { initial(); }
   void initial();
   void build_dominance_frontiers_of_node(const DominatorTreeNode *node);
-  std::set<const BasicGroup *> get_DF(const BasicGroup *) override;
-  std::set<const BasicGroup *>
-  get_IDF(const std::vector<const BasicGroup *> &) override;
+  DominatorTreePtr get_dom() override { return dominator_tree_; }
+  std::set<BasicGroup *> get_DF(const BasicGroup *) override;
+  std::set<BasicGroup *> get_IDF(const std::vector<BasicGroup *> &) override;
 };
 
 static bool IsDominatorOf(const DominatorTreeNode *dom,
@@ -29,17 +29,17 @@ static bool IsDominatorOf(const DominatorTreeNode *dom,
   return node == dom;
 }
 
-std::set<const BasicGroup *> IDFBuilderImpl::get_DF(const BasicGroup *group) {
+std::set<BasicGroup *> IDFBuilderImpl::get_DF(const BasicGroup *group) {
   const DominatorTreeNode *node = bg_to_dominator_tree_node_map_.at(group);
-  std::set<const BasicGroup *> result;
+  std::set<BasicGroup *> result;
   for (const DominatorTreeNode *df_node : dominance_frontiers_.at(node)) {
     result.insert(df_node->basic_group_);
   }
   return result;
 }
 
-std::set<const BasicGroup *>
-IDFBuilderImpl::get_IDF(const std::vector<const BasicGroup *> &groups) {
+std::set<BasicGroup *>
+IDFBuilderImpl::get_IDF(const std::vector<BasicGroup *> &groups) {
   std::queue<DominatorTreeNode *> working_list;
   std::set<DominatorTreeNode *> IDF_set;
   for (const BasicGroup *group : groups) {
@@ -54,7 +54,7 @@ IDFBuilderImpl::get_IDF(const std::vector<const BasicGroup *> &groups) {
       }
     }
   }
-  std::set<const BasicGroup *> result;
+  std::set<BasicGroup *> result;
   for (DominatorTreeNode *node : IDF_set) {
     result.insert(node->basic_group_);
   }

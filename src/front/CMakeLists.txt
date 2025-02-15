@@ -8,4 +8,6 @@ set_property(TARGET sc_front_obj_lib PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(sc_front_lib_shared SHARED $<TARGET_OBJECTS:sc_front_obj_lib>)
+target_link_libraries(sc_front_lib_shared PRIVATE sc_ir_lib_shared)
 add_library(sc_front_lib_static STATIC $<TARGET_OBJECTS:sc_front_obj_lib>)
+target_link_libraries(sc_front_lib_static PRIVATE sc_ir_lib_static)

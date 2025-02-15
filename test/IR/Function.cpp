@@ -85,7 +85,7 @@ TEST(Function, BuildFunctionWithGoto) {
 TEST(Function, BuildFunctionWithConditionBranch) {
   FunctionContextPtr ctx = std::make_shared<FunctionContext>();
   auto code_builder = CreateCodeBuilder();
-  auto expression = Address::constant("constant", Type::Integer(1));
+  auto expression = Value::constant("constant", Type::Integer(1));
   auto true_label = ctx->allocate_label();
   auto false_label = ctx->allocate_label();
   // group1
@@ -135,8 +135,8 @@ TEST(Function, BuildFunctionWithConditionBranch) {
 TEST(Function, BuildFunctionWithAlloca) {
   FunctionContextPtr ctx = std::make_shared<FunctionContext>();
   auto code_builder = CreateCodeBuilder();
-  VariableAddressPtr variable1 = ctx->allocate_variable_address(Type::Integer(8));
-  VariableAddressPtr variable2 = ctx->allocate_variable_address(Type::Integer(8));
+  VariableValuePtr variable1 = ctx->allocate_variable_value(Type::Integer(8));
+  VariableValuePtr variable2 = ctx->allocate_variable_value(Type::Integer(8));
   code_builder->append_alloca(variable1, 4);
   code_builder->append_alloca(variable2, 4);
   code_builder->append_nope();

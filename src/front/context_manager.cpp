@@ -5,8 +5,8 @@
 using namespace SiiIR;
 
 namespace front {
-SymbolPtr Symbol::symbol(TypePtr type, AddressPtr address) {
-  return std::make_shared<Symbol>(std::move(type), std::move(address));
+SymbolPtr Symbol::symbol(TypePtr type, ValuePtr value) {
+  return std::make_shared<Symbol>(std::move(type), std::move(value));
 }
 
 SymbolPtr SymbolTable::find(const std::string &identifier) const {
@@ -26,12 +26,12 @@ void SymbolTable::push(const std::string &name, SymbolPtr symbol) {
   bool type_the_same = *old_symbol->type_ != *symbol->type_;
   if (old_symbol->type_->kind_ == TypeKind::FUNCTION) {
     bool has_definition = false;
-    const FunctionAddress &old_function_address =
-        static_cast<const FunctionAddress &>(*old_symbol->address_);
-    const FunctionAddress &new_function_address =
-        static_cast<const FunctionAddress &>(*symbol->address_);
-    if (new_function_address.codes_ != nullptr) {
-      if (old_function_address.codes_ == nullptr) {
+    const FunctionValue &old_function_value =
+        static_cast<const FunctionValue &>(*old_symbol->value_);
+    const FunctionValue &new_function_value =
+        static_cast<const FunctionValue &>(*symbol->value_);
+    if (new_function_value.codes_ != nullptr) {
+      if (old_function_value.codes_ == nullptr) {
         name_to_symbol_[name] = symbol;
       } else {
         throw std::invalid_argument("Redefination of " + name);

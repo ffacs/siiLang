@@ -102,4 +102,18 @@ std::string SiiIRStore::to_string() const {
          dest_->to_string() + ";";
 }
 
+std::string SiiIRPhi::to_string() const {
+  std::string result = SiiIRCode::to_string() + "  " + dest_->to_string() +
+                       " = phi( ";
+  for (size_t i = 0; i < src_list_.size(); ++i) {
+    result += src_list_[i]->to_string();
+    if (i != src_list_.size() - 1) {
+      result += ", ";
+    }
+  }
+  result += " );";
+  return result;
+
+}
+
 } // namespace SiiIR

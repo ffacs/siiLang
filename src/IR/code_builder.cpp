@@ -4,41 +4,41 @@
 namespace SiiIR {
 class CodeBuilderImpl : public CodeBuilder {
 public:
-  void append_multiply(TemporaryAddressPtr left, TemporaryAddressPtr right,
-                       TemporaryAddressPtr result) override;
-  void append_divide(TemporaryAddressPtr left, TemporaryAddressPtr right,
-                     TemporaryAddressPtr result) override;
-  void append_add(TemporaryAddressPtr left, TemporaryAddressPtr right,
-                  TemporaryAddressPtr result) override;
-  void append_sub(TemporaryAddressPtr left, TemporaryAddressPtr right,
-                  TemporaryAddressPtr result) override;
-  void append_neg(TemporaryAddressPtr left,
-                  TemporaryAddressPtr result) override;
-  void append_equal(TemporaryAddressPtr left, TemporaryAddressPtr right,
-                    TemporaryAddressPtr result) override;
-  void append_not_equal(TemporaryAddressPtr left, TemporaryAddressPtr right,
-                        TemporaryAddressPtr result) override;
-  void append_less_than(TemporaryAddressPtr left, TemporaryAddressPtr right,
-                        TemporaryAddressPtr result) override;
-  void append_less_equal(TemporaryAddressPtr left, TemporaryAddressPtr right,
-                         TemporaryAddressPtr result) override;
-  void append_condition_branch(TemporaryAddressPtr expression,
+  void append_multiply(TemporaryValuePtr left, TemporaryValuePtr right,
+                       TemporaryValuePtr result) override;
+  void append_divide(TemporaryValuePtr left, TemporaryValuePtr right,
+                     TemporaryValuePtr result) override;
+  void append_add(TemporaryValuePtr left, TemporaryValuePtr right,
+                  TemporaryValuePtr result) override;
+  void append_sub(TemporaryValuePtr left, TemporaryValuePtr right,
+                  TemporaryValuePtr result) override;
+  void append_neg(TemporaryValuePtr left,
+                  TemporaryValuePtr result) override;
+  void append_equal(TemporaryValuePtr left, TemporaryValuePtr right,
+                    TemporaryValuePtr result) override;
+  void append_not_equal(TemporaryValuePtr left, TemporaryValuePtr right,
+                        TemporaryValuePtr result) override;
+  void append_less_than(TemporaryValuePtr left, TemporaryValuePtr right,
+                        TemporaryValuePtr result) override;
+  void append_less_equal(TemporaryValuePtr left, TemporaryValuePtr right,
+                         TemporaryValuePtr result) override;
+  void append_condition_branch(TemporaryValuePtr expression,
                                LabelPtr true_label,
                                LabelPtr false_label) override;
   void append_goto(LabelPtr label) override;
   std::pair<LabelFuturePtr, LabelFuturePtr>
-  append_condition_branch(TemporaryAddressPtr expression) override;
+  append_condition_branch(TemporaryValuePtr expression) override;
   LabelFuturePtr append_goto() override;
   void append_label(LabelPtr label) override;
   void append_nope() override;
-  void append_function(FunctionAddressPtr func) override;
-  void append_alloca(VariableAddressPtr variable, uint32_t bytes) override;
-  void append_load(VariableAddressPtr source,
-                   TemporaryAddressPtr dest) override;
-  VariableAddressPtr append_store(TemporaryAddressPtr source,
-                                  VariableAddressPtr dest) override;
-  VariableAddressPtr append_store(VariableAddressPtr source,
-                                  VariableAddressPtr dest) override;
+  void append_function(FunctionValuePtr func) override;
+  void append_alloca(VariableValuePtr variable, uint32_t bytes) override;
+  void append_load(VariableValuePtr source,
+                   TemporaryValuePtr dest) override;
+  VariableValuePtr append_store(TemporaryValuePtr source,
+                                  VariableValuePtr dest) override;
+  VariableValuePtr append_store(VariableValuePtr source,
+                                  VariableValuePtr dest) override;
   std::shared_ptr<std::vector<SiiIRCodePtr>> finish() override;
 
 protected:
@@ -58,62 +58,62 @@ void CodeBuilderImpl::append_new_code(SiiIRCodePtr new_code) {
   code_list_.emplace_back(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_multiply(TemporaryAddressPtr left,
-                                      TemporaryAddressPtr right,
-                                      TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_multiply(TemporaryValuePtr left,
+                                      TemporaryValuePtr right,
+                                      TemporaryValuePtr result) {
   SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
       SiiIRCodeKind::MUL, std::move(left), std::move(right), result);
   result->src_ = new_code.get();
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_divide(TemporaryAddressPtr left,
-                                    TemporaryAddressPtr right,
-                                    TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_divide(TemporaryValuePtr left,
+                                    TemporaryValuePtr right,
+                                    TemporaryValuePtr result) {
   SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
       SiiIRCodeKind::DIV, std::move(left), std::move(right), result);
   result->src_ = new_code.get();
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_add(TemporaryAddressPtr left,
-                                 TemporaryAddressPtr right,
-                                 TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_add(TemporaryValuePtr left,
+                                 TemporaryValuePtr right,
+                                 TemporaryValuePtr result) {
   SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
       SiiIRCodeKind::ADD, std::move(left), std::move(right), result);
   result->src_ = new_code.get();
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_sub(TemporaryAddressPtr left,
-                                 TemporaryAddressPtr right,
-                                 TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_sub(TemporaryValuePtr left,
+                                 TemporaryValuePtr right,
+                                 TemporaryValuePtr result) {
   SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
       SiiIRCodeKind::SUB, std::move(left), std::move(right), result);
   result->src_ = new_code.get();
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_neg(TemporaryAddressPtr child,
-                                 TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_neg(TemporaryValuePtr child,
+                                 TemporaryValuePtr result) {
   SiiIRUnaryOperationPtr new_code = std::make_shared<SiiIRUnaryOperation>(
       SiiIRCodeKind::NEG, std::move(child), result);
   result->src_ = new_code.get();
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_equal(TemporaryAddressPtr left,
-                                   TemporaryAddressPtr right,
-                                   TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_equal(TemporaryValuePtr left,
+                                   TemporaryValuePtr right,
+                                   TemporaryValuePtr result) {
   SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
       SiiIRCodeKind::EQUAL, std::move(left), std::move(right), result);
   result->src_ = new_code.get();
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_not_equal(TemporaryAddressPtr left,
-                                       TemporaryAddressPtr right,
-                                       TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_not_equal(TemporaryValuePtr left,
+                                       TemporaryValuePtr right,
+                                       TemporaryValuePtr result) {
   if (*left->type_ != *right->type_) {
     throw std::runtime_error("Not equal must be of same type");
   }
@@ -123,9 +123,9 @@ void CodeBuilderImpl::append_not_equal(TemporaryAddressPtr left,
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_less_than(TemporaryAddressPtr left,
-                                       TemporaryAddressPtr right,
-                                       TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_less_than(TemporaryValuePtr left,
+                                       TemporaryValuePtr right,
+                                       TemporaryValuePtr result) {
   if (*left->type_ != *right->type_) {
     throw std::runtime_error("Less than must be of same type");
   }
@@ -135,9 +135,9 @@ void CodeBuilderImpl::append_less_than(TemporaryAddressPtr left,
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_less_equal(TemporaryAddressPtr left,
-                                        TemporaryAddressPtr right,
-                                        TemporaryAddressPtr result) {
+void CodeBuilderImpl::append_less_equal(TemporaryValuePtr left,
+                                        TemporaryValuePtr right,
+                                        TemporaryValuePtr result) {
   if (*left->type_ != *right->type_) {
     throw std::runtime_error("Less equal must be of same type");
   }
@@ -147,13 +147,9 @@ void CodeBuilderImpl::append_less_equal(TemporaryAddressPtr left,
   append_new_code(std::move(new_code));
 }
 
-VariableAddressPtr CodeBuilderImpl::append_store(TemporaryAddressPtr source,
-                                                 VariableAddressPtr dest) {
-  if (dest->type_->kind_ != Type::Kind::POINTER) {
-    throw std::runtime_error("Destination must be pointer");
-  }
-  PointerType& pointer_type = static_cast<PointerType&>(*dest->type_);
-  if (*pointer_type.aim_type_ != *source->type_) {
+VariableValuePtr CodeBuilderImpl::append_store(TemporaryValuePtr source,
+                                                 VariableValuePtr dest) {
+  if (*dest->type_ != *source->type_) {
     throw std::runtime_error("Store must be of same type");
   }
   SiiIRStorePtr new_code =
@@ -162,11 +158,8 @@ VariableAddressPtr CodeBuilderImpl::append_store(TemporaryAddressPtr source,
   return dest;
 }
 
-VariableAddressPtr CodeBuilderImpl::append_store(VariableAddressPtr source,
-                                                 VariableAddressPtr dest) {
-  if (dest->type_->kind_ != Type::Kind::POINTER) {
-    throw std::runtime_error("Destination must be pointer");
-  }
+VariableValuePtr CodeBuilderImpl::append_store(VariableValuePtr source,
+                                                 VariableValuePtr dest) {
   if (*source->type_ != *dest->type_) {
     throw std::runtime_error("Store must be of same type");
   }
@@ -176,13 +169,13 @@ VariableAddressPtr CodeBuilderImpl::append_store(VariableAddressPtr source,
   return dest;
 }
 
-void CodeBuilderImpl::append_load(VariableAddressPtr source,
-                                  TemporaryAddressPtr dest) {
-  SiiIRLoadPtr new_code = std::make_shared<SiiIRLoad>(std::move(source), dest);
+void CodeBuilderImpl::append_load(VariableValuePtr source,
+                                  TemporaryValuePtr dest) {
+  SiiIRLoadPtr new_code = std::make_shared<SiiIRLoad>(std::move(source), std::move(dest));
   append_new_code(std::move(new_code));
 }
 
-void CodeBuilderImpl::append_condition_branch(TemporaryAddressPtr condition,
+void CodeBuilderImpl::append_condition_branch(TemporaryValuePtr condition,
                                               LabelPtr true_label,
                                               LabelPtr false_label) {
   if (*condition->type_ != *Type::Integer(1)) {
@@ -199,7 +192,7 @@ void CodeBuilderImpl::append_goto(LabelPtr label) {
 }
 
 std::pair<LabelFuturePtr, LabelFuturePtr>
-CodeBuilderImpl::append_condition_branch(TemporaryAddressPtr condition) {
+CodeBuilderImpl::append_condition_branch(TemporaryValuePtr condition) {
   if (*condition->type_ != *Type::Integer(1)) {
     throw std::runtime_error("Condition branch must be of type bool");
   }
@@ -244,13 +237,13 @@ std::shared_ptr<std::vector<SiiIRCodePtr>> CodeBuilderImpl::finish() {
   return result;
 }
 
-void CodeBuilderImpl::append_function(FunctionAddressPtr func) {
+void CodeBuilderImpl::append_function(FunctionValuePtr func) {
   SiiIRFunctionDefinitionPtr function =
       std::make_shared<SiiIRFunctionDefinition>(std::move(func));
   append_new_code(std::move(function));
 }
 
-void CodeBuilderImpl::append_alloca(VariableAddressPtr variable,
+void CodeBuilderImpl::append_alloca(VariableValuePtr variable,
                                     uint32_t bytes) {
   SiiIRAllocaPtr alloca =
       std::make_shared<SiiIRAlloca>(std::move(variable), bytes);

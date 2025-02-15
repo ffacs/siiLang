@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <string>
 
-#include "IR/address.h"
+#include "IR/value.h"
 
 namespace SiiIR {
 enum class SiiIRCodeKind : uint32_t {
@@ -36,6 +36,7 @@ struct SiiIRFunctionDefinition;
 struct SiiIRAlloca;
 struct SiiIRStore;
 struct SiiIRLoad;
+struct SiiIRPhi;
 using SiiIRCodePtr = std::shared_ptr<SiiIRCode>;
 using SiiIRBinaryOperationPtr = std::shared_ptr<SiiIRBinaryOperation>;
 using SiiIRUnaryOperationPtr = std::shared_ptr<SiiIRUnaryOperation>;
@@ -46,6 +47,7 @@ using SiiIRFunctionDefinitionPtr = std::shared_ptr<SiiIRFunctionDefinition>;
 using SiiIRAllocaPtr = std::shared_ptr<SiiIRAlloca>;
 using SiiIRStorePtr = std::shared_ptr<SiiIRStore>;
 using SiiIRLoadPtr = std::shared_ptr<SiiIRLoad>;
+using SiiIRPhiPtr = std::shared_ptr<SiiIRPhi>;
 
 struct SiiIRCode {
   SiiIRCodeKind kind_;
@@ -57,23 +59,23 @@ struct SiiIRCode {
 };
 
 struct SiiIRBinaryOperation : public SiiIRCode {
-  SiiIRBinaryOperation(SiiIRCodeKind kind, AddressPtr lhs, AddressPtr rhs,
-                       AddressPtr result)
+  SiiIRBinaryOperation(SiiIRCodeKind kind, ValuePtr lhs, ValuePtr rhs,
+                       ValuePtr result)
       : SiiIRCode(kind), lhs_(std::move(lhs)), rhs_(std::move(rhs)),
         result_(std::move(result)) {}
   std::string to_string() const override;
-  AddressPtr lhs_;
-  AddressPtr rhs_;
-  AddressPtr result_;
+  ValuePtr lhs_;
+  ValuePtr rhs_;
+  ValuePtr result_;
 };
 
 struct SiiIRUnaryOperation : public SiiIRCode {
-  SiiIRUnaryOperation(SiiIRCodeKind kind, AddressPtr operand, AddressPtr result)
+  SiiIRUnaryOperation(SiiIRCodeKind kind, ValuePtr operand, ValuePtr result)
       : SiiIRCode(kind), operand_(std::move(operand)),
         result_(std::move(result)) {}
   std::string to_string() const override;
-  AddressPtr operand_;
-  AddressPtr result_;
+  ValuePtr operand_;
+  ValuePtr result_;
 };
 
 struct SiiIRGoto : public SiiIRCode {
@@ -84,12 +86,13 @@ struct SiiIRGoto : public SiiIRCode {
 };
 
 struct SiiIRConditionBarnch : public SiiIRCode {
-  SiiIRConditionBarnch(AddressPtr condition, LabelPtr true_label, LabelPtr false_label)
+  SiiIRConditionBarnch(TemporaryValuePtr condition, LabelPtr true_label,
+                       LabelPtr false_label)
       : SiiIRCode(SiiIRCodeKind::CONDITION_BRANCH),
         condition_(std::move(condition)), true_label_(std::move(true_label)),
-                                          false_label_(std::move(false_label)) {}
+        false_label_(std::move(false_label)) {}
   std::string to_string() const override;
-  AddressPtr condition_;
+  ValuePtr condition_;
   LabelPtr true_label_;
   LabelPtr false_label_;
 };
@@ -100,37 +103,49 @@ struct SiiIRNope : public SiiIRCode {
 };
 
 struct SiiIRFunctionDefinition : public SiiIRCode {
-  SiiIRFunctionDefinition(FunctionAddressPtr function)
+  SiiIRFunctionDefinition(FunctionValuePtr function)
       : SiiIRCode(SiiIRCodeKind::FUNCTION_DEFINITION),
         function_(std::move(function)) {}
   std::string to_string() const override;
-  FunctionAddressPtr function_;
+  FunctionValuePtr function_;
 };
 
 struct SiiIRAlloca : public SiiIRCode {
-  SiiIRAlloca(VariableAddressPtr dest, uint32_t size)
+  SiiIRAlloca(VariableValuePtr dest, uint32_t size)
       : SiiIRCode(SiiIRCodeKind::ALLOCA), dest_(std::move(dest)), size_(size) {}
   std::string to_string() const override;
-  VariableAddressPtr dest_;
+  VariableValuePtr dest_;
   uint32_t size_;
 };
 
 struct SiiIRLoad : public SiiIRCode {
-  SiiIRLoad(AddressPtr src, AddressPtr dest)
+  SiiIRLoad(VariableValuePtr src, TemporaryValuePtr dest)
       : SiiIRCode(SiiIRCodeKind::LOAD), src_(std::move(src)),
         dest_(std::move(dest)) {}
   std::string to_string() const override;
-  AddressPtr src_;
-  AddressPtr dest_;
+  VariableValuePtr src_;
+  TemporaryValuePtr dest_;
 };
 
 struct SiiIRStore : public SiiIRCode {
-  SiiIRStore(AddressPtr src, AddressPtr dest)
+  SiiIRStore(ValuePtr src, ValuePtr dest)
       : SiiIRCode(SiiIRCodeKind::STORE), src_(std::move(src)),
         dest_(std::move(dest)) {}
   std::string to_string() const override;
-  AddressPtr src_;
-  AddressPtr dest_;
+  ValuePtr src_;
+  ValuePtr dest_;
+};
+
+struct SiiIRPhi : public SiiIRCode {
+  SiiIRPhi(VariableValuePtr variable, size_t src_size)
+      : SiiIRCode(SiiIRCodeKind::PHI), dest_(variable),
+        src_list_(src_size, std::move(variable)),
+        from_list_(src_size, nullptr) {}
+
+  std::string to_string() const override;
+  ValuePtr dest_;
+  std::vector<ValuePtr> src_list_;
+  std::vector<LabelPtr> from_list_;
 };
 
 } // namespace SiiIR

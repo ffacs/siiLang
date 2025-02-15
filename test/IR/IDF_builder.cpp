@@ -5,7 +5,7 @@
 namespace SiiIR {
 
 static bool VerifyDomninaceFrotier(
-    const BasicGroup *bg, const std::set<const BasicGroup *> &DFs,
+    const BasicGroup *bg, const std::set<BasicGroup *> &DFs,
     const std::map<const BasicGroup *, std::set<const BasicGroup *>>
         &dominators) {
   for (const auto &df : DFs) {
@@ -64,12 +64,12 @@ TEST(IDFBuilder, DominanceFrontier) {
   }
 }
 
-static std::vector<std::vector<const BasicGroup *>>
+static std::vector<std::vector<BasicGroup *>>
 GetAllSubsets(const std::vector<BasicGroupPtr> &bgs) {
-  std::vector<std::vector<const BasicGroup *>> subsets;
+  std::vector<std::vector<BasicGroup *>> subsets;
   size_t n = bgs.size();
   for (size_t i = 0; i < (1 << n); ++i) {
-    std::vector<const BasicGroup *> subset;
+    std::vector<BasicGroup *> subset;
     for (size_t j = 0; j < n; ++j) {
       if (i & (1 << j)) {
         subset.push_back(bgs[j].get());
@@ -80,16 +80,16 @@ GetAllSubsets(const std::vector<BasicGroupPtr> &bgs) {
   return subsets;
 }
 
-static std::set<const BasicGroup *>
-GetIDF(FunctionPtr func, const std::vector<const BasicGroup *> &bgs) {
-  std::set<const BasicGroup *> result = {};
-  std::vector<const BasicGroup *> working_list = bgs;
+static std::set<BasicGroup *>
+GetIDF(FunctionPtr func, const std::vector<BasicGroup *> &bgs) {
+  std::set<BasicGroup *> result = {};
+  std::vector<BasicGroup *> working_list = bgs;
   auto IDF_builder = CreateIDFBuilder(func);
   while (true) {
     bool changed = false;
     for (const BasicGroup *bg : working_list) {
-      std::set<const BasicGroup *> DFs = IDF_builder->get_DF(bg);
-      for (const BasicGroup *df : DFs) {
+      std::set<BasicGroup *> DFs = IDF_builder->get_DF(bg);
+      for (BasicGroup *df : DFs) {
         if (result.insert(df).second) {
           changed = true;
         }

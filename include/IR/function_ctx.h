@@ -1,16 +1,16 @@
 #pragma once
-#include "IR/address.h"
+#include "IR/value.h"
 #include "IR/type.h"
 
 namespace SiiIR {
 struct FunctionContext;
 typedef std::shared_ptr<FunctionContext> FunctionContextPtr;
 struct FunctionContext {
-  std::vector<AddressPtr> allocated_addresses_;
+  std::vector<ValuePtr> allocated_values_;
 
   LabelPtr allocate_label();
-  TemporaryAddressPtr allocate_temporary_address(TypePtr type);
-  VariableAddressPtr allocate_variable_address(TypePtr type);
+  TemporaryValuePtr allocate_temporary_value(TypePtr type);
+  VariableValuePtr allocate_variable_value(TypePtr type);
 };
 
 } // namespace SiiIR

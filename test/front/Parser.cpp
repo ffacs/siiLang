@@ -797,7 +797,7 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
                         ASTNode::Identifier("y"))})}))));
 }
 
-TEST(Parser, GetAddress) {
+TEST(Parser, GetValue) {
     EXPECT_EQ(ASTToString(CreateParser("&a;")->parse_assignment()),
               ASTToString(ASTNode::Get_address(ASTNode::Identifier("a"))));    
 }

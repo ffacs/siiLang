@@ -794,7 +794,7 @@ TEST(IRGenerator, Declaration) {
       std::invalid_argument);
 }
 
-TEST(IRGenerator, GetAddress) {
+TEST(IRGenerator, GetValue) {
   EXPECT_EQ(
       "@function:\n"
       "  %0 = alloca size 4;\n"

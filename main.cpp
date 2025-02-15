@@ -2,6 +2,7 @@
 #include "include/front/ASTPrinter.h"
 #include "include/front/IR_generator.h"
 #include "include/front/parser.h"
+#include "include/IR/Pass/memory_to_register.h"
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -30,6 +31,7 @@ int main(int argc, char *argv[]) {
             std::move(*function_definition->function_->codes_),
             std::move(function_definition->function_->ctx_),
             std::move(function_definition->function_->name_));
+        SiiIR::MemoeryToRegisterPass().run(func);
         std::cout << func->to_string() << std::endl;
       } else {
         throw std::runtime_error("Not a function definition");

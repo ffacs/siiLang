@@ -1,5 +1,5 @@
 #pragma once
-#include "IR/address.h"
+#include "IR/value.h"
 #include "IR/function_ctx.h"
 #include "front/type.h"
 #include <map>
@@ -18,10 +18,10 @@ typedef std::shared_ptr<ContextManager> ContextManagerPtr;
 
 struct Symbol {
   TypePtr type_;
-  SiiIR::AddressPtr address_;
-  Symbol(TypePtr type, SiiIR::AddressPtr address)
-      : type_(std::move(type)), address_(std::move(address)) {}
-  static SymbolPtr symbol(TypePtr type, SiiIR::AddressPtr address);
+  SiiIR::ValuePtr value_;
+  Symbol(TypePtr type, SiiIR::ValuePtr value)
+      : type_(std::move(type)), value_(std::move(value)) {}
+  static SymbolPtr symbol(TypePtr type, SiiIR::ValuePtr value);
 };
 
 struct SymbolTable {
