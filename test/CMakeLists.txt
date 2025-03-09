@@ -27,4 +27,5 @@ ExternalProject_Add(gtest
 
 add_subdirectory(front)
 add_subdirectory(IR)
+add_subdirectory(utils)
 

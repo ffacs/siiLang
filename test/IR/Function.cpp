@@ -28,10 +28,10 @@ TEST(Function, BuildSingleBasicGroup) {
   EXPECT_EQ(func->entry_->follows_[0], func->basic_groups_[1].get());
   auto group1 = func->basic_groups_[1];
   EXPECT_EQ(group1->codes_.size(), 4LL);
-  EXPECT_EQ(group1->codes_[0], codes->at(0));
-  EXPECT_EQ(group1->codes_[1], codes->at(1));
-  EXPECT_EQ(group1->codes_[2], codes->at(2));
-  EXPECT_EQ(group1->codes_[3], codes->at(3));
+  EXPECT_EQ(&group1->codes_[0], codes->at(0).get());
+  EXPECT_EQ(&group1->codes_[1], codes->at(1).get());
+  EXPECT_EQ(&group1->codes_[2], codes->at(2).get());
+  EXPECT_EQ(&group1->codes_[3], codes->at(3).get());
 }
 
 TEST(Function, BuildFunctionWithLabel) {
@@ -48,7 +48,7 @@ TEST(Function, BuildFunctionWithLabel) {
   EXPECT_EQ(entry->follows_[0], func->basic_groups_[1].get());
   auto group1 = func->basic_groups_[1];
   EXPECT_EQ(group1->codes_.size(), 1LL);
-  EXPECT_EQ(group1->codes_[0], codes->at(0));
+  EXPECT_EQ(&group1->codes_[0], codes->at(0).get());
 }
 
 TEST(Function, BuildFunctionWithGoto) {
@@ -68,16 +68,16 @@ TEST(Function, BuildFunctionWithGoto) {
 
   auto group1 = entry->follows_[0];
   EXPECT_EQ(group1->codes_.size(), 2LL);
-  EXPECT_EQ(group1->codes_[0], codes->at(0));
-  EXPECT_EQ(group1->codes_[1]->kind_, SiiIRCodeKind::GOTO);
-  EXPECT_EQ(static_cast<SiiIRGoto*>(group1->codes_[1].get())->dest_label_, label1);
+  EXPECT_EQ(&group1->codes_[0], codes->at(0).get());
+  EXPECT_EQ(group1->codes_[1].kind_, SiiIRCodeKind::GOTO);
+  EXPECT_EQ(static_cast<SiiIRGoto&>(group1->codes_[1]).dest_label_, label1);
   EXPECT_EQ(group1->follows_.size(), 1);
 
   auto group2 = group1->follows_[0];
   EXPECT_EQ(group2->codes_.size(), 3LL);
-  EXPECT_EQ(group2->codes_[0], codes->at(1));
-  EXPECT_EQ(group2->codes_[1], codes->at(2));
-  EXPECT_EQ(group2->codes_[2], codes->at(3));
+  EXPECT_EQ(&group2->codes_[0], codes->at(1).get());
+  EXPECT_EQ(&group2->codes_[1], codes->at(2).get());
+  EXPECT_EQ(&group2->codes_[2], codes->at(3).get());
   EXPECT_EQ(group2->follows_.size(), 1);
   EXPECT_EQ(group2->follows_[0], group2);
 }
@@ -106,24 +106,24 @@ TEST(Function, BuildFunctionWithConditionBranch) {
   EXPECT_EQ(entry->follows_.size(), 1);
   auto group1 = entry->follows_[0];
   EXPECT_EQ(group1->codes_.size(), 2LL);
-  EXPECT_EQ(group1->codes_[0], codes->at(0));
-  EXPECT_EQ(group1->codes_[1], codes->at(1));
+  EXPECT_EQ(&group1->codes_[0], codes->at(0).get());
+  EXPECT_EQ(&group1->codes_[1], codes->at(1).get());
   EXPECT_EQ(group1->follows_.size(), 2);
   EXPECT_EQ(group1->precedes_.size(), 1);
   EXPECT_EQ(group1->precedes_[0], entry);
   
   auto group3 = group1->follows_[0];
   EXPECT_EQ(group3->codes_.size(), 3LL);
-  EXPECT_EQ(group3->codes_[0], codes->at(2));
-  EXPECT_EQ(group3->codes_[1], codes->at(3));
-  EXPECT_EQ(group3->codes_[2]->kind_, SiiIRCodeKind::GOTO);
+  EXPECT_EQ(&group3->codes_[0], codes->at(2).get());
+  EXPECT_EQ(&group3->codes_[1], codes->at(3).get());
+  EXPECT_EQ(group3->codes_[2].kind_, SiiIRCodeKind::GOTO);
   EXPECT_EQ(group3->follows_.size(), 1);
   EXPECT_EQ(group3->precedes_.size(), 1);
   EXPECT_EQ(group3->precedes_[0], group1);
 
   auto group2 = group1->follows_[1];
   EXPECT_EQ(group2->codes_.size(), 1LL);
-  EXPECT_EQ(group2->codes_[0], codes->at(4));
+  EXPECT_EQ(&group2->codes_[0], codes->at(4).get());
   EXPECT_EQ(group2->follows_.size(), 0);
   EXPECT_EQ(group2->precedes_.size(), 2);
   EXPECT_EQ(group2->precedes_[0], group3);
@@ -145,13 +145,13 @@ TEST(Function, BuildFunctionWithAlloca) {
   EXPECT_EQ(func->basic_groups_.size(), 2);
   auto entry = func->entry_;
   EXPECT_EQ(entry->codes_.size(), 3);
-  EXPECT_EQ(entry->codes_[0], codes->at(0));
-  EXPECT_EQ(entry->codes_[1], codes->at(1));
-  EXPECT_EQ(entry->codes_[2]->kind_, SiiIRCodeKind::GOTO);
+  EXPECT_EQ(&entry->codes_[0], codes->at(0).get());
+  EXPECT_EQ(&entry->codes_[1], codes->at(1).get());
+  EXPECT_EQ(entry->codes_[2].kind_, SiiIRCodeKind::GOTO);
   EXPECT_EQ(entry->follows_.size(), 1);
   auto group1 = entry->follows_[0];
   EXPECT_EQ(group1->codes_.size(), 1LL);
-  EXPECT_EQ(group1->codes_[0], codes->at(2));
+  EXPECT_EQ(&group1->codes_[0], codes->at(2).get());
   EXPECT_EQ(group1->follows_.size(), 0);
 }
 

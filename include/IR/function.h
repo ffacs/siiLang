@@ -5,7 +5,8 @@
 namespace SiiIR {
 
 struct BasicGroup {
-  std::vector<SiiIRCodePtr> codes_;
+  List<SiiIRCode> codes_;
+
   std::vector<BasicGroup *> precedes_;
   std::vector<BasicGroup *> follows_;
   LabelPtr label_;
@@ -26,8 +27,7 @@ struct Function {
 using FunctionPtr = std::shared_ptr<Function>;
 
 FunctionPtr BuildFunction(std::vector<SiiIRCodePtr> codes,
-                          FunctionContextPtr ctx,
-                          std::string name);
+                          FunctionContextPtr ctx, std::string name);
 // TODO merge BasicGroup with its following BasicGroup when there is only one
 
 } // namespace SiiIR

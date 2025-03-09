@@ -3,6 +3,7 @@
 #include <string>
 
 #include "IR/value.h"
+#include "utils/list.h"
 
 namespace SiiIR {
 enum class SiiIRCodeKind : uint32_t {
@@ -25,6 +26,7 @@ enum class SiiIRCodeKind : uint32_t {
   PHI = 17
 };
 
+struct BasicGroup;
 struct SiiIRCode;
 struct SiiIRBinaryOperation;
 struct SiiIRUnaryOperation;
@@ -49,9 +51,10 @@ using SiiIRStorePtr = std::shared_ptr<SiiIRStore>;
 using SiiIRLoadPtr = std::shared_ptr<SiiIRLoad>;
 using SiiIRPhiPtr = std::shared_ptr<SiiIRPhi>;
 
-struct SiiIRCode {
+struct SiiIRCode : public ListNode<SiiIRCode> {
   SiiIRCodeKind kind_;
   LabelPtr label_;
+  BasicGroup* group_ = nullptr;
   explicit SiiIRCode(SiiIRCodeKind kind) : kind_(kind) {}
 
   virtual std::string to_string() const;
