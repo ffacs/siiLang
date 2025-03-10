@@ -44,8 +44,10 @@ private:
       if (current->kind_ == SiiIRCodeKind::GOTO) {
         const SiiIRGoto *goto_code =
             static_cast<const SiiIRGoto *>(current.get());
+        const LabelPtr& dest_label = 
+            std::static_pointer_cast<Label>(goto_code->dest_label_->value_);
         BasicGroup *next_group = build_basic_group_starting_from(
-            code_to_index_[goto_code->dest_label_->dest_code_]);
+            code_to_index_[dest_label->dest_code_]);
         result->follows_.push_back(next_group);
         next_group->precedes_.push_back(result.get());
         break;
@@ -53,13 +55,17 @@ private:
       if (current->kind_ == SiiIRCodeKind::CONDITION_BRANCH) {
         const SiiIRConditionBranch *condition_branch =
             static_cast<const SiiIRConditionBranch *>(current.get());
+        const LabelPtr& true_label = 
+            std::static_pointer_cast<Label>(condition_branch->true_label_->value_);
+        const LabelPtr& false_label = 
+            std::static_pointer_cast<Label>(condition_branch->false_label_->value_);
         BasicGroup *true_group = build_basic_group_starting_from(
-            code_to_index_[condition_branch->true_label_->dest_code_]);
+            code_to_index_[true_label->dest_code_]);
         result->follows_.push_back(true_group);
         true_group->precedes_.push_back(result.get());
 
         BasicGroup *false_group = build_basic_group_starting_from(
-            code_to_index_[condition_branch->false_label_->dest_code_]);
+            code_to_index_[false_label->dest_code_]);
         result->follows_.push_back(false_group);
         false_group->precedes_.push_back(result.get());
         break;

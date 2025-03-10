@@ -36,7 +36,9 @@ public:
   void set_parent(ParentType *parent) { parent_ = parent; }
   
   void remove_from_parent() {
-    parent_->erase(get_iterator());
+    if (parent_) {
+      parent_->erase(get_iterator());
+    }
   }
 };
 

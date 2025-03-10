@@ -3,8 +3,10 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "IR/type.h"
+#include "utils/list.h"
 
 namespace SiiIR {
 struct FunctionContext;
@@ -18,6 +20,7 @@ enum class ValueKind : uint32_t {
   UNDEF = 5
 };
 
+struct Use;
 struct SiiIRCode;
 struct Value;
 struct VariableValue;
@@ -41,6 +44,7 @@ struct Value {
   explicit Value(ValueKind kind, TypePtr type) : kind_(kind), type_(type) {}
   ValueKind kind_;
   TypePtr type_;
+  List<Use> users_;
 
   virtual std::string to_string() const = 0;
 
@@ -111,9 +115,10 @@ struct Label : public Value {
 };
 
 struct LabelFuture {
-  LabelPtr *dest_;
-  LabelFuture(LabelPtr *dest) : dest_(dest) {}
-  void set_label(LabelPtr label) { *dest_ = label; }
+  std::function<void (LabelPtr)> label_setter_;
+
+  LabelFuture(std::function<void(LabelPtr label)> label_setter) : label_setter_(std::move(label_setter)) {}
+  void set_label(LabelPtr label) { label_setter_(label); }
 };
 
 } // namespace SiiIR

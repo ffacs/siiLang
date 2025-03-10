@@ -199,16 +199,16 @@ CodeBuilderImpl::append_condition_branch(TemporaryValuePtr condition) {
   SiiIRConditionBranchPtr new_code = std::make_shared<SiiIRConditionBranch>(
       std::move(condition), nullptr, nullptr);
   auto true_label_future =
-      std::make_shared<LabelFuture>(&(new_code->true_label_));
+      std::make_shared<LabelFuture>(new_code->use_setter<1>());
   auto false_label_future =
-      std::make_shared<LabelFuture>(&(new_code->false_label_));
+      std::make_shared<LabelFuture>(new_code->use_setter<2>());
   append_new_code(std::move(new_code));
   return std::make_pair(true_label_future, false_label_future);
 }
 
 LabelFuturePtr CodeBuilderImpl::append_goto() {
   SiiIRGotoPtr then_goto = std::make_shared<SiiIRGoto>(nullptr);
-  auto labelFuture = std::make_shared<LabelFuture>(&(then_goto->dest_label_));
+  auto labelFuture = std::make_shared<LabelFuture>(then_goto->use_setter<0>());
   append_new_code(std::move(then_goto));
   return labelFuture;
 }

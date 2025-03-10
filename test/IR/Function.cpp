@@ -70,7 +70,7 @@ TEST(Function, BuildFunctionWithGoto) {
   EXPECT_EQ(group1->codes_.size(), 2LL);
   EXPECT_EQ(&group1->codes_[0], codes->at(0).get());
   EXPECT_EQ(group1->codes_[1].kind_, SiiIRCodeKind::GOTO);
-  EXPECT_EQ(static_cast<SiiIRGoto&>(group1->codes_[1]).dest_label_, label1);
+  EXPECT_EQ(static_cast<SiiIRGoto&>(group1->codes_[1]).dest_label_->value_, label1);
   EXPECT_EQ(group1->follows_.size(), 1);
 
   auto group2 = group1->follows_[0];

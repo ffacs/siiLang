@@ -18,19 +18,19 @@ static std::vector<DefineUse> GetDefineUse(FunctionPtr func,
       if (kind == DefineUse::Kind::USE) {
         if (code.kind_ == SiiIRCodeKind::LOAD) {
           const SiiIRLoad &load = static_cast<SiiIRLoad &>(code);
-          if (load.src_ == variable) {
+          if (load.src_->value_ == variable) {
             ok = true;
           }
         } else if (code.kind_ == SiiIRCodeKind::STORE) {
           const SiiIRStore &store = static_cast<SiiIRStore &>(code);
-          if (store.src_ == variable) {
+          if (store.src_->value_ == variable) {
             ok = true;
           }
         }
       } else if (kind == DefineUse::Kind::DEFINE &&
                  code.kind_ == SiiIRCodeKind::STORE) {
         const SiiIRStore &store = static_cast<SiiIRStore &>(code);
-        if (store.dest_ == variable) {
+        if (store.dest_->value_ == variable) {
           ok = true;
         }
       }
@@ -79,13 +79,15 @@ static bool VariableMemoryToRegister(FunctionPtr &func,
 }
 
 static void
-ReplaceTemporary(ValuePtr *value,
+ReplaceTemporary(UsePtr *use,
                  std::map<TemporaryValue *, ValuePtr> &temporary_rename_map) {
-  const ValuePtr &value_ptr = *value;
+  const ValuePtr &value_ptr = (*use)->value_;
   if (value_ptr->kind_ == ValueKind::TEMPORARY) {
     TemporaryValue *temporary = static_cast<TemporaryValue *>(value_ptr.get());
     if (temporary_rename_map.find(temporary) != temporary_rename_map.end()) {
-      *value = temporary_rename_map[temporary];
+      UsePtr old_use = *use;
+      old_use->remove_from_parent();
+      *use = NewUse(old_use->user_, temporary_rename_map[temporary]);
     }
   }
   return;
@@ -105,18 +107,18 @@ RenamePass(DominatorTreeNode *current_node,
     switch (code.kind_) {
     case SiiIRCodeKind::PHI: {
       SiiIRPhi &phi = static_cast<SiiIRPhi &>(code);
-      VariableValue *variable = static_cast<VariableValue *>(phi.dest_.get());
+      VariableValue *variable = static_cast<VariableValue *>(phi.dest_->value_.get());
       auto new_temporary = ctx.allocate_temporary_value(variable->type_);
       variable_rename_map[variable].push(new_temporary);
       rename_count[variable]++;
-      phi.dest_ = new_temporary;
+      phi.use_setter<0>()(new_temporary);
       original_variable_map[new_temporary.get()] = variable;
       continue;
     }
     case SiiIRCodeKind::LOAD: {
       SiiIRLoad &load = static_cast<SiiIRLoad &>(code);
-      VariableValue *source = static_cast<VariableValue *>(load.src_.get());
-      TemporaryValue *dest = static_cast<TemporaryValue *>(load.dest_.get());
+      VariableValue *source = static_cast<VariableValue *>(load.src_->value_.get());
+      TemporaryValue *dest = static_cast<TemporaryValue *>(load.dest_->value_.get());
       if (variable_rename_map.find(source) != variable_rename_map.end()) {
         temporary_rename_map[dest] = variable_rename_map[source].top();
         code_list.erase(iter);
@@ -126,14 +128,13 @@ RenamePass(DominatorTreeNode *current_node,
     case SiiIRCodeKind::STORE: {
       SiiIRStore &store = static_cast<SiiIRStore &>(code);
       VariableValue *dest_variable =
-          static_cast<VariableValue *>(store.dest_.get());
+          static_cast<VariableValue *>(store.dest_->value_.get());
       if (variable_rename_map.find(dest_variable) ==
           variable_rename_map.end()) {
         continue;
       }
-      ValuePtr src = store.src_;
-      ReplaceTemporary(&src, temporary_rename_map);
-      variable_rename_map[dest_variable].push(src);
+      ReplaceTemporary(&store.src_, temporary_rename_map);
+      variable_rename_map[dest_variable].push(store.src_->value_);
       rename_count[dest_variable]++;
       code_list.erase(iter);
       continue;
@@ -170,7 +171,7 @@ RenamePass(DominatorTreeNode *current_node,
     }
     case SiiIRCodeKind::ALLOCA: {
       SiiIRAlloca &alloca = static_cast<SiiIRAlloca &>(code);
-      if (variable_rename_map.find(alloca.dest_.get()) !=
+      if (variable_rename_map.find(static_cast<VariableValue*>(alloca.dest_->value_.get())) !=
           variable_rename_map.end()) {
         code_list.erase(iter);
       }
@@ -190,7 +191,7 @@ RenamePass(DominatorTreeNode *current_node,
         break;
       }
       SiiIRPhi &phi = static_cast<SiiIRPhi &>(*iter);
-      ValuePtr dest = phi.dest_;
+      const ValuePtr dest = phi.dest_->value_;
       VariableValue *variable = nullptr;
       if (dest->kind_ == ValueKind::VARIABLE) {
         variable = static_cast<VariableValue *>(dest.get());
@@ -201,7 +202,7 @@ RenamePass(DominatorTreeNode *current_node,
       if (variable_rename_map.find(variable) != variable_rename_map.end()) {
         for (size_t k = 0; k < follow->precedes_.size(); k++) {
           if (follow->precedes_[k] == current_basic_group) {
-            phi.src_list_[k] = variable_rename_map[variable].top();
+            phi.replace_src(k, variable_rename_map[variable].top());
           }
         }
       }
@@ -226,7 +227,7 @@ static void FuncMemoryToRegister(FunctionPtr &func) {
       continue;
     }
     const SiiIRAlloca &alloca_code = static_cast<const SiiIRAlloca &>(alloca);
-    const VariableValuePtr &variable = alloca_code.dest_;
+    const VariableValuePtr &variable = std::static_pointer_cast<VariableValue>(alloca_code.dest_->value_);
     if (VariableMemoryToRegister(func, variable, idf_builder.get())) {
       variable_rename_map[variable.get()].push(Value::undef(variable->type_));
     }
