@@ -2,7 +2,7 @@
 #include "IR/Pass/function_pass.h"
 
 namespace SiiIR {
-class MemoeryToRegisterPass : public FunctionPass {
+class MemoryToRegisterPass : public FunctionPass {
 public:
     void run(FunctionPtr& func) override;
 };

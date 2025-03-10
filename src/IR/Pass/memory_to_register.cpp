@@ -53,7 +53,7 @@ static bool CanVariableToRegister(const VariableValuePtr &variable,
 }
 
 // Insert phi for variable
-static bool VariableMemoeryToRegister(FunctionPtr &func,
+static bool VariableMemoryToRegister(FunctionPtr &func,
                                       VariableValuePtr variable,
                                       IDFBuilder *idf_builder) {
   std::vector<DefineUse> uses =
@@ -218,7 +218,7 @@ RenamePass(DominatorTreeNode *current_node,
   }
 }
 
-static void FuncMemoeryToRegister(FunctionPtr &func) {
+static void FuncMemoryToRegister(FunctionPtr &func) {
   std::unique_ptr<IDFBuilder> idf_builder = CreateIDFBuilder(func);
   std::map<VariableValue *, std::stack<ValuePtr>> variable_rename_map;
   for (const auto& alloca : func->entry_->codes_) {
@@ -227,7 +227,7 @@ static void FuncMemoeryToRegister(FunctionPtr &func) {
     }
     const SiiIRAlloca &alloca_code = static_cast<const SiiIRAlloca &>(alloca);
     const VariableValuePtr &variable = alloca_code.dest_;
-    if (VariableMemoeryToRegister(func, variable, idf_builder.get())) {
+    if (VariableMemoryToRegister(func, variable, idf_builder.get())) {
       variable_rename_map[variable.get()].push(Value::undef(variable->type_));
     }
   }
@@ -237,8 +237,8 @@ static void FuncMemoeryToRegister(FunctionPtr &func) {
              temporary_rename_map, original_variable_map, *func->ctx_);
 }
 
-void MemoeryToRegisterPass::run(FunctionPtr &func) {
-  FuncMemoeryToRegister(func);
+void MemoryToRegisterPass::run(FunctionPtr &func) {
+  FuncMemoryToRegister(func);
 }
 
 } // namespace SiiIR

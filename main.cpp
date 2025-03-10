@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
             std::move(*function_definition->function_->codes_),
             std::move(function_definition->function_->ctx_),
             std::move(function_definition->function_->name_));
-        SiiIR::MemoeryToRegisterPass().run(func);
+        SiiIR::MemoryToRegisterPass().run(func);
         std::cout << func->to_string() << std::endl;
       } else {
         throw std::runtime_error("Not a function definition");
