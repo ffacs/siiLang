@@ -159,8 +159,8 @@ RenamePass(DominatorTreeNode *current_node,
       continue;
     }
     case SiiIRCodeKind::CONDITION_BRANCH: {
-      SiiIRConditionBarnch &condition_branch =
-          static_cast<SiiIRConditionBarnch &>(code);
+      SiiIRConditionBranch &condition_branch =
+          static_cast<SiiIRConditionBranch &>(code);
       ReplaceTemporary(&condition_branch.condition_, temporary_rename_map);
       continue;
     }

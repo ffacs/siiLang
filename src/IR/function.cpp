@@ -51,8 +51,8 @@ private:
         break;
       }
       if (current->kind_ == SiiIRCodeKind::CONDITION_BRANCH) {
-        const SiiIRConditionBarnch *condition_branch =
-            static_cast<const SiiIRConditionBarnch *>(current.get());
+        const SiiIRConditionBranch *condition_branch =
+            static_cast<const SiiIRConditionBranch *>(current.get());
         BasicGroup *true_group = build_basic_group_starting_from(
             code_to_index_[condition_branch->true_label_->dest_code_]);
         result->follows_.push_back(true_group);

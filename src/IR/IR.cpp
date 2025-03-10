@@ -68,7 +68,7 @@ std::string SiiIRUnaryOperation::to_string() const {
   }
 }
 
-std::string SiiIRConditionBarnch::to_string() const {
+std::string SiiIRConditionBranch::to_string() const {
   auto prefix = SiiIRCode::to_string();
   return prefix + "  if " + condition_->to_string() + " goto " +
          true_label_->to_string() + " else " + false_label_->to_string() + ";";

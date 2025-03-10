@@ -181,7 +181,7 @@ void CodeBuilderImpl::append_condition_branch(TemporaryValuePtr condition,
   if (*condition->type_ != *Type::Integer(1)) {
       throw std::runtime_error("Condition branch must be of type bool");
   }
-  SiiIRConditionBarnchPtr new_code = std::make_shared<SiiIRConditionBarnch>(
+  SiiIRConditionBranchPtr new_code = std::make_shared<SiiIRConditionBranch>(
       std::move(condition), std::move(true_label), std::move(false_label));
   append_new_code(std::move(new_code));
 }
@@ -196,7 +196,7 @@ CodeBuilderImpl::append_condition_branch(TemporaryValuePtr condition) {
   if (*condition->type_ != *Type::Integer(1)) {
     throw std::runtime_error("Condition branch must be of type bool");
   }
-  SiiIRConditionBarnchPtr new_code = std::make_shared<SiiIRConditionBarnch>(
+  SiiIRConditionBranchPtr new_code = std::make_shared<SiiIRConditionBranch>(
       std::move(condition), nullptr, nullptr);
   auto true_label_future =
       std::make_shared<LabelFuture>(&(new_code->true_label_));

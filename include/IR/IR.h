@@ -33,7 +33,7 @@ struct SiiIRUnaryOperation;
 struct SiiIRAssign;
 struct SiiIRGoto;
 struct SiiIRNope;
-struct SiiIRConditionBarnch;
+struct SiiIRConditionBranch;
 struct SiiIRFunctionDefinition;
 struct SiiIRAlloca;
 struct SiiIRStore;
@@ -44,7 +44,7 @@ using SiiIRBinaryOperationPtr = std::shared_ptr<SiiIRBinaryOperation>;
 using SiiIRUnaryOperationPtr = std::shared_ptr<SiiIRUnaryOperation>;
 using SiiIRGotoPtr = std::shared_ptr<SiiIRGoto>;
 using SiiIRNopePtr = std::shared_ptr<SiiIRNope>;
-using SiiIRConditionBarnchPtr = std::shared_ptr<SiiIRConditionBarnch>;
+using SiiIRConditionBranchPtr = std::shared_ptr<SiiIRConditionBranch>;
 using SiiIRFunctionDefinitionPtr = std::shared_ptr<SiiIRFunctionDefinition>;
 using SiiIRAllocaPtr = std::shared_ptr<SiiIRAlloca>;
 using SiiIRStorePtr = std::shared_ptr<SiiIRStore>;
@@ -88,8 +88,8 @@ struct SiiIRGoto : public SiiIRCode {
   LabelPtr dest_label_;
 };
 
-struct SiiIRConditionBarnch : public SiiIRCode {
-  SiiIRConditionBarnch(TemporaryValuePtr condition, LabelPtr true_label,
+struct SiiIRConditionBranch : public SiiIRCode {
+  SiiIRConditionBranch(TemporaryValuePtr condition, LabelPtr true_label,
                        LabelPtr false_label)
       : SiiIRCode(SiiIRCodeKind::CONDITION_BRANCH),
         condition_(std::move(condition)), true_label_(std::move(true_label)),
