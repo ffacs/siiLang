@@ -5,7 +5,8 @@
 namespace SiiIR {
 
 TEST(Function, BuildFunctionFromEmptyCodes) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto codes = std::make_shared<std::vector<SiiIRCodePtr>>();
   auto func = BuildFunction(*codes, ctx, "");
   EXPECT_EQ(func->basic_groups_.size(), 1);
@@ -14,7 +15,8 @@ TEST(Function, BuildFunctionFromEmptyCodes) {
 }
 
 TEST(Function, BuildSingleBasicGroup) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
   code_builder->append_nope();
   code_builder->append_nope();
@@ -35,7 +37,8 @@ TEST(Function, BuildSingleBasicGroup) {
 }
 
 TEST(Function, BuildFunctionWithLabel) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
   code_builder->append_label(ctx->allocate_label());
   code_builder->append_nope();
@@ -52,7 +55,8 @@ TEST(Function, BuildFunctionWithLabel) {
 }
 
 TEST(Function, BuildFunctionWithGoto) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
   auto label1 = ctx->allocate_label();
   code_builder->append_nope();
@@ -70,7 +74,8 @@ TEST(Function, BuildFunctionWithGoto) {
   EXPECT_EQ(group1->codes_.size(), 2LL);
   EXPECT_EQ(&group1->codes_[0], codes->at(0).get());
   EXPECT_EQ(group1->codes_[1].kind_, SiiIRCodeKind::GOTO);
-  EXPECT_EQ(static_cast<SiiIRGoto&>(group1->codes_[1]).dest_label_->value_, label1);
+  EXPECT_EQ(static_cast<SiiIRGoto &>(group1->codes_[1]).dest_label_->value_,
+            label1);
   EXPECT_EQ(group1->follows_.size(), 1);
 
   auto group2 = group1->follows_[0];
@@ -83,7 +88,8 @@ TEST(Function, BuildFunctionWithGoto) {
 }
 
 TEST(Function, BuildFunctionWithConditionBranch) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
   auto expression = Value::constant("constant", Type::Integer(1));
   auto true_label = ctx->allocate_label();
@@ -111,7 +117,7 @@ TEST(Function, BuildFunctionWithConditionBranch) {
   EXPECT_EQ(group1->follows_.size(), 2);
   EXPECT_EQ(group1->precedes_.size(), 1);
   EXPECT_EQ(group1->precedes_[0], entry);
-  
+
   auto group3 = group1->follows_[0];
   EXPECT_EQ(group3->codes_.size(), 3LL);
   EXPECT_EQ(&group3->codes_[0], codes->at(2).get());
@@ -128,12 +134,11 @@ TEST(Function, BuildFunctionWithConditionBranch) {
   EXPECT_EQ(group2->precedes_.size(), 2);
   EXPECT_EQ(group2->precedes_[0], group3);
   EXPECT_EQ(group2->precedes_[1], group1);
-
-
 }
 
 TEST(Function, BuildFunctionWithAlloca) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
   VariableValuePtr variable1 = ctx->allocate_variable_value(Type::Integer(8));
   VariableValuePtr variable2 = ctx->allocate_variable_value(Type::Integer(8));

@@ -12,8 +12,7 @@ public:
                   TemporaryValuePtr result) override;
   void append_sub(TemporaryValuePtr left, TemporaryValuePtr right,
                   TemporaryValuePtr result) override;
-  void append_neg(TemporaryValuePtr left,
-                  TemporaryValuePtr result) override;
+  void append_neg(TemporaryValuePtr left, TemporaryValuePtr result) override;
   void append_equal(TemporaryValuePtr left, TemporaryValuePtr right,
                     TemporaryValuePtr result) override;
   void append_not_equal(TemporaryValuePtr left, TemporaryValuePtr right,
@@ -33,12 +32,12 @@ public:
   void append_nope() override;
   void append_function(FunctionValuePtr func) override;
   void append_alloca(VariableValuePtr variable, uint32_t bytes) override;
-  void append_load(VariableValuePtr source,
-                   TemporaryValuePtr dest) override;
+  void append_load(VariableValuePtr source, TemporaryValuePtr dest) override;
+  void append_return(TemporaryValuePtr value) override;
   VariableValuePtr append_store(TemporaryValuePtr source,
-                                  VariableValuePtr dest) override;
+                                VariableValuePtr dest) override;
   VariableValuePtr append_store(VariableValuePtr source,
-                                  VariableValuePtr dest) override;
+                                VariableValuePtr dest) override;
   std::shared_ptr<std::vector<SiiIRCodePtr>> finish() override;
 
 protected:
@@ -148,7 +147,7 @@ void CodeBuilderImpl::append_less_equal(TemporaryValuePtr left,
 }
 
 VariableValuePtr CodeBuilderImpl::append_store(TemporaryValuePtr source,
-                                                 VariableValuePtr dest) {
+                                               VariableValuePtr dest) {
   if (*dest->type_ != *source->type_) {
     throw std::runtime_error("Store must be of same type");
   }
@@ -159,7 +158,7 @@ VariableValuePtr CodeBuilderImpl::append_store(TemporaryValuePtr source,
 }
 
 VariableValuePtr CodeBuilderImpl::append_store(VariableValuePtr source,
-                                                 VariableValuePtr dest) {
+                                               VariableValuePtr dest) {
   if (*source->type_ != *dest->type_) {
     throw std::runtime_error("Store must be of same type");
   }
@@ -171,7 +170,13 @@ VariableValuePtr CodeBuilderImpl::append_store(VariableValuePtr source,
 
 void CodeBuilderImpl::append_load(VariableValuePtr source,
                                   TemporaryValuePtr dest) {
-  SiiIRLoadPtr new_code = std::make_shared<SiiIRLoad>(std::move(source), std::move(dest));
+  SiiIRLoadPtr new_code =
+      std::make_shared<SiiIRLoad>(std::move(source), std::move(dest));
+  append_new_code(std::move(new_code));
+}
+
+void CodeBuilderImpl::append_return(TemporaryValuePtr value) {
+  SiiIRReturnPtr new_code = std::make_shared<SiiIRReturn>(std::move(value));
   append_new_code(std::move(new_code));
 }
 
@@ -179,7 +184,7 @@ void CodeBuilderImpl::append_condition_branch(TemporaryValuePtr condition,
                                               LabelPtr true_label,
                                               LabelPtr false_label) {
   if (*condition->type_ != *Type::Integer(1)) {
-      throw std::runtime_error("Condition branch must be of type bool");
+    throw std::runtime_error("Condition branch must be of type bool");
   }
   SiiIRConditionBranchPtr new_code = std::make_shared<SiiIRConditionBranch>(
       std::move(condition), std::move(true_label), std::move(false_label));
@@ -243,8 +248,7 @@ void CodeBuilderImpl::append_function(FunctionValuePtr func) {
   append_new_code(std::move(function));
 }
 
-void CodeBuilderImpl::append_alloca(VariableValuePtr variable,
-                                    uint32_t bytes) {
+void CodeBuilderImpl::append_alloca(VariableValuePtr variable, uint32_t bytes) {
   SiiIRAllocaPtr alloca =
       std::make_shared<SiiIRAlloca>(std::move(variable), bytes);
   alloca_list_.push_back(alloca);

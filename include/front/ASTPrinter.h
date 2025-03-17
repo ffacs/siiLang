@@ -40,6 +40,7 @@ public:
   void visit(const VariableDeclarationNode &node);
   void visit(const FunctionDeclarationNode &node);
   void visit(const DeclarationStatementNode &node);
+  void visit(const ReturnNode &node);
 
 protected:
   Indent indent_;

@@ -851,4 +851,62 @@ TEST(IRGenerator, GetValue) {
                    ASTNode::Get_address(ASTNode::Identifier("b")))})}))));
 }
 
+TEST(IRGenerator, Return) {
+  EXPECT_EQ(
+      "@function:\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = load %0;\n"
+      "  return %1;",
+      IRStringGenerate(ASTNode::Function_declaration(
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
+                             "function"),
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration_statement({
+                   ASTNode::Declaration(
+                       Declarator::Create(Type::Basic(TypeKind::INT), "a"),
+                       nullptr),
+               }),
+               ASTNode::Return(ASTNode::Identifier("a"))}))));
+
+  EXPECT_EQ(
+      "@function:\n"
+      "  %0 = alloca size 4;\n"
+      "  %1 = load %0;\n"
+      "  %2 = %1 + 8;\n"
+      "  return %2;",
+      IRStringGenerate(ASTNode::Function_declaration(
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
+                             "function"),
+          ASTNode::Compound_statement(
+              {ASTNode::Declaration_statement({
+                   ASTNode::Declaration(
+                       Declarator::Create(Type::Basic(TypeKind::INT), "a"),
+                       nullptr),
+               }),
+               ASTNode::Return(ASTNode::Add(ASTNode::Identifier("a"),
+                                            ASTNode::Integer("8")))}))));
+
+  EXPECT_EQ("@function:\n"
+            "  return 8;",
+            IRStringGenerate(ASTNode::Function_declaration(
+                Declarator::Create(
+                    Type::Function(Type::Basic(TypeKind::INT), {}), "function"),
+                ASTNode::Compound_statement(
+                    {ASTNode::Return(ASTNode::Integer("8"))}))));
+
+  EXPECT_THROW(
+      IRStringGenerate(ASTNode::Function_declaration(
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
+                             "function"),
+          ASTNode::Compound_statement({ASTNode::Return(ASTNode::Less_equal(
+              ASTNode::Integer("8"), ASTNode::Integer("9")))}))),
+      std::runtime_error);
+  EXPECT_THROW(
+      IRStringGenerate(ASTNode::Function_declaration(
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
+                             "function"),
+          ASTNode::Compound_statement({ASTNode::Return(ASTNode::empty())}))),
+      std::runtime_error);
+}
+
 } // namespace front

@@ -20,42 +20,41 @@ protected:
   std::set<std::string> function_definitions;
 
   TemporaryValuePtr generate_for_rvalue_node(const ASTNodePtr &node,
-                                               CodeBuilderPtr &code_builder);
+                                             CodeBuilderPtr &code_builder);
 
   VariableValuePtr generate_for_lvalue_node(const ASTNodePtr &node,
-                                              CodeBuilderPtr &code_builder);
+                                            CodeBuilderPtr &code_builder);
 
   void generate_for_non_value_node(const ASTNodePtr &node,
                                    CodeBuilderPtr &code_builder);
 
   TemporaryValuePtr generate_for_mul_node(const ASTNodePtr &node,
-                                            CodeBuilderPtr &code_builder);
+                                          CodeBuilderPtr &code_builder);
   TemporaryValuePtr generate_for_div_node(const ASTNodePtr &node,
-                                            CodeBuilderPtr &code_builder);
+                                          CodeBuilderPtr &code_builder);
   TemporaryValuePtr generate_for_add_node(const ASTNodePtr &node,
-                                            CodeBuilderPtr &code_builder);
+                                          CodeBuilderPtr &code_builder);
   TemporaryValuePtr generate_for_sub_node(const ASTNodePtr &node,
-                                            CodeBuilderPtr &code_builder);
+                                          CodeBuilderPtr &code_builder);
   TemporaryValuePtr generate_for_neg_node(const ASTNodePtr &node,
-                                            CodeBuilderPtr &code_builder);
-  TemporaryValuePtr
-  generate_for_get_address_node(const ASTNodePtr &node,
-                                CodeBuilderPtr &code_builder);
+                                          CodeBuilderPtr &code_builder);
+
+  TemporaryValuePtr generate_for_get_address_node(const ASTNodePtr &node,
+                                                  CodeBuilderPtr &code_builder);
   TemporaryValuePtr generate_for_equal_node(const ASTNodePtr &node,
-                                              CodeBuilderPtr &code_builder);
+                                            CodeBuilderPtr &code_builder);
   TemporaryValuePtr generate_for_not_equal_node(const ASTNodePtr &node,
-                                                  CodeBuilderPtr &code_builder);
-  TemporaryValuePtr generate_for_less_than_node(const ASTNodePtr &node,
-                                                  CodeBuilderPtr &code_builder);
-  TemporaryValuePtr
-  generate_for_less_equal_node(const ASTNodePtr &node,
-                               CodeBuilderPtr &code_builder);
-  TemporaryValuePtr generate_for_integer_node(const ASTNodePtr &node,
                                                 CodeBuilderPtr &code_builder);
+  TemporaryValuePtr generate_for_less_than_node(const ASTNodePtr &node,
+                                                CodeBuilderPtr &code_builder);
+  TemporaryValuePtr generate_for_less_equal_node(const ASTNodePtr &node,
+                                                 CodeBuilderPtr &code_builder);
+  TemporaryValuePtr generate_for_integer_node(const ASTNodePtr &node,
+                                              CodeBuilderPtr &code_builder);
   VariableValuePtr generate_for_identifier_node(const ASTNodePtr &node,
-                                                  CodeBuilderPtr &code_builder);
+                                                CodeBuilderPtr &code_builder);
   TemporaryValuePtr generate_for_assign_node(const ASTNodePtr &node,
-                                               CodeBuilderPtr &code_builder);
+                                             CodeBuilderPtr &code_builder);
 
   void generate_for_if_else_node(const ASTNodePtr &node,
                                  CodeBuilderPtr &code_builder);
@@ -71,11 +70,13 @@ protected:
                                             CodeBuilderPtr &code_builder);
   void generate_for_variable_declaration_node(const ASTNodePtr &node,
                                               CodeBuilderPtr &code_builder);
+  void generate_for_return_node(const ASTNodePtr &node,
+                                CodeBuilderPtr &code_builder);
   FunctionValuePtr
   generate_for_function_declaration_node(const ASTNodePtr &node,
                                          CodeBuilderPtr &code_builder);
-  void format_condition_value(TemporaryValuePtr& condition,
-                                               CodeBuilderPtr &code_builder);
+  void format_condition_value(TemporaryValuePtr &condition,
+                              CodeBuilderPtr &code_builder);
 };
 
 TemporaryValuePtr
@@ -108,8 +109,8 @@ IRGeneratorImpl::generate_for_rvalue_node(const ASTNodePtr &node,
     return generate_for_integer_node(node, code_builder);
   case ASTNodeKind::IDENTIFIER: {
     auto variable = generate_for_identifier_node(node, code_builder);
-    auto temporary = ctx_manager_->function_ctx()->allocate_temporary_value(
-        variable->type_);
+    auto temporary =
+        ctx_manager_->function_ctx()->allocate_temporary_value(variable->type_);
     code_builder->append_load(variable, temporary);
     return temporary;
   }
@@ -207,6 +208,9 @@ void IRGeneratorImpl::generate_for_non_value_node(
   case ASTNodeKind::VARIABLE_DECLARATION:
     generate_for_variable_declaration_node(node, code_builder);
     return;
+  case ASTNodeKind::RETURN:
+    generate_for_return_node(node, code_builder);
+    return;
   default:
     std::stringstream error_msg;
     error_msg << "Type of AST Node" << static_cast<uint32_t>(node->kind_)
@@ -239,10 +243,10 @@ IRGeneratorImpl::generate_for_mul_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_value =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_value(
-      left_value->type_);
-  code_builder->append_multiply(std::move(left_value),
-                                std::move(right_value), result);
+  auto result =
+      ctx_manager_->function_ctx()->allocate_temporary_value(left_value->type_);
+  code_builder->append_multiply(std::move(left_value), std::move(right_value),
+                                result);
   return result;
 }
 
@@ -255,8 +259,8 @@ IRGeneratorImpl::generate_for_div_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_value =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_value(
-      left_value->type_);
+  auto result =
+      ctx_manager_->function_ctx()->allocate_temporary_value(left_value->type_);
   code_builder->append_divide(std::move(left_value), std::move(right_value),
                               result);
   return result;
@@ -271,8 +275,8 @@ IRGeneratorImpl::generate_for_add_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_value =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_value(
-      left_value->type_);
+  auto result =
+      ctx_manager_->function_ctx()->allocate_temporary_value(left_value->type_);
   code_builder->append_add(std::move(left_value), std::move(right_value),
                            result);
   return result;
@@ -287,8 +291,8 @@ IRGeneratorImpl::generate_for_sub_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->lhs_, code_builder);
   auto right_value =
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_temporary_value(
-      left_value->type_);
+  auto result =
+      ctx_manager_->function_ctx()->allocate_temporary_value(left_value->type_);
   code_builder->append_sub(std::move(left_value), std::move(right_value),
                            result);
   return result;
@@ -314,11 +318,12 @@ IRGeneratorImpl::generate_for_get_address_node(const ASTNodePtr &node,
       static_cast<const UnaryOperationNode *>(node.get());
   auto child_value =
       generate_for_lvalue_node(unary_operation_node->operand_, code_builder);
-  auto result = ctx_manager_->function_ctx()->allocate_variable_value(child_value->type_);
+  auto result =
+      ctx_manager_->function_ctx()->allocate_variable_value(child_value->type_);
   code_builder->append_alloca(result, 8);
   code_builder->append_store(std::move(child_value), result);
-  auto loaded =
-      ctx_manager_->function_ctx()->allocate_temporary_value(result->allocated_type_);
+  auto loaded = ctx_manager_->function_ctx()->allocate_temporary_value(
+      result->allocated_type_);
   code_builder->append_load(std::move(result), loaded);
   return loaded;
 }
@@ -349,8 +354,8 @@ IRGeneratorImpl::generate_for_not_equal_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
   auto result = ctx_manager_->function_ctx()->allocate_temporary_value(
       SiiIR::Type::Integer(1));
-  code_builder->append_not_equal(std::move(left_value),
-                                 std::move(right_value), result);
+  code_builder->append_not_equal(std::move(left_value), std::move(right_value),
+                                 result);
   return result;
 }
 
@@ -365,8 +370,8 @@ IRGeneratorImpl::generate_for_less_than_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
   auto result = ctx_manager_->function_ctx()->allocate_temporary_value(
       SiiIR::Type::Integer(1));
-  code_builder->append_less_than(std::move(left_value),
-                                 std::move(right_value), result);
+  code_builder->append_less_than(std::move(left_value), std::move(right_value),
+                                 result);
   return result;
 }
 
@@ -381,8 +386,8 @@ IRGeneratorImpl::generate_for_less_equal_node(const ASTNodePtr &node,
       generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
   auto result = ctx_manager_->function_ctx()->allocate_temporary_value(
       SiiIR::Type::Integer(1));
-  code_builder->append_less_equal(std::move(left_value),
-                                  std::move(right_value), result);
+  code_builder->append_less_equal(std::move(left_value), std::move(right_value),
+                                  result);
   return result;
 }
 
@@ -589,6 +594,23 @@ void IRGeneratorImpl::generate_for_variable_declaration_node(
   }
 }
 
+void IRGeneratorImpl::generate_for_return_node(const ASTNodePtr &node,
+                                               CodeBuilderPtr &code_builder) {
+  auto return_node = static_cast<const ReturnNode &>(*node);
+  if (return_node.result_->kind_ == ASTNodeKind::EMPTY) {
+    throw std::runtime_error("return type error");
+  }
+  auto return_value =
+      generate_for_rvalue_node(return_node.result_, code_builder);
+  const SiiIR::FunctionType *function_type =
+      static_cast<const SiiIR::FunctionType *>(
+          ctx_manager_->function_ctx()->function_type_.get());
+  if (*return_value->type_ != *function_type->return_type_) {
+    throw std::runtime_error("return type error");
+  }
+  code_builder->append_return(return_value);
+}
+
 FunctionValuePtr IRGeneratorImpl::generate_for_function_declaration_node(
     const ASTNodePtr &node, CodeBuilderPtr &code_builder) {
   const auto &function_node =
@@ -599,7 +621,8 @@ FunctionValuePtr IRGeneratorImpl::generate_for_function_declaration_node(
       static_cast<const FunctionType &>(*function_node.declarator_->type_);
   const auto &function_body = function_node.body_;
   std::shared_ptr<std::vector<SiiIRCodePtr>> function_codes;
-  ctx_manager_->enter_function();
+  SiiIR::TypePtr ir_function_type = Type::ToIRType(type);
+  ctx_manager_->enter_function(ir_function_type);
   if (function_node.body_) {
     ctx_manager_->push_symbol_ctx();
     for (auto &parameter : function_type.parameter_types_) {
@@ -617,7 +640,6 @@ FunctionValuePtr IRGeneratorImpl::generate_for_function_declaration_node(
     ctx_manager_->pop_symbol_ctx();
   }
   auto function_ctx = ctx_manager_->leave_function();
-  SiiIR::TypePtr ir_function_type = Type::ToIRType(type);
   FunctionValuePtr function_value = Value::Function(
       function_codes, function_ctx, function_name, std::move(ir_function_type));
   ctx_manager_->append_function(function_name,
@@ -628,11 +650,10 @@ FunctionValuePtr IRGeneratorImpl::generate_for_function_declaration_node(
   return function_value;
 }
 
-void
-IRGeneratorImpl::format_condition_value(TemporaryValuePtr& value,
-                                          CodeBuilderPtr &code_builder) {
+void IRGeneratorImpl::format_condition_value(TemporaryValuePtr &value,
+                                             CodeBuilderPtr &code_builder) {
   if (*value->type_ == *SiiIR::Type::Integer(1)) {
-    return ;
+    return;
   }
   if (value->type_->kind_ == SiiIR::Type::Kind::INT) {
     auto temporary_constant = SiiIR::Value::constant("0", value->type_);

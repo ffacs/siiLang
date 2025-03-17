@@ -20,6 +20,7 @@ public:
   ASTNodePtr parse_expression_statement() override;
   ASTNodePtr parse_select_statement() override;
   ASTNodePtr parse_iteration_statement() override;
+  ASTNodePtr parse_jump_statement() override;
   ASTNodePtr parse_statement() override;
   ASTNodePtr parse_expression() override;
   ASTNodePtr parse_assignment() override;
@@ -352,6 +353,7 @@ DeclarationStatementNodePtr ParserImpl::parse_declaration() {
 //             | EXPRESSION_STATEMENT
 //             | SELECT_STATEMENT
 //             | ITERATION_STATEMENT
+//             | JUMP_STATEMENT
 ASTNodePtr ParserImpl::parse_statement() {
   ASTNodePtr result = nullptr;
   LexPosition begin_pos = lexer_->current_position();
@@ -367,6 +369,10 @@ ASTNodePtr ParserImpl::parse_statement() {
              (next_token->literal_ == "for" || next_token->literal_ == "do" ||
               next_token->literal_ == "while")) {
     result = parse_iteration_statement();
+    goto done;
+  } else if (next_token->type_ == TokenType::KEYWORD &&
+             next_token->literal_ == "return") {
+    result = parse_jump_statement();
     goto done;
   }
   result = parse_expression_statement();
@@ -472,6 +478,21 @@ ASTNodePtr ParserImpl::parse_iteration_statement() {
     statement = parse_statement();
     result = ASTNode::While_loop(std::move(condition_expression),
                                  std::move(statement));
+    goto done;
+  }
+done:
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
+  return result;
+}
+
+ASTNodePtr ParserImpl::parse_jump_statement() {
+  ASTNodePtr result = nullptr;
+  LexPosition begin_pos = lexer_->current_position();
+  TokenPtr next_token = lexer_->peek();
+  if (next_token->literal_ == "return") {
+    lexer_->expect_next("return");
+    result = ASTNode::Return(parse_expression());
+    lexer_->expect_next(";");
     goto done;
   }
 done:

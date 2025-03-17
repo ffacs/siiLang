@@ -150,7 +150,8 @@ TokenPtr Token::Bit_and(LexInfo position) {
   return token(TokenType::BIT_AND, "&", std::move(position));
 }
 
-static std::set<std::string> KeyWords = {"if", "else", "for", "do", "while"};
+static std::set<std::string> KeyWords = {"if", "else",  "for",
+                                         "do", "while", "return"};
 
 static std::set<std::string> TypeSpcifiers = {
     "int",

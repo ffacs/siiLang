@@ -4,7 +4,8 @@
 
 namespace SiiIR {
 TEST(Use, BinaryOperation) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto left = ctx->allocate_temporary_value(Type::Integer(8));
   auto right = ctx->allocate_temporary_value(Type::Integer(8));
   auto result = ctx->allocate_temporary_value(Type::Integer(8));
@@ -45,7 +46,8 @@ TEST(Use, BinaryOperation) {
 }
 
 TEST(Use, UnaryOperation) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto operand = ctx->allocate_temporary_value(Type::Integer(8));
   auto result = ctx->allocate_temporary_value(Type::Integer(8));
   auto code_builder = CreateCodeBuilder();
@@ -79,7 +81,8 @@ TEST(Use, UnaryOperation) {
 }
 
 TEST(Use, Goto) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto label = ctx->allocate_label();
   auto code_builder = CreateCodeBuilder();
   code_builder->append_goto(label);
@@ -105,7 +108,8 @@ TEST(Use, Goto) {
 
 TEST(Use, ConditionBranch) {
   // Arrange
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto condition = ctx->allocate_temporary_value(Type::Integer(1));
   auto true_label = ctx->allocate_label();
   auto false_label = ctx->allocate_label();
@@ -163,7 +167,8 @@ TEST(Use, ConditionBranch) {
 }
 
 TEST(Use, Alloca) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto dest = ctx->allocate_variable_value(Type::Integer(8));
   uint32_t size = 10;
   auto code_builder = CreateCodeBuilder();
@@ -196,7 +201,8 @@ TEST(Use, Alloca) {
 }
 
 TEST(Use, Load) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto src = ctx->allocate_variable_value(Type::Integer(8));
   auto dest = ctx->allocate_temporary_value(Type::Integer(8));
   auto code_builder = CreateCodeBuilder();
@@ -237,7 +243,8 @@ TEST(Use, Load) {
 }
 
 TEST(Use, Store) {
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto src = ctx->allocate_temporary_value(Type::Integer(8));
   auto dest = ctx->allocate_variable_value(Type::Integer(8));
   auto code_builder = CreateCodeBuilder();
@@ -281,7 +288,8 @@ TEST(Use, Store) {
 
 TEST(Use, Phi) {
   // Arrange
-  FunctionContextPtr ctx = std::make_shared<FunctionContext>();
+  FunctionContextPtr ctx =
+      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto dest = ctx->allocate_variable_value(Type::Integer(8));
   size_t src_size = 3;
 

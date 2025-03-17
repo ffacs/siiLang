@@ -24,7 +24,8 @@ enum class SiiIRCodeKind : uint32_t {
   ALLOCA = 14,
   LOAD = 15,
   STORE = 16,
-  PHI = 17
+  PHI = 17,
+  RETURN = 18
 };
 
 struct BasicGroup;
@@ -40,6 +41,7 @@ struct SiiIRAlloca;
 struct SiiIRStore;
 struct SiiIRLoad;
 struct SiiIRPhi;
+struct SiiIRReturn;
 using SiiIRCodePtr = std::shared_ptr<SiiIRCode>;
 using SiiIRBinaryOperationPtr = std::shared_ptr<SiiIRBinaryOperation>;
 using SiiIRUnaryOperationPtr = std::shared_ptr<SiiIRUnaryOperation>;
@@ -51,6 +53,7 @@ using SiiIRAllocaPtr = std::shared_ptr<SiiIRAlloca>;
 using SiiIRStorePtr = std::shared_ptr<SiiIRStore>;
 using SiiIRLoadPtr = std::shared_ptr<SiiIRLoad>;
 using SiiIRPhiPtr = std::shared_ptr<SiiIRPhi>;
+using SiiIRReturnPtr = std::shared_ptr<SiiIRReturn>;
 using UseSetter = std::function<void(ValuePtr)>;
 
 struct SiiIRCode : public ListNode<SiiIRCode> {
@@ -343,6 +346,28 @@ struct SiiIRPhi : public SiiIRCode {
   std::string to_string() const override;
   UsePtr dest_;
   std::vector<UsePtr> src_list_;
+};
+
+struct SiiIRReturn : public SiiIRCode {
+  SiiIRReturn(ValuePtr value)
+      : SiiIRCode(SiiIRCodeKind::RETURN), result_(NewUse(this, value)) {
+    result_->value_->users_.push_back(result_);
+  }
+
+  ~SiiIRReturn() override { result_->remove_from_parent(); }
+
+  template <size_t Idx> UseSetter use_setter() {
+    return [this](ValuePtr value) {
+      if constexpr (Idx == 0) {
+        result_->remove_from_parent();
+        result_ = NewUse(this, value);
+        result_->value_->users_.push_back(result_);
+      }
+    };
+  }
+
+  std::string to_string() const override;
+  UsePtr result_;
 };
 
 } // namespace SiiIR

@@ -71,9 +71,14 @@ void ASTPrintVisitor::visit(const ASTNode &node) {
         static_cast<const DeclarationStatementNode &>(node);
     return visit(declaration_statement_node);
   }
+  case ASTNodeKind::RETURN: {
+    const ReturnNode &return_node = static_cast<const ReturnNode &>(node);
+    return visit(return_node);
+  }
   default:
     std::stringstream error_msg;
-    error_msg << "Unknow type of AST Node On printing: " << static_cast<uint32_t>(node.kind_);
+    error_msg << "Unknow type of AST Node On printing: "
+              << static_cast<uint32_t>(node.kind_);
     throw std::invalid_argument(error_msg.str());
   }
 }
@@ -243,6 +248,16 @@ void ASTPrintVisitor::visit(const DeclarationStatementNode &node) {
   ++indent_;
   for (const auto &child : node.declaration_list_) {
     visit(*child);
+  }
+  --indent_;
+}
+
+void ASTPrintVisitor::visit(const ReturnNode &node) {
+  os_ << indent_ << "ReturnNode: "
+      << "\n";
+  ++indent_;
+  if (node.result_) {
+    visit(*node.result_);
   }
   --indent_;
 }

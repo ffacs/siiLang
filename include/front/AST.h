@@ -30,6 +30,7 @@ enum class ASTNodeKind : uint32_t {
   FUNCTION_DECLARATION = 19,
   DECLARATION_STATEMENT = 20,
   GET_ADDRESS = 21,
+  RETURN = 22
 };
 
 class ASTNode;
@@ -46,6 +47,7 @@ class VariableDeclarationNode;
 class FunctionDeclarationNode;
 class DeclarationStatementNode;
 class GetAddressNode;
+class ReturnNode;
 class ASTVisitor;
 typedef std::shared_ptr<ASTNode> ASTNodePtr;
 typedef std::shared_ptr<BinaryOperationNode> BinaryOperationNodePtr;
@@ -61,6 +63,7 @@ typedef std::shared_ptr<VariableDeclarationNode> VariableDeclarationNodePtr;
 typedef std::shared_ptr<FunctionDeclarationNode> FunctionDeclarationNodePtr;
 typedef std::shared_ptr<DeclarationStatementNode> DeclarationStatementNodePtr;
 typedef std::shared_ptr<GetAddressNode> GetAddressNodePtr;
+typedef std::shared_ptr<ReturnNode> ReturnNodePtr;
 
 struct ASTNode {
   ASTNodeKind kind_;
@@ -115,6 +118,7 @@ struct ASTNode {
   Normalize_function_declaration(ASTNodePtr node);
   static DeclarationNodePtr Normalize_declaration(ASTNodePtr node);
   static GetAddressNodePtr Get_address(ASTNodePtr node);
+  static ReturnNodePtr Return(ASTNodePtr operand);
 };
 
 class ASTVisitor {
@@ -249,7 +253,8 @@ struct FunctionDeclarationNode : public DeclarationNode {
         declaration_statement_list_(std::move(declaration_statement_list)),
         body_(std::move(body)) {}
 
-  FunctionDeclarationNode(DeclaratorPtr declarator, CompoundStatementNodePtr body)
+  FunctionDeclarationNode(DeclaratorPtr declarator,
+                          CompoundStatementNodePtr body)
       : DeclarationNode(ASTNodeKind::FUNCTION_DECLARATION,
                         std::move(declarator)),
         body_(std::move(body)) {}
@@ -270,6 +275,15 @@ struct DeclarationStatementNode : public ASTNode {
 struct GetAddressNode : public UnaryOperationNode {
   GetAddressNode(ASTNodePtr operand)
       : UnaryOperationNode(std::move(operand), ASTNodeKind::GET_ADDRESS) {}
+
+  bool operator==(const ASTNode &) const override;
+};
+
+struct ReturnNode : public ASTNode {
+  ASTNodePtr result_;
+
+  ReturnNode(ASTNodePtr operand)
+      : ASTNode(ASTNodeKind::RETURN), result_(std::move(operand)) {}
 
   bool operator==(const ASTNode &) const override;
 };

@@ -798,8 +798,17 @@ TEST(Parser, DeclarationOrFunctionDefinition) {
 }
 
 TEST(Parser, GetValue) {
-    EXPECT_EQ(ASTToString(CreateParser("&a;")->parse_assignment()),
-              ASTToString(ASTNode::Get_address(ASTNode::Identifier("a"))));    
+  EXPECT_EQ(ASTToString(CreateParser("&a;")->parse_assignment()),
+            ASTToString(ASTNode::Get_address(ASTNode::Identifier("a"))));
+}
+
+TEST(Parser, Return) {
+  EXPECT_EQ(ASTToString(CreateParser("return a;")->parse_jump_statement()),
+            ASTToString(ASTNode::Return(ASTNode::Identifier("a"))));
+
+  EXPECT_THROW(ASTToString(CreateParser("int main() { return; }")
+                               ->parse_declaration_or_function_definition()),
+               std::invalid_argument);
 }
 
 } // namespace front

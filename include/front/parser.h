@@ -17,6 +17,7 @@ public:
   virtual ASTNodePtr parse_expression_statement() = 0;
   virtual ASTNodePtr parse_select_statement() = 0;
   virtual ASTNodePtr parse_iteration_statement() = 0;
+  virtual ASTNodePtr parse_jump_statement() = 0;
   virtual ASTNodePtr parse_statement() = 0;
   virtual ASTNodePtr parse_expression() = 0;
   virtual ASTNodePtr parse_assignment() = 0;

@@ -1,6 +1,7 @@
 #include "IR/Pass/memory_to_register.h"
 #include "IR/IDF_builder.h"
 #include "IR/dominator_tree.h"
+#include <iostream>
 #include <map>
 #include <set>
 #include <stack>
@@ -149,6 +150,11 @@ RenamePass(DominatorTreeNode *current_node,
               alloca.dest_->value_.get())) != variable_rename_map.end()) {
         code_list.erase(iter);
       }
+      continue;
+    }
+    case SiiIRCodeKind::RETURN: {
+      SiiIRReturn &ret = static_cast<SiiIRReturn &>(code);
+      ReplaceTemporary(&ret.result_, temporary_rename_map);
       continue;
     }
     default: {

@@ -53,8 +53,8 @@ static SymbolContextPtr CreateSymbolContext(SymbolContext *father) {
   return std::make_shared<SymbolContext>(father);
 }
 
-static FunctionContextPtr CreateFunctionContext() {
-  return std::make_shared<FunctionContext>();
+static FunctionContextPtr CreateFunctionContext(SiiIR::TypePtr type) {
+  return std::make_shared<FunctionContext>(std::move(type));
 }
 class ContextManagerImpl : public ContextManager {
 public:
@@ -67,7 +67,7 @@ public:
   void append_variable(const std::string &name, SymbolPtr variable) override;
   void append_function(const std::string &name, SymbolPtr function) override;
 
-  void enter_function() override;
+  void enter_function(SiiIR::TypePtr type) override;
   FunctionContextPtr leave_function() override;
 
 protected:
@@ -108,8 +108,8 @@ void ContextManagerImpl::append_function(const std::string &name,
   root_symbol_ctx_->symble_table_->push(name, function);
 }
 
-void ContextManagerImpl::enter_function() {
-  current_function_ctx_ = CreateFunctionContext();
+void ContextManagerImpl::enter_function(SiiIR::TypePtr type) {
+  current_function_ctx_ = CreateFunctionContext(type);
 }
 
 FunctionContextPtr ContextManagerImpl::leave_function() {

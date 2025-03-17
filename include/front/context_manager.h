@@ -1,6 +1,6 @@
 #pragma once
-#include "IR/value.h"
 #include "IR/function_ctx.h"
+#include "IR/value.h"
 #include "front/type.h"
 #include <map>
 #include <memory>
@@ -52,7 +52,7 @@ public:
   virtual void append_function(const std::string &name, SymbolPtr function) = 0;
 
   virtual SiiIR::FunctionContext *function_ctx() = 0;
-  virtual void enter_function() = 0;
+  virtual void enter_function(SiiIR::TypePtr type) = 0;
   virtual SiiIR::FunctionContextPtr leave_function() = 0;
 };
 
