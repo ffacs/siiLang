@@ -1,5 +1,6 @@
 #include "IR/code_builder.h"
-#include "IR/function.h"
+#include "IR/function_ctx.h"
+#include "IR/IR.h"
 #include <gtest/gtest.h>
 
 namespace SiiIR {
