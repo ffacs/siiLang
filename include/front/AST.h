@@ -34,6 +34,7 @@ enum class ASTNodeKind : uint32_t {
 };
 
 class ASTNode;
+class EmptyNode;
 class BinaryOperationNode;
 class UnaryOperationNode;
 class LiteralNode;
@@ -50,6 +51,7 @@ class GetAddressNode;
 class ReturnNode;
 class ASTVisitor;
 typedef std::shared_ptr<ASTNode> ASTNodePtr;
+typedef std::shared_ptr<EmptyNode> EmptyNodePtr;
 typedef std::shared_ptr<BinaryOperationNode> BinaryOperationNodePtr;
 typedef std::shared_ptr<UnaryOperationNode> UnaryOperationNodePtr;
 typedef std::shared_ptr<LiteralNode> LiteralNodePtr;
@@ -66,14 +68,16 @@ typedef std::shared_ptr<GetAddressNode> GetAddressNodePtr;
 typedef std::shared_ptr<ReturnNode> ReturnNodePtr;
 
 struct ASTNode {
+protected:
+  ASTNode(ASTNodeKind kind) : kind_(kind) {}
+
+public:
   ASTNodeKind kind_;
   LexInfo lex_info_;
 
-  ASTNode(ASTNodeKind kind) : kind_(kind) {}
-
   virtual bool operator==(const ASTNode &) const;
   bool operator!=(const ASTNode &other) const { return !(*this == other); }
-  void accept(ASTVisitor &visitor);
+  virtual void accept(ASTVisitor &visitor) = 0;
 
   static ASTNodePtr empty();
   static BinaryOperationNodePtr Multiply(ASTNodePtr lhs, ASTNodePtr rhs);
@@ -123,7 +127,7 @@ struct ASTNode {
 
 class ASTVisitor {
 public:
-  virtual void visit(const ASTNode &node) = 0;
+  virtual void visit(const EmptyNode &node) = 0;
   virtual void visit(const BinaryOperationNode &node) = 0;
   virtual void visit(const UnaryOperationNode &node) = 0;
   virtual void visit(const LiteralNode &node) = 0;
@@ -135,6 +139,14 @@ public:
   virtual void visit(const VariableDeclarationNode &node) = 0;
   virtual void visit(const FunctionDeclarationNode &node) = 0;
   virtual void visit(const DeclarationStatementNode &node) = 0;
+  virtual void visit(const ReturnNode &node) = 0;
+};
+
+struct EmptyNode : public ASTNode {
+  EmptyNode() : ASTNode(ASTNodeKind::EMPTY) {}
+
+  bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct BinaryOperationNode : public ASTNode {
@@ -144,6 +156,7 @@ struct BinaryOperationNode : public ASTNode {
       : ASTNode(kind), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct UnaryOperationNode : public ASTNode {
@@ -152,6 +165,7 @@ struct UnaryOperationNode : public ASTNode {
       : ASTNode(kind), operand_(std::move(operand)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct LiteralNode : public ASTNode {
@@ -160,6 +174,7 @@ struct LiteralNode : public ASTNode {
       : ASTNode(kind), literal_(std::move(literal)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct IfElseNode : public ASTNode {
@@ -173,6 +188,7 @@ struct IfElseNode : public ASTNode {
         else_statement_(std::move(else_statement)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct ForLoopNode : public ASTNode {
@@ -189,6 +205,7 @@ struct ForLoopNode : public ASTNode {
         statement_(std::move(statement)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct DoWhileNode : public ASTNode {
@@ -199,6 +216,7 @@ struct DoWhileNode : public ASTNode {
         condition_expression_(std::move(condition_expression)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct WhileLoopNode : public ASTNode {
@@ -210,6 +228,7 @@ struct WhileLoopNode : public ASTNode {
         statement_(std::move(statement)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct CompoundStatementNode : public ASTNode {
@@ -219,14 +238,16 @@ struct CompoundStatementNode : public ASTNode {
         children_(std::move(children)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct DeclarationNode : public ASTNode {
-  DeclaratorPtr declarator_;
+protected:
   DeclarationNode(ASTNodeKind kind, DeclaratorPtr declarator)
       : ASTNode(kind), declarator_(std::move(declarator)) {}
 
-  bool operator==(const ASTNode &) const override;
+public:
+  DeclaratorPtr declarator_;
 };
 
 struct VariableDeclarationNode : public DeclarationNode {
@@ -238,6 +259,7 @@ struct VariableDeclarationNode : public DeclarationNode {
         initializer_(std::move(initializer)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct FunctionDeclarationNode : public DeclarationNode {
@@ -260,6 +282,7 @@ struct FunctionDeclarationNode : public DeclarationNode {
         body_(std::move(body)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct DeclarationStatementNode : public ASTNode {
@@ -270,6 +293,7 @@ struct DeclarationStatementNode : public ASTNode {
         declaration_list_(std::move(declaration_list)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 struct GetAddressNode : public UnaryOperationNode {
@@ -286,6 +310,7 @@ struct ReturnNode : public ASTNode {
       : ASTNode(ASTNodeKind::RETURN), result_(std::move(operand)) {}
 
   bool operator==(const ASTNode &) const override;
+  void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
 } // namespace front

@@ -3,11 +3,7 @@
 #include <optional>
 
 namespace front {
-void ASTNode::accept(ASTVisitor &visitor) { visitor.visit(*this); }
-
-ASTNodePtr ASTNode::empty() {
-  return std::make_shared<ASTNode>(ASTNodeKind::EMPTY);
-}
+ASTNodePtr ASTNode::empty() { return std::make_shared<EmptyNode>(); }
 
 BinaryOperationNodePtr ASTNode::Multiply(ASTNodePtr lhs, ASTNodePtr rhs) {
   return std::make_shared<BinaryOperationNode>(std::move(lhs), std::move(rhs),
@@ -281,6 +277,10 @@ bool ASTNode::operator==(const ASTNode &other) const {
   return kind_ == other.kind_;
 }
 
+bool EmptyNode::operator==(const ASTNode &other) const {
+  return kind_ == other.kind_;
+}
+
 bool BinaryOperationNode::operator==(const ASTNode &other) const {
   if (kind_ != other.kind_) {
     return false;
@@ -358,14 +358,6 @@ bool CompoundStatementNode::operator==(const ASTNode &other) const {
     }
   }
   return true;
-}
-
-bool DeclarationNode::operator==(const ASTNode &other) const {
-  if (kind_ != other.kind_) {
-    return false;
-  }
-  auto typed_other = static_cast<const DeclarationNode &>(other);
-  return *declarator_ == *typed_other.declarator_;
 }
 
 bool VariableDeclarationNode::operator==(const ASTNode &other) const {

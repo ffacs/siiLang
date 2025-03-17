@@ -28,7 +28,7 @@ class ASTPrintVisitor : public ASTVisitor {
 public:
   ASTPrintVisitor(std::ostream &os = std::cerr) : indent_(os), os_(os) {}
 
-  void visit(const ASTNode &node);
+  void visit(const EmptyNode &node);
   void visit(const BinaryOperationNode &node);
   void visit(const UnaryOperationNode &node);
   void visit(const LiteralNode &node);
