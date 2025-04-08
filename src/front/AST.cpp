@@ -1,6 +1,7 @@
 #include "front/AST.h"
 #include <map>
 #include <optional>
+#include <stdexcept>
 
 namespace front {
 ASTNodePtr ASTNode::empty() { return std::make_shared<EmptyNode>(); }

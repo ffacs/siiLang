@@ -1,5 +1,6 @@
 #include "IR/code_builder.h"
 #include "IR/IR.h"
+#include <stdexcept>
 
 namespace SiiIR {
 class CodeBuilderImpl : public CodeBuilder {

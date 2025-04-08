@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <stack>
+#include <stdexcept>
 
 namespace SiiIR {
 
