@@ -5,8 +5,14 @@
 using namespace SiiIR;
 
 namespace front {
-SymbolPtr Symbol::symbol(TypePtr type, ValuePtr value) {
-  return std::make_shared<Symbol>(std::move(type), std::move(value));
+FunctionSymbolPtr Symbol::NewFunctionSymbol(TypePtr type,
+                                            SiiIR::FunctionValuePtr func) {
+  return std::make_shared<FunctionSymbol>(std::move(type), std::move(func));
+}
+
+VariableSymbolPtr Symbol::NewVariableSymbol(TypePtr type,
+                                            SiiIR::ValuePtr address) {
+  return std::make_shared<VariableSymbol>(std::move(type), std::move(address));
 }
 
 SymbolPtr SymbolTable::find(const std::string &identifier) const {
@@ -23,15 +29,19 @@ void SymbolTable::push(const std::string &name, SymbolPtr symbol) {
     name_to_symbol_[name] = symbol;
     return;
   }
+  if (old_symbol->kind_ != symbol->kind_) {
+    throw std::runtime_error("Redefine of " + name +
+                             " as a different kind of symbol.");
+  }
   bool type_the_same = *old_symbol->type_ != *symbol->type_;
-  if (old_symbol->type_->kind_ == TypeKind::FUNCTION) {
+  if (old_symbol->kind_ == SymbolKind::FUNCTION) {
     bool has_definition = false;
-    const FunctionValue &old_function_value =
-        static_cast<const FunctionValue &>(*old_symbol->value_);
-    const FunctionValue &new_function_value =
-        static_cast<const FunctionValue &>(*symbol->value_);
-    if (new_function_value.codes_ != nullptr) {
-      if (old_function_value.codes_ == nullptr) {
+    const FunctionSymbol &old_function =
+        static_cast<const FunctionSymbol &>(*old_symbol);
+    const FunctionSymbol &new_function =
+        static_cast<const FunctionSymbol &>(*symbol);
+    if (new_function.func_->codes_ != nullptr) {
+      if (old_function.func_->codes_ == nullptr) {
         name_to_symbol_[name] = symbol;
       } else {
         throw std::invalid_argument("Redefination of " + name);

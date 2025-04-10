@@ -8,8 +8,9 @@ static std::string IRStringGenerate(const ASTNodePtr root) {
   auto generator = CreateIRGenerator(std::move(root));
   auto IR_list = generator->work();
   std::stringstream result_builder;
+  SiiIR::IDAllocator id_allocator;
   for (size_t i = 0; i < IR_list->size(); i++) {
-    result_builder << (*IR_list)[i]->to_string();
+    result_builder << (*IR_list)[i]->to_string(id_allocator);
     if (i != IR_list->size() - 1) {
       result_builder << "\n";
     }
@@ -19,13 +20,13 @@ static std::string IRStringGenerate(const ASTNodePtr root) {
 
 TEST(IRGenerator, FunctionDeclaration) {
   EXPECT_EQ(
-      "@function1:\n",
+      "@function1():\n",
       IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
                              "function1"),
           ASTNode::Compound_statement({}))));
   EXPECT_EQ(
-      "@function1:\n"
+      "@function1():\n"
       "  %0 = alloca size 4;",
       IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
@@ -34,7 +35,7 @@ TEST(IRGenerator, FunctionDeclaration) {
               Declarator::Create(Type::Basic(TypeKind::INT), "var1"),
               nullptr)}))));
   EXPECT_EQ(
-      "@function1:\n"
+      "@function1():\n"
       "  %0 = alloca size 4;\n"
       "  store 1 to %0;",
       IRStringGenerate(ASTNode::Function_declaration(
@@ -44,7 +45,7 @@ TEST(IRGenerator, FunctionDeclaration) {
               Declarator::Create(Type::Basic(TypeKind::INT), "var1"),
               ASTNode::Integer("1"))}))));
   EXPECT_EQ(
-      "@function1:\n"
+      "@function1():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  store 0 to %0;\n"
@@ -61,7 +62,7 @@ TEST(IRGenerator, FunctionDeclaration) {
                   ASTNode::Integer("1")),
           }))));
   EXPECT_EQ(
-      "@function1:\n"
+      "@function1():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  store 0 to %0;\n"
@@ -81,7 +82,7 @@ TEST(IRGenerator, FunctionDeclaration) {
                ASTNode::Assign(ASTNode::Identifier("var1"),
                                ASTNode::Identifier("var2"))}))));
   EXPECT_EQ(
-      "@function1:\n"
+      "@function1():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  store 0 to %0;\n"
@@ -106,13 +107,13 @@ TEST(IRGenerator, FunctionDeclaration) {
                                 ASTNode::Add(ASTNode::Integer("1"),
                                              ASTNode::Integer("2"))))}))));
   EXPECT_EQ(
-      "@function1:\n"
+      "@function1():\n"
       "  %0 = alloca size 4;\n"
-      "  %2 = alloca size 4;\n"
+      "  %1 = alloca size 4;\n"
       "  store 0 to %0;\n"
-      "  %1 = 1 + 2;\n"
-      "  store %1 to %0;\n"
-      "  store 1 to %2;",
+      "  %2 = 1 + 2;\n"
+      "  store %2 to %0;\n"
+      "  store 1 to %1;",
       IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
                              "function1"),
@@ -129,7 +130,9 @@ TEST(IRGenerator, FunctionDeclaration) {
 }
 
 TEST(IRGenerator, FunctionDeclarationWithParameter) {
-  EXPECT_EQ("@function1:\n",
+  EXPECT_EQ("@function1(%0):\n"
+            "  %1 = alloca size 4;\n"
+            "  store %0 to %1;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::Function(
@@ -151,8 +154,10 @@ TEST(IRGenerator, FunctionDeclarationWithParameter) {
               "function1"),
           ASTNode::Compound_statement({}))),
       std::invalid_argument);
-  EXPECT_EQ("@function1:\n"
-            "  store 1 to %0;",
+  EXPECT_EQ("@function1(%0):\n"
+            "  %1 = alloca size 4;\n"
+            "  store %0 to %1;\n"
+            "  store 1 to %1;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::Function(
@@ -166,14 +171,14 @@ TEST(IRGenerator, FunctionDeclarationWithParameter) {
 }
 
 TEST(IRGenerator, Multiply) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 * 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::Function(Type::Basic(TypeKind::INT), {}), "function"),
                 ASTNode::Compound_statement({ASTNode::Multiply(
                     ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
             "  %2 = load %1;\n"
@@ -191,7 +196,7 @@ TEST(IRGenerator, Multiply) {
                          nullptr),
                      ASTNode::Multiply(ASTNode::Identifier("var1"),
                                        ASTNode::Identifier("var2"))}))));
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
             "  %2 = load %0;\n"
@@ -212,14 +217,14 @@ TEST(IRGenerator, Multiply) {
 }
 
 TEST(IRGenerator, Divide) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 / 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
                     Type::Function(Type::Basic(TypeKind::INT), {}), "function"),
                 ASTNode::Compound_statement({ASTNode::Divide(
                     ASTNode::Integer("1"), ASTNode::Integer("2"))}))));
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 / 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -229,7 +234,7 @@ TEST(IRGenerator, Divide) {
 }
 
 TEST(IRGenerator, Addition) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 + 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -239,7 +244,7 @@ TEST(IRGenerator, Addition) {
 }
 
 TEST(IRGenerator, Subtraction) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 + 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -249,7 +254,7 @@ TEST(IRGenerator, Subtraction) {
 }
 
 TEST(IRGenerator, Equal) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 == 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -259,7 +264,7 @@ TEST(IRGenerator, Equal) {
 }
 
 TEST(IRGenerator, NotEqual) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 != 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -269,7 +274,7 @@ TEST(IRGenerator, NotEqual) {
 }
 
 TEST(IRGenerator, LessThan) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 < 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -279,7 +284,7 @@ TEST(IRGenerator, LessThan) {
 }
 
 TEST(IRGenerator, LessEqual) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = 1 <= 2;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -289,7 +294,7 @@ TEST(IRGenerator, LessEqual) {
 }
 
 TEST(IRGenerator, Negtive) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = -1;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -300,7 +305,7 @@ TEST(IRGenerator, Negtive) {
 
 TEST(IRGenerator, Statements) {
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = 1 + 2;\n"
       "  %1 = 1 - 2;",
       IRStringGenerate(ASTNode::Function_declaration(
@@ -314,7 +319,7 @@ TEST(IRGenerator, Statements) {
 
 TEST(IRGenerator, Recursive) {
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = 1 * 2;\n"
       "  %1 = -3;\n"
       "  %2 = %0 * %1;",
@@ -328,7 +333,7 @@ TEST(IRGenerator, Recursive) {
 
 TEST(IRGenerator, Assign) {
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  store 2 to %1;\n"
@@ -346,7 +351,7 @@ TEST(IRGenerator, Assign) {
                ASTNode::Assign(ASTNode::Identifier("var1"),
                                ASTNode::Assign(ASTNode::Identifier("var2"),
                                                ASTNode::Integer("2")))}))));
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
             "  %2 = load %0;\n"
@@ -374,13 +379,13 @@ TEST(IRGenerator, Assign) {
 
 TEST(IRGenerator, CompoundStatement) {
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
-      "  %3 = alloca size 4;\n"
-      "  %2 = load %1;\n"
-      "  store %2 to %0;\n"
-      "  store 2 to %3;",
+      "  %2 = alloca size 4;\n"
+      "  %3 = load %1;\n"
+      "  store %3 to %0;\n"
+      "  store 2 to %2;",
       IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
                              "function"),
@@ -402,17 +407,17 @@ TEST(IRGenerator, CompoundStatement) {
                         ASTNode::Identifier("var1"), ASTNode::Integer("2"))})}),
                ASTNode::Compound_statement({})}))));
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
+      "  %2 = alloca size 4;\n"
       "  %3 = alloca size 4;\n"
-      "  %4 = alloca size 4;\n"
       "  store 2 to %0;\n"
-      "  %2 = load %0;\n"
-      "  store %2 to %1;\n"
-      "  store 3 to %3;\n"
-      "  %5 = load %3;\n"
-      "  store %5 to %4;",
+      "  %4 = load %0;\n"
+      "  store %4 to %1;\n"
+      "  store 3 to %2;\n"
+      "  %5 = load %2;\n"
+      "  store %5 to %3;",
       IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
                              "function"),
@@ -437,7 +442,7 @@ TEST(IRGenerator, CompoundStatement) {
 }
 
 TEST(IRGenerator, SelectStatement) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
             "  %2 = load %0;\n"
@@ -445,20 +450,20 @@ TEST(IRGenerator, SelectStatement) {
             "  if %3 goto Label.4 else Label.5;\n"
             "Label.4:\n"
             "  store 1 to %0;\n"
-            "  goto Label.11;\n"
+            "  goto Label.6;\n"
             "Label.5:\n"
-            "  %6 = load %1;\n"
-            "  %7 = %6 != 0;\n"
-            "  if %7 goto Label.8 else Label.9;\n"
-            "Label.8:\n"
-            "  store 2 to %1;\n"
-            "  goto Label.10;\n"
+            "  %7 = load %1;\n"
+            "  %8 = %7 != 0;\n"
+            "  if %8 goto Label.9 else Label.10;\n"
             "Label.9:\n"
-            "  store 3 to %0;\n"
-            "  goto Label.10;\n"
+            "  store 2 to %1;\n"
+            "  goto Label.11;\n"
             "Label.10:\n"
+            "  store 3 to %0;\n"
             "  goto Label.11;\n"
             "Label.11:\n"
+            "  goto Label.6;\n"
+            "Label.6:\n"
             "  nope;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(
@@ -484,7 +489,7 @@ TEST(IRGenerator, SelectStatement) {
                              ASTNode::Compound_statement({ASTNode::Assign(
                                  ASTNode::Identifier("var1"),
                                  ASTNode::Integer("3"))})))}))));
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = alloca size 4;\n"
             "  %1 = alloca size 4;\n"
             "  %2 = alloca size 4;\n"
@@ -494,20 +499,20 @@ TEST(IRGenerator, SelectStatement) {
             "  if %5 goto Label.6 else Label.7;\n"
             "Label.6:\n"
             "  store 1 to %0;\n"
-            "  goto Label.13;\n"
+            "  goto Label.8;\n"
             "Label.7:\n"
-            "  %8 = load %1;\n"
-            "  %9 = %8 != 0;\n"
-            "  if %9 goto Label.10 else Label.11;\n"
-            "Label.10:\n"
-            "  store 2 to %1;\n"
-            "  goto Label.12;\n"
+            "  %9 = load %1;\n"
+            "  %10 = %9 != 0;\n"
+            "  if %10 goto Label.11 else Label.12;\n"
             "Label.11:\n"
-            "  store 3 to %0;\n"
-            "  goto Label.12;\n"
+            "  store 2 to %1;\n"
+            "  goto Label.13;\n"
             "Label.12:\n"
+            "  store 3 to %0;\n"
             "  goto Label.13;\n"
             "Label.13:\n"
+            "  goto Label.8;\n"
+            "Label.8:\n"
             "  %14 = load %3;\n"
             "  store %14 to %2;",
             IRStringGenerate(ASTNode::Function_declaration(
@@ -545,7 +550,7 @@ TEST(IRGenerator, SelectStatement) {
 }
 
 TEST(IRGenerator, IterationStatement) {
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "Label.0:\n"
             "  goto Label.0;",
             IRStringGenerate(ASTNode::Function_declaration(
@@ -555,7 +560,7 @@ TEST(IRGenerator, IterationStatement) {
                     ASTNode::empty(), ASTNode::empty(), ASTNode::empty(),
                     ASTNode::Compound_statement({}))}))));
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
@@ -590,7 +595,7 @@ TEST(IRGenerator, IterationStatement) {
                        {ASTNode::Assign(ASTNode::Identifier("var1"),
                                         ASTNode::Integer("3"))}))}))));
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
@@ -627,7 +632,7 @@ TEST(IRGenerator, IterationStatement) {
                                      ASTNode::Identifier("var1"),
                                      ASTNode::Integer("3"))}))}))));
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
@@ -658,7 +663,7 @@ TEST(IRGenerator, IterationStatement) {
                                      ASTNode::Identifier("var1"),
                                      ASTNode::Integer("3"))}))}))));
 
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  %0 = alloca size 4;\n"
             "Label.1:\n"
             "  %2 = load %0;\n"
@@ -678,7 +683,7 @@ TEST(IRGenerator, IterationStatement) {
                      ASTNode::While_loop(ASTNode::Identifier("var1"),
                                          ASTNode::empty())}))));
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "Label.1:\n"
       "  %2 = load %0;\n"
@@ -700,7 +705,7 @@ TEST(IRGenerator, IterationStatement) {
                                    ASTNode::Assign(ASTNode::Identifier("var1"),
                                                    ASTNode::Integer("3")))}))));
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "Label.1:\n"
       "  store 3 to %0;\n"
@@ -720,7 +725,7 @@ TEST(IRGenerator, IterationStatement) {
                                                  ASTNode::Integer("3")),
                                  ASTNode::Identifier("var1"))}))));
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "Label.1:\n"
       "  store 3 to %0;\n"
@@ -742,7 +747,7 @@ TEST(IRGenerator, IterationStatement) {
 
 TEST(IRGenerator, Declaration) {
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 4;\n"
       "  %2 = alloca size 4;\n"
@@ -796,13 +801,10 @@ TEST(IRGenerator, Declaration) {
 
 TEST(IRGenerator, GetValue) {
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 8;\n"
-      "  %2 = alloca size 8;\n"
-      "  store %0 to %2;\n"
-      "  %3 = load %2;\n"
-      "  store %3 to %1;",
+      "  store %0 to %1;",
       IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
                              "function"),
@@ -819,18 +821,12 @@ TEST(IRGenerator, GetValue) {
                        ASTNode::Get_address(ASTNode::Identifier("a"))),
                })}))));
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = alloca size 8;\n"
       "  %2 = alloca size 8;\n"
-      "  %4 = alloca size 8;\n"
-      "  %5 = alloca size 8;\n"
-      "  store %0 to %2;\n"
-      "  %3 = load %2;\n"
-      "  store %3 to %1;\n"
-      "  store %1 to %5;\n"
-      "  %6 = load %5;\n"
-      "  store %6 to %4;",
+      "  store %0 to %1;\n"
+      "  store %1 to %2;",
       IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
                              "function"),
@@ -853,7 +849,7 @@ TEST(IRGenerator, GetValue) {
 
 TEST(IRGenerator, Return) {
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = load %0;\n"
       "  return %1;",
@@ -869,7 +865,7 @@ TEST(IRGenerator, Return) {
                ASTNode::Return(ASTNode::Identifier("a"))}))));
 
   EXPECT_EQ(
-      "@function:\n"
+      "@function():\n"
       "  %0 = alloca size 4;\n"
       "  %1 = load %0;\n"
       "  %2 = %1 + 8;\n"
@@ -886,7 +882,7 @@ TEST(IRGenerator, Return) {
                ASTNode::Return(ASTNode::Add(ASTNode::Identifier("a"),
                                             ASTNode::Integer("8")))}))));
 
-  EXPECT_EQ("@function:\n"
+  EXPECT_EQ("@function():\n"
             "  return 8;",
             IRStringGenerate(ASTNode::Function_declaration(
                 Declarator::Create(

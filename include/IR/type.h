@@ -26,6 +26,7 @@ struct Type {
   static TypePtr Array(TypePtr element_type, int64_t element_count);
   static TypePtr Function(TypePtr return_type,
                           std::vector<TypePtr> parameter_types);
+  static TypePtr GetAimType(TypePtr pointer_type);
 };
 
 struct IntegerType : public Type {
@@ -47,7 +48,7 @@ struct PointerType : public Type {
       : Type(Type::Kind::POINTER), aim_type_(std::move(aim_type)),
         offset_limit_kind_(OffsetLimitKind::kOffsetLimit),
         offset_limit_(offset_limit) {}
-  
+
   PointerType(TypePtr aim_type)
       : Type(Type::Kind::POINTER), aim_type_(std::move(aim_type)),
         offset_limit_kind_(OffsetLimitKind::kOffsetUnLimit), offset_limit_(0) {}

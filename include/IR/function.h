@@ -10,7 +10,7 @@ struct BasicGroup {
   std::vector<BasicGroup *> precedes_;
   std::vector<BasicGroup *> follows_;
   LabelPtr label_;
-  std::string to_string() const;
+  std::string to_string(IDAllocator &) const;
 };
 
 using BasicGroupPtr = std::shared_ptr<BasicGroup>;

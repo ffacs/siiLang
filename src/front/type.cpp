@@ -2,56 +2,9 @@
 #include <stdexcept>
 
 namespace front {
-class TypeBuilderImpl : public TypeBuilder {
-public:
-  TypeBuilderImpl(TypePtr base) : current_type_(std::move(base)) {}
-  void pointer_of(uint64_t offset_limit) override;
-  void return_of(std::vector<DeclaratorPtr> parameter_types) override;
-  void array_of(int64_t element_count) override;
-  TypeBuilderPtr building_of() override;
-  TypePtr get() const override;
-
-protected:
-  TypePtr current_type_;
-};
-
-void TypeBuilderImpl::pointer_of(uint64_t offset_limit) {
-  auto new_pointer = Type::Pointer(std::move(current_type_), offset_limit);
-  current_type_ = std::move(new_pointer);
-}
-
-void TypeBuilderImpl::return_of(std::vector<DeclaratorPtr> parameter_types) {
-  auto new_function =
-      Type::Function(std::move(current_type_), std::move(parameter_types));
-  current_type_ = std::move(new_function);
-}
-
-void TypeBuilderImpl::array_of(int64_t element_count) {
-  auto new_array = Type::Array(std::move(current_type_), element_count);
-  current_type_ = std::move(new_array);
-}
-
-TypeBuilderPtr TypeBuilderImpl::building_of() {
-  auto new_builder = CreateTypeBuilder(std::move(current_type_));
-  current_type_ = Type::Building(new_builder);
-  return new_builder;
-}
-
-TypePtr TypeBuilderImpl::get() const {
-  return Type::TrimBuildingType(current_type_);
-}
-
-TypeBuilderPtr CreateTypeBuilder(TypePtr base) {
-  return std::make_shared<TypeBuilderImpl>(std::move(base));
-}
-
 TypePtr Type::DefaultType() { return Type::Basic(TypeKind::INT); }
 
 TypePtr Type::Basic(TypeKind kind) { return std::make_shared<Type>(kind); }
-
-TypePtr Type::Building(TypeBuilderPtr builder) {
-  return std::make_shared<BuildingType>(std::move(builder));
-}
 
 TypePtr Type::Pointer(TypePtr aim_type, uint64_t offset_limit) {
   return std::make_shared<PointerType>(std::move(aim_type), offset_limit);
@@ -69,42 +22,6 @@ TypePtr Type::Function(TypePtr return_type,
 
 TypePtr Type::Array(TypePtr element_type, int64_t element_count) {
   return std::make_shared<ArrayType>(std::move(element_type), element_count);
-}
-
-TypePtr Type::TrimBuildingType(const TypePtr &type) {
-  switch (type->kind_) {
-  case TypeKind::POINTER: {
-    const PointerType &pointer = static_cast<const PointerType &>(*type);
-    return Type::Pointer(TrimBuildingType(pointer.aim_type_),
-                         pointer.offset_limit_);
-  }
-  case TypeKind::ARRAY: {
-    const ArrayType &array = static_cast<const ArrayType &>(*type);
-    return Type::Array(TrimBuildingType(array.element_type_),
-                       array.element_count_);
-  }
-  case TypeKind::FUNCTION: {
-    const FunctionType &function = static_cast<const FunctionType &>(*type);
-    std::vector<DeclaratorPtr> trimmed_parameters;
-    trimmed_parameters.reserve(function.parameter_types_.size());
-    for (const auto &parameter : function.parameter_types_) {
-      if (parameter->type_ == nullptr) {
-        trimmed_parameters.emplace_back(
-            Declarator::Create(nullptr, parameter->identifier_));
-      } else {
-        trimmed_parameters.emplace_back(Declarator::Create(
-            TrimBuildingType(parameter->type_), parameter->identifier_));
-      }
-    }
-    return Type::Function(TrimBuildingType(function.return_type_),
-                          std::move(trimmed_parameters));
-  }
-  case TypeKind::INT:
-    return type;
-  case TypeKind::BUILDING:
-    const BuildingType &building = static_cast<const BuildingType &>(*type);
-    return building.get_real();
-  }
 }
 
 TypePtr Type::NormalizePointer(const TypePtr &type) {
@@ -175,8 +92,6 @@ TypePtr Type::NormalizeParameterDeclaration(const TypePtr &type) {
     return NormalizeFunctionType(type);
   case TypeKind::INT:
     return type;
-  case TypeKind::BUILDING:
-    throw std::invalid_argument("Invalid Building type");
   }
 }
 
@@ -199,7 +114,6 @@ size_t Type::SizeOf(const TypePtr &type) {
     return 8;
   case TypeKind::ARRAY:
   case TypeKind::FUNCTION:
-  case TypeKind::BUILDING:
     throw std::invalid_argument("Unsupport type for SizeOf");
   }
 }
@@ -214,25 +128,6 @@ std::string Type::to_string(const std::string &current) const {
 }
 
 bool Type::operator==(const Type &other) const { return kind_ == other.kind_; }
-
-TypePtr BuildingType::get_real() const {
-  if (real_type_ == nullptr) {
-    real_type_ = builder_->get();
-  }
-  return real_type_;
-}
-
-std::string BuildingType::to_string(const std::string &current) const {
-  return get_real()->to_string(current);
-}
-
-bool BuildingType::operator==(const Type &other) const {
-  if (!Type::operator==(other)) {
-    return false;
-  }
-  auto typed_other = static_cast<const BuildingType &>(other);
-  return *get_real() == *typed_other.get_real();
-}
 
 std::string PointerType::to_string(const std::string &current) const {
   return aim_type_->to_string("(*" + current + ")");
@@ -312,7 +207,8 @@ SiiIR::TypePtr Type::ToIRType(const TypePtr &type) {
     if (pointer_type.offset_limit_ == PointerType::OFFSET_UNLIMIT) {
       return SiiIR::Type::Pointer(ToIRType(pointer_type.aim_type_));
     }
-    return SiiIR::Type::Pointer(ToIRType(pointer_type.aim_type_), pointer_type.offset_limit_);
+    return SiiIR::Type::Pointer(ToIRType(pointer_type.aim_type_),
+                                pointer_type.offset_limit_);
   }
   case TypeKind::ARRAY: {
     auto &array_type = static_cast<const ArrayType &>(*type);
@@ -327,9 +223,6 @@ SiiIR::TypePtr Type::ToIRType(const TypePtr &type) {
     }
     return std::make_shared<SiiIR::FunctionType>(
         ToIRType(function_type.return_type_), parameter_types);
-  }
-  case TypeKind::BUILDING: {
-    throw std::invalid_argument("Invalid Building type");
   }
   }
 }

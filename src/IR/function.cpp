@@ -12,18 +12,18 @@ private:
   std::vector<SiiIRCodePtr> source_codes_;
   FunctionContextPtr ctx_;
   std::map<SiiIRCode *, size_t> code_to_index_;
-  std::map<std::string, BasicGroupPtr> label_to_node_;
+  std::map<Label *, BasicGroupPtr> label_to_node_;
   std::vector<BasicGroupPtr> basic_groups_;
 
   BasicGroup *build_basic_group_starting_from(size_t start) {
     BasicGroupPtr result = nullptr;
     if (source_codes_[start]->label_ != nullptr) {
-      if (label_to_node_.find(source_codes_[start]->label_->name_) !=
+      if (label_to_node_.find(source_codes_[start]->label_.get()) !=
           label_to_node_.end()) {
-        return label_to_node_[source_codes_[start]->label_->name_].get();
+        return label_to_node_[source_codes_[start]->label_.get()].get();
       }
       result = std::make_shared<BasicGroup>();
-      label_to_node_[source_codes_[start]->label_->name_] = result;
+      label_to_node_[source_codes_[start]->label_.get()] = result;
     } else {
       throw std::runtime_error(
           "Building a basic group with a non-label code at the beginning.");
@@ -44,7 +44,7 @@ private:
       if (current->kind_ == SiiIRCodeKind::GOTO) {
         const SiiIRGoto *goto_code =
             static_cast<const SiiIRGoto *>(current.get());
-        const LabelPtr& dest_label = 
+        const LabelPtr &dest_label =
             std::static_pointer_cast<Label>(goto_code->dest_label_->value_);
         BasicGroup *next_group = build_basic_group_starting_from(
             code_to_index_[dest_label->dest_code_]);
@@ -55,10 +55,10 @@ private:
       if (current->kind_ == SiiIRCodeKind::CONDITION_BRANCH) {
         const SiiIRConditionBranch *condition_branch =
             static_cast<const SiiIRConditionBranch *>(current.get());
-        const LabelPtr& true_label = 
-            std::static_pointer_cast<Label>(condition_branch->true_label_->value_);
-        const LabelPtr& false_label = 
-            std::static_pointer_cast<Label>(condition_branch->false_label_->value_);
+        const LabelPtr &true_label = std::static_pointer_cast<Label>(
+            condition_branch->true_label_->value_);
+        const LabelPtr &false_label = std::static_pointer_cast<Label>(
+            condition_branch->false_label_->value_);
         BasicGroup *true_group = build_basic_group_starting_from(
             code_to_index_[true_label->dest_code_]);
         result->follows_.push_back(true_group);
@@ -110,7 +110,7 @@ public:
       if (source_codes_[first_non_alloca]->label_ != nullptr) {
         first_label = source_codes_[first_non_alloca]->label_;
       } else {
-        first_label = ctx_->allocate_label();
+        first_label = std::make_shared<Label>();
         first_label->dest_code_ = source_codes_[first_non_alloca].get();
         source_codes_[first_non_alloca]->label_ = first_label;
       }
@@ -122,7 +122,7 @@ public:
     }
 
     // Set label_ field in basic groups.
-    result_func->entry_->label_ = ctx_->allocate_label();
+    result_func->entry_->label_ = std::make_shared<Label>();
     for (size_t i = 1; i < basic_groups_.size(); ++i) {
       if (basic_groups_[i]->label_ == nullptr) {
         if (basic_groups_[i]->codes_.begin()->label_ == nullptr) {
@@ -156,11 +156,11 @@ FunctionPtr BuildFunction(std::vector<SiiIRCodePtr> codes,
   return builder.build(std::move(name));
 }
 
-std::string BasicGroup::to_string() const {
+std::string BasicGroup::to_string(IDAllocator &id_allocator) const {
   std::stringstream result;
-  result << label_->to_string() << ":          ; pred: ";
+  result << label_->to_string(id_allocator) << ":          ; pred: ";
   for (size_t i = 0; i < precedes_.size(); ++i) {
-    result << precedes_[i]->label_->to_string();
+    result << precedes_[i]->label_->to_string(id_allocator);
     if (i != precedes_.size() - 1) {
       result << ", ";
     } else {
@@ -169,29 +169,31 @@ std::string BasicGroup::to_string() const {
   }
   result << std::endl;
   for (auto iter = codes_.begin(); iter != codes_.end(); ++iter) {
-    result << iter->to_string() << std::endl;
+    result << iter->to_string(id_allocator) << std::endl;
   }
   return result.str();
 }
 
 static void TraversePrintFunction(BasicGroup *current_group,
                                   std::set<BasicGroup *> &visited,
-                                  std::stringstream &result) {
+                                  std::stringstream &result,
+                                  IDAllocator &id_allocator) {
   if (visited.find(current_group) != visited.end()) {
     return;
   }
   visited.insert(current_group);
-  result << current_group->to_string() << std::endl;
+  result << current_group->to_string(id_allocator) << std::endl;
   for (auto &follow : current_group->follows_) {
-    TraversePrintFunction(follow, visited, result);
+    TraversePrintFunction(follow, visited, result, id_allocator);
   }
 }
 
 std::string Function::to_string() const {
   std::stringstream result;
   std::set<BasicGroup *> visited;
+  IDAllocator id_allocator;
   result << "Function " << name_ << std::endl;
-  TraversePrintFunction(entry_, visited, result);
+  TraversePrintFunction(entry_, visited, result, id_allocator);
   return result.str();
 }
 

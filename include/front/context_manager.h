@@ -8,20 +8,48 @@
 
 namespace front {
 class Symbol;
+class FunctionSymbol;
+class VariableSymbol;
 class SymbolTable;
 struct SymbolContext;
 struct ContextManager;
-typedef std::shared_ptr<Symbol> SymbolPtr;
-typedef std::shared_ptr<SymbolTable> SymbolTablePtr;
-typedef std::shared_ptr<SymbolContext> SymbolContextPtr;
-typedef std::shared_ptr<ContextManager> ContextManagerPtr;
+using SymbolPtr = std::shared_ptr<Symbol>;
+using FunctionSymbolPtr = std::shared_ptr<FunctionSymbol>;
+using VariableSymbolPtr = std::shared_ptr<VariableSymbol>;
+using SymbolTablePtr = std::shared_ptr<SymbolTable>;
+using SymbolContextPtr = std::shared_ptr<SymbolContext>;
+using ContextManagerPtr = std::shared_ptr<ContextManager>;
 
-struct Symbol {
+enum class SymbolKind : uint8_t { VARIABLE, FUNCTION };
+
+class Symbol {
+public:
   TypePtr type_;
-  SiiIR::ValuePtr value_;
-  Symbol(TypePtr type, SiiIR::ValuePtr value)
-      : type_(std::move(type)), value_(std::move(value)) {}
-  static SymbolPtr symbol(TypePtr type, SiiIR::ValuePtr value);
+  SymbolKind kind_;
+  Symbol(SymbolKind kind, TypePtr type) : kind_(kind), type_(std::move(type)) {}
+
+  static FunctionSymbolPtr NewFunctionSymbol(TypePtr type,
+                                             SiiIR::FunctionValuePtr func);
+  static VariableSymbolPtr NewVariableSymbol(TypePtr type,
+                                             SiiIR::ValuePtr address);
+};
+
+class VariableSymbol : public Symbol {
+public:
+  SiiIR::ValuePtr address_;
+  SiiIR::TypePtr ir_type_;
+
+  VariableSymbol(TypePtr type, SiiIR::ValuePtr address)
+      : Symbol(SymbolKind::VARIABLE, std::move(type)),
+        address_(std::move(address)) {}
+};
+
+class FunctionSymbol : public Symbol {
+public:
+  SiiIR::FunctionValuePtr func_;
+
+  FunctionSymbol(TypePtr type, SiiIR::FunctionValuePtr func)
+      : Symbol(SymbolKind::FUNCTION, std::move(type)), func_(std::move(func)) {}
 };
 
 struct SymbolTable {

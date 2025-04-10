@@ -40,7 +40,7 @@ TEST(Function, BuildFunctionWithLabel) {
   FunctionContextPtr ctx =
       std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
-  code_builder->append_label(ctx->allocate_label());
+  code_builder->append_label(std::make_shared<Label>());
   code_builder->append_nope();
   auto codes = code_builder->finish();
   auto func = BuildFunction(*codes, ctx, "");
@@ -58,7 +58,7 @@ TEST(Function, BuildFunctionWithGoto) {
   FunctionContextPtr ctx =
       std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
-  auto label1 = ctx->allocate_label();
+  auto label1 = std::make_shared<Label>();
   code_builder->append_nope();
   code_builder->append_label(label1);
   code_builder->append_nope();
@@ -92,8 +92,8 @@ TEST(Function, BuildFunctionWithConditionBranch) {
       std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
   auto expression = Value::constant("constant", Type::Integer(1));
-  auto true_label = ctx->allocate_label();
-  auto false_label = ctx->allocate_label();
+  auto true_label = std::make_shared<Label>();
+  auto false_label = std::make_shared<Label>();
   // group1
   code_builder->append_nope();
   code_builder->append_condition_branch(expression, true_label, false_label);
@@ -140,10 +140,8 @@ TEST(Function, BuildFunctionWithAlloca) {
   FunctionContextPtr ctx =
       std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
-  VariableValuePtr variable1 = ctx->allocate_variable_value(Type::Integer(8));
-  VariableValuePtr variable2 = ctx->allocate_variable_value(Type::Integer(8));
-  code_builder->append_alloca(variable1, 4);
-  code_builder->append_alloca(variable2, 4);
+  auto address1 = code_builder->append_alloca(4, Type::Integer(8));
+  code_builder->append_alloca(4, Type::Integer(8));
   code_builder->append_nope();
   auto codes = code_builder->finish();
   auto func = BuildFunction(*codes, ctx, "");

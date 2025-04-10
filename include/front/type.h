@@ -7,37 +7,19 @@
 #include "IR/type.h"
 
 namespace front {
-enum class TypeKind : uint32_t {
-  BUILDING = 0,
-  INT = 1,
-  POINTER = 2,
-  FUNCTION = 3,
-  ARRAY = 4
-};
+enum class TypeKind : uint32_t { INT, POINTER, FUNCTION, ARRAY };
 
 class Type;
-class TypeBuilder;
+class TypeTransformer;
+class NestedTypeTransformer;
 struct Declarator;
-class BuildingType;
 class PointerType;
 class FunctionType;
 class ArrayType;
 typedef std::shared_ptr<Type> TypePtr;
-typedef std::shared_ptr<TypeBuilder> TypeBuilderPtr;
+typedef std::shared_ptr<TypeTransformer> TypeTransformerPtr;
+typedef std::shared_ptr<NestedTypeTransformer> NestedTypeTransformerPtr;
 typedef std::shared_ptr<Declarator> DeclaratorPtr;
-
-class TypeBuilder {
-public:
-  virtual ~TypeBuilder() {}
-  virtual void
-  pointer_of(uint64_t offset_limit = std::numeric_limits<uint64_t>::max()) = 0;
-  virtual void return_of(std::vector<DeclaratorPtr> parameter_types) = 0;
-  virtual void array_of(int64_t element_count) = 0;
-  virtual TypeBuilderPtr building_of() = 0;
-  virtual TypePtr get() const = 0;
-};
-
-TypeBuilderPtr CreateTypeBuilder(TypePtr base);
 
 struct Type {
   Type(TypeKind kind) : kind_(kind) {}
@@ -48,13 +30,11 @@ struct Type {
   bool operator!=(const Type &other) const { return !(*this == other); }
   static TypePtr DefaultType();
   static TypePtr Basic(TypeKind kind);
-  static TypePtr Building(TypeBuilderPtr builder);
   static TypePtr Pointer(TypePtr aim_type, uint64_t offset_limit);
   static TypePtr Pointer(TypePtr aim_type);
   static TypePtr Function(TypePtr return_type,
                           std::vector<DeclaratorPtr> parameter_types);
   static TypePtr Array(TypePtr element_type, int64_t element_count);
-  static TypePtr TrimBuildingType(const TypePtr &type);
   static TypePtr NormalizePointer(const TypePtr &type);
   static TypePtr NormalizeArrayType(const TypePtr &type, bool force_count);
   static TypePtr NormalizeFunctionType(const TypePtr &type);
@@ -62,17 +42,6 @@ struct Type {
   static TypePtr NormalizeVariableDeclaration(const TypePtr &type);
   static size_t SizeOf(const TypePtr &type);
   static SiiIR::TypePtr ToIRType(const TypePtr &type);
-};
-
-struct BuildingType : public Type {
-  TypeBuilderPtr builder_;
-  mutable TypePtr real_type_;
-  BuildingType(TypeBuilderPtr builder)
-      : Type(TypeKind::BUILDING), builder_(std::move(builder)) {}
-  TypePtr get_real() const;
-
-  std::string to_string(const std::string &current) const override;
-  bool operator==(const Type &other) const override;
 };
 
 struct PointerType : public Type {
@@ -107,6 +76,59 @@ struct ArrayType : public Type {
         element_count_(element_count) {}
   std::string to_string(const std::string &current) const override;
   bool operator==(const Type &other) const override;
+};
+
+class NestedTypeTransformer {
+public:
+  virtual ~NestedTypeTransformer() = default;
+  virtual TypePtr accept(TypePtr type) = 0;
+};
+
+class PointerTypeTransformer : public NestedTypeTransformer {
+public:
+  TypePtr accept(TypePtr type) override { return Type::Pointer(type); }
+};
+
+class ArrayTypeTransformer : public NestedTypeTransformer {
+public:
+  ArrayTypeTransformer(int64_t element_count) : element_count_(element_count) {}
+  TypePtr accept(TypePtr type) override {
+    return Type::Array(type, element_count_);
+  }
+
+private:
+  int64_t element_count_;
+};
+
+class FunctionTypeTransformer : public NestedTypeTransformer {
+public:
+  FunctionTypeTransformer(std::vector<DeclaratorPtr> parameters)
+      : parameters_(std::move(parameters)) {}
+  TypePtr accept(TypePtr type) override {
+    return Type::Function(type, parameters_);
+  }
+
+private:
+  std::vector<DeclaratorPtr> parameters_;
+};
+
+class TypeTransformer {
+public:
+  TypeTransformer() = default;
+  void push(NestedTypeTransformerPtr builder) { builders_.push_back(builder); }
+  void push(TypeTransformerPtr other) {
+    builders_.insert(builders_.end(), other->builders_.begin(),
+                     other->builders_.end());
+  }
+  TypePtr accept(TypePtr type) {
+    for (auto &builder : builders_) {
+      type = builder->accept(type);
+    }
+    return type;
+  }
+
+private:
+  std::vector<NestedTypeTransformerPtr> builders_;
 };
 
 struct Declarator {

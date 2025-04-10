@@ -7,7 +7,8 @@ template <typename ValueType, typename ParentType, bool IsConst>
 class ListIterator;
 template <typename ValueType> class List;
 
-template <typename ValueType> class ListNode {
+template <typename ValueType>
+class ListNode : public std::enable_shared_from_this<ListNode<ValueType>> {
 private:
   using ParentType = List<ValueType>;
   friend class List<ValueType>;
@@ -34,7 +35,7 @@ public:
 
   ParentType *get_parent() { return parent_; }
   void set_parent(ParentType *parent) { parent_ = parent; }
-  
+
   void remove_from_parent() {
     if (parent_) {
       parent_->erase(get_iterator());
@@ -61,6 +62,12 @@ private:
       : node_(node), next_(node->next_.get()), prev_(node->prev_.get()) {}
 
 public:
+  typename std::conditional<IsConst, std::shared_ptr<const ValueType>,
+                            std::shared_ptr<ValueType>>::type
+  shared() const {
+    return std::dynamic_pointer_cast<ValueType>(node_->shared_from_this());
+  }
+
   ListIterator<ValueType, ParentType, IsConst> &operator++() {
     update_node(next_);
     return *this;
@@ -108,11 +115,9 @@ public:
   using IterType = ListIterator<ValueType, List<ValueType>, false>;
   using NodeType = ListNode<ValueType>;
 
-  List() : size_(0) {
-    construct_dummy_head_and_tail();
-  }
-  
-  List& operator=(List&& other) {
+  List() : size_(0) { construct_dummy_head_and_tail(); }
+
+  List &operator=(List &&other) {
     break_down();
     dummy_head_ = std::move(other.dummy_head_);
     dummy_tail_ = std::move(other.dummy_tail_);
@@ -121,10 +126,8 @@ public:
     other.construct_dummy_head_and_tail();
     return *this;
   }
-  
-  ~List() {
-    break_down();
-  }
+
+  ~List() { break_down(); }
 
   IterType begin() { return IterType(dummy_head_->next_.get()); }
 
@@ -191,7 +194,7 @@ public:
     iter_node.set_parent(nullptr);
     return result;
   }
-  
+
   size_t size() const { return size_; }
 
 private:
@@ -203,8 +206,8 @@ private:
       current->prev_.reset();
       current = next;
     }
-  }  
-  
+  }
+
   void construct_dummy_head_and_tail() {
     dummy_head_ = std::make_shared<NodeType>(this);
     dummy_tail_ = std::make_shared<NodeType>(this);

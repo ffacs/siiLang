@@ -18,8 +18,17 @@ TypePtr Type::Array(TypePtr element_type, int64_t element_count) {
   return std::make_shared<ArrayType>(element_type, element_count);
 }
 
-TypePtr Type::Function(TypePtr return_type, std::vector<TypePtr> parameter_types) {
+TypePtr Type::Function(TypePtr return_type,
+                       std::vector<TypePtr> parameter_types) {
   return std::make_shared<FunctionType>(return_type, parameter_types);
+}
+
+TypePtr Type::GetAimType(TypePtr pointer_type) {
+  if (pointer_type->kind_ != Type::Kind::POINTER) {
+    throw std::invalid_argument("Parameter of phi is not a address");
+  }
+
+  return static_cast<PointerType *>(pointer_type.get())->aim_type_;
 }
 
 // operator overloading
