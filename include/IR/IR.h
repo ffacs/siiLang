@@ -42,21 +42,21 @@ struct SiiIRStore;
 struct SiiIRLoad;
 struct SiiIRPhi;
 struct SiiIRReturn;
-using SiiIRCodePtr               = std::shared_ptr< SiiIRCode >;
-using SiiIRBinaryOperationPtr    = std::shared_ptr< SiiIRBinaryOperation >;
-using SiiIRUnaryOperationPtr     = std::shared_ptr< SiiIRUnaryOperation >;
-using SiiIRGotoPtr               = std::shared_ptr< SiiIRGoto >;
-using SiiIRNopePtr               = std::shared_ptr< SiiIRNope >;
-using SiiIRConditionBranchPtr    = std::shared_ptr< SiiIRConditionBranch >;
-using SiiIRFunctionDefinitionPtr = std::shared_ptr< SiiIRFunctionDefinition >;
-using SiiIRAllocaPtr             = std::shared_ptr< SiiIRAlloca >;
-using SiiIRStorePtr              = std::shared_ptr< SiiIRStore >;
-using SiiIRLoadPtr               = std::shared_ptr< SiiIRLoad >;
-using SiiIRPhiPtr                = std::shared_ptr< SiiIRPhi >;
-using SiiIRReturnPtr             = std::shared_ptr< SiiIRReturn >;
-using UseSetter                  = std::function< void(ValuePtr) >;
+using SiiIRCodePtr               = std::shared_ptr<SiiIRCode>;
+using SiiIRBinaryOperationPtr    = std::shared_ptr<SiiIRBinaryOperation>;
+using SiiIRUnaryOperationPtr     = std::shared_ptr<SiiIRUnaryOperation>;
+using SiiIRGotoPtr               = std::shared_ptr<SiiIRGoto>;
+using SiiIRNopePtr               = std::shared_ptr<SiiIRNope>;
+using SiiIRConditionBranchPtr    = std::shared_ptr<SiiIRConditionBranch>;
+using SiiIRFunctionDefinitionPtr = std::shared_ptr<SiiIRFunctionDefinition>;
+using SiiIRAllocaPtr             = std::shared_ptr<SiiIRAlloca>;
+using SiiIRStorePtr              = std::shared_ptr<SiiIRStore>;
+using SiiIRLoadPtr               = std::shared_ptr<SiiIRLoad>;
+using SiiIRPhiPtr                = std::shared_ptr<SiiIRPhi>;
+using SiiIRReturnPtr             = std::shared_ptr<SiiIRReturn>;
+using UseSetter                  = std::function<void(ValuePtr)>;
 
-struct SiiIRCode : public ListNode< SiiIRCode >, public Value {
+struct SiiIRCode : public ListNode<SiiIRCode>, public Value {
   SiiIRCodeKind kind_;
   LabelPtr      label_;
   BasicGroup*   group_ = nullptr;
@@ -85,14 +85,14 @@ struct SiiIRBinaryOperation : public SiiIRCode {
     rhs_->remove_from_parent();
   }
 
-  template < size_t Idx >
+  template<size_t Idx>
   UseSetter use_setter() {
-    return [ this ](ValuePtr value) {
-      if constexpr ( Idx == 0 ) {
+    return [this](ValuePtr value) {
+      if constexpr(Idx == 0) {
         lhs_->remove_from_parent();
         lhs_ = NewUse(this, std::move(value));
         lhs_->value_->users_.push_back(lhs_);
-      } else if constexpr ( Idx == 1 ) {
+      } else if constexpr(Idx == 1) {
         rhs_->remove_from_parent();
         rhs_ = NewUse(this, std::move(value));
         rhs_->value_->users_.push_back(rhs_);
@@ -114,10 +114,10 @@ struct SiiIRUnaryOperation : public SiiIRCode {
 
   ~SiiIRUnaryOperation() { operand_->remove_from_parent(); }
 
-  template < size_t Idx >
+  template<size_t Idx>
   UseSetter use_setter() {
-    return [ this ](ValuePtr value) {
-      if constexpr ( Idx == 0 ) {
+    return [this](ValuePtr value) {
+      if constexpr(Idx == 0) {
         operand_->remove_from_parent();
         operand_ = NewUse(this, value);
         operand_->value_->users_.push_back(operand_);
@@ -133,21 +133,21 @@ struct SiiIRGoto : public SiiIRCode {
   explicit SiiIRGoto(LabelPtr dest)
       : SiiIRCode(SiiIRCodeKind::GOTO, nullptr)
       , dest_label_(NewUse(this, std::move(dest))) {
-    if ( dest_label_->value_ ) {
+    if(dest_label_->value_) {
       dest_label_->value_->users_.push_back(dest_label_);
     }
   }
 
   ~SiiIRGoto() {
-    if ( dest_label_->value_ ) {
+    if(dest_label_->value_) {
       dest_label_->remove_from_parent();
     }
   }
 
-  template < size_t Idx >
+  template<size_t Idx>
   UseSetter use_setter() {
-    return [ this ](ValuePtr value) {
-      if constexpr ( Idx == 0 ) {
+    return [this](ValuePtr value) {
+      if constexpr(Idx == 0) {
         dest_label_->remove_from_parent();
         dest_label_ = NewUse(this, std::move(value));
         dest_label_->value_->users_.push_back(dest_label_);
@@ -167,36 +167,36 @@ struct SiiIRConditionBranch : public SiiIRCode {
       , condition_(NewUse(this, std::move(condition)))
       , true_label_(NewUse(this, std::move(true_label)))
       , false_label_(NewUse(this, std::move(false_label))) {
-    if ( condition_->value_ ) {
+    if(condition_->value_) {
       condition_->value_->users_.push_back(condition_);
     }
-    if ( true_label_->value_ ) {
+    if(true_label_->value_) {
       true_label_->value_->users_.push_back(true_label_);
     }
-    if ( false_label_->value_ ) {
+    if(false_label_->value_) {
       false_label_->value_->users_.push_back(false_label_);
     }
   }
 
-  template < size_t Idx >
+  template<size_t Idx>
   UseSetter use_setter() {
-    return [ this ](ValuePtr value) {
-      if constexpr ( Idx == 0 ) {
+    return [this](ValuePtr value) {
+      if constexpr(Idx == 0) {
         condition_->remove_from_parent();
         condition_ = NewUse(this, value);
-        if ( value ) {
+        if(value) {
           condition_->value_->users_.push_back(condition_);
         }
-      } else if constexpr ( Idx == 1 ) {
+      } else if constexpr(Idx == 1) {
         true_label_->remove_from_parent();
         true_label_ = NewUse(this, value);
-        if ( value ) {
+        if(value) {
           true_label_->value_->users_.push_back(true_label_);
         }
-      } else if constexpr ( Idx == 2 ) {
+      } else if constexpr(Idx == 2) {
         false_label_->remove_from_parent();
         false_label_ = NewUse(this, value);
-        if ( value ) {
+        if(value) {
           false_label_->value_->users_.push_back(false_label_);
         }
       }
@@ -248,13 +248,13 @@ struct SiiIRLoad : public SiiIRCode {
 
   ~SiiIRLoad() override { src_->remove_from_parent(); }
 
-  template < size_t Idx >
+  template<size_t Idx>
   UseSetter use_setter() {
-    return [ this ](ValuePtr value) {
-      if constexpr ( Idx == 0 ) {
+    return [this](ValuePtr value) {
+      if constexpr(Idx == 0) {
         src_->remove_from_parent();
         src_ = NewUse(this, value);
-        if ( value ) {
+        if(value) {
           src_->value_->users_.push_back(src_);
         }
       }
@@ -280,14 +280,14 @@ struct SiiIRStore : public SiiIRCode {
     dest_->remove_from_parent();
   }
 
-  template < size_t Idx >
+  template<size_t Idx>
   UseSetter use_setter() {
-    return [ this ](ValuePtr value) {
-      if constexpr ( Idx == 0 ) {
+    return [this](ValuePtr value) {
+      if constexpr(Idx == 0) {
         src_->remove_from_parent();
         src_ = NewUse(this, value);
         src_->value_->users_.push_back(src_);
-      } else if constexpr ( Idx == 1 ) {
+      } else if constexpr(Idx == 1) {
         dest_->remove_from_parent();
         dest_ = NewUse(this, value);
         dest_->value_->users_.push_back(dest_);
@@ -304,22 +304,22 @@ struct SiiIRPhi : public SiiIRCode {
   SiiIRPhi(ValuePtr variale_address, size_t src_size)
       : SiiIRCode(SiiIRCodeKind::PHI, Type::GetAimType(variale_address->type_))
       , src_list_(src_size, nullptr) {
-    for ( int i = 0; i < src_size; i++ ) {
-      src_list_[ i ] = NewUse(this, variale_address);
-      src_list_[ i ]->value_->users_.push_back(src_list_[ i ]);
+    for(int i = 0; i < src_size; i++) {
+      src_list_[i] = NewUse(this, variale_address);
+      src_list_[i]->value_->users_.push_back(src_list_[i]);
     }
   }
 
   void replace_src(size_t index, ValuePtr new_src) {
-    src_list_[ index ]->remove_from_parent();
-    src_list_[ index ] = NewUse(this, new_src);
-    src_list_[ index ]->value_->users_.push_back(src_list_[ index ]);
+    src_list_[index]->remove_from_parent();
+    src_list_[index] = NewUse(this, new_src);
+    src_list_[index]->value_->users_.push_back(src_list_[index]);
   }
 
   ~SiiIRPhi() override {}
 
-  std::string           to_string(IDAllocator& id_allocator) const override;
-  std::vector< UsePtr > src_list_;
+  std::string         to_string(IDAllocator& id_allocator) const override;
+  std::vector<UsePtr> src_list_;
 };
 
 struct SiiIRReturn : public SiiIRCode {
@@ -331,10 +331,10 @@ struct SiiIRReturn : public SiiIRCode {
 
   ~SiiIRReturn() override { result_->remove_from_parent(); }
 
-  template < size_t Idx >
+  template<size_t Idx>
   UseSetter use_setter() {
-    return [ this ](ValuePtr value) {
-      if constexpr ( Idx == 0 ) {
+    return [this](ValuePtr value) {
+      if constexpr(Idx == 0) {
         result_->remove_from_parent();
         result_ = NewUse(this, value);
         result_->value_->users_.push_back(result_);

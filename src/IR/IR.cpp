@@ -5,7 +5,7 @@
 namespace SiiIR {
 std::string SiiIRCode::to_string(IDAllocator& id_allocator) const {
   std::stringstream result_str;
-  if ( label_ != nullptr ) {
+  if(label_ != nullptr) {
     result_str << label_->to_string(id_allocator) + ":\n";
   }
   return result_str.str();
@@ -14,7 +14,7 @@ std::string SiiIRCode::to_string(IDAllocator& id_allocator) const {
 std::string SiiIRBinaryOperation::to_string(IDAllocator& id_allocator) const {
   auto prefix = SiiIRCode::to_string(id_allocator);
 
-  static std::map< SiiIRCodeKind, std::string > binary_operator_str = {
+  static std::map<SiiIRCodeKind, std::string> binary_operator_str = {
     { SiiIRCodeKind::MUL,        " * "  },
     { SiiIRCodeKind::DIV,        " / "  },
     { SiiIRCodeKind::ADD,        " + "  },
@@ -26,9 +26,9 @@ std::string SiiIRBinaryOperation::to_string(IDAllocator& id_allocator) const {
   };
 
   auto operator_str_iter = binary_operator_str.find(kind_);
-  if ( operator_str_iter == binary_operator_str.end() ) {
+  if(operator_str_iter == binary_operator_str.end()) {
     std::stringstream error_str;
-    error_str << "Unknown SiiIRCodeKind: " << static_cast< uint32_t >(kind_);
+    error_str << "Unknown SiiIRCodeKind: " << static_cast<uint32_t>(kind_);
     throw std::runtime_error(error_str.str());
   }
   auto operator_str = operator_str_iter->second;
@@ -40,14 +40,14 @@ std::string SiiIRBinaryOperation::to_string(IDAllocator& id_allocator) const {
 std::string SiiIRUnaryOperation::to_string(IDAllocator& id_allocator) const {
   auto prefix = SiiIRCode::to_string(id_allocator);
 
-  static std::map< SiiIRCodeKind, std::string > unary_operator_str = {
+  static std::map<SiiIRCodeKind, std::string> unary_operator_str = {
     { SiiIRCodeKind::NEG, "-" },
   };
 
   auto operator_str_iter = unary_operator_str.find(kind_);
-  if ( operator_str_iter == unary_operator_str.end() ) {
+  if(operator_str_iter == unary_operator_str.end()) {
     std::stringstream error_str;
-    error_str << "Unknown SiiIRCodeKind: " << static_cast< uint32_t >(kind_);
+    error_str << "Unknown SiiIRCodeKind: " << static_cast<uint32_t>(kind_);
     throw std::runtime_error(error_str.str());
   }
   auto operator_str = operator_str_iter->second;
@@ -98,9 +98,9 @@ std::string SiiIRStore::to_string(IDAllocator& id_allocator) const {
 std::string SiiIRPhi::to_string(IDAllocator& id_allocator) const {
   std::string result = SiiIRCode::to_string(id_allocator) + "  "
                        + id_allocator.alloc(this) + " = phi( ";
-  for ( size_t i = 0; i < src_list_.size(); ++i ) {
-    result += id_allocator.alloc(src_list_[ i ]->value_.get());
-    if ( i != src_list_.size() - 1 ) {
+  for(size_t i = 0; i < src_list_.size(); ++i) {
+    result += id_allocator.alloc(src_list_[i]->value_.get());
+    if(i != src_list_.size() - 1) {
       result += ", ";
     }
   }

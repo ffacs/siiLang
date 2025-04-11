@@ -18,7 +18,7 @@ public:
     return *this;
   }
   friend std::ostream& operator<<(std::ostream& os, const Indent& indent) {
-    for ( int i = 0; i < indent.indent_; i++ ) {
+    for(int i = 0; i < indent.indent_; i++) {
       os << "  ";
     }
     return os;

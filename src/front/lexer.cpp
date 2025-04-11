@@ -5,7 +5,7 @@
 namespace front {
 std::string Token::to_string() const {
   std::stringstream ss;
-  switch ( type_ ) {
+  switch(type_) {
   case TokenType::ED             : ss << "EOF"; break;
   case TokenType::INTEGER        : ss << "Integer: " << literal_; break;
   case TokenType::IDENTIFIER     : ss << "Variable: " << literal_; break;
@@ -26,7 +26,7 @@ std::string Token::to_string() const {
 
 static TokenPtr
 token(TokenType type, std::string_view literal, LexInfo lex_info) {
-  return std::make_shared< Token >(type, literal, std::move(lex_info));
+  return std::make_shared<Token>(type, literal, std::move(lex_info));
 }
 
 TokenPtr Token::Unknow(std::string_view literal, LexInfo lex_info) {
@@ -129,10 +129,10 @@ TokenPtr Token::Bit_and(LexInfo position) {
   return token(TokenType::BIT_AND, "&", std::move(position));
 }
 
-static std::set< std::string > KeyWords
+static std::set<std::string> KeyWords
     = { "if", "else", "for", "do", "while", "return" };
 
-static std::set< std::string > TypeSpcifiers = {
+static std::set<std::string> TypeSpcifiers = {
   "int",
 };
 
@@ -167,7 +167,7 @@ public:
 
   void expect_next(const std::string& expect) override {
     TokenPtr next_token = next();
-    if ( next_token->literal_ != expect ) {
+    if(next_token->literal_ != expect) {
       diagnose_handler_->mismatch(DiagnoseLevel::kError,
                                   next_token->lex_info_,
                                   expect,
@@ -177,8 +177,8 @@ public:
 
 private:
   void skip_blank() {
-    while ( index_ < contents_.size() && std::isspace(contents_[ index_ ]) ) {
-      if ( contents_[ index_ ] == '\n' || contents_[ index_ ] == '\r' ) {
+    while(index_ < contents_.size() && std::isspace(contents_[index_])) {
+      if(contents_[index_] == '\n' || contents_[index_] == '\r') {
         line_++;
         column_ = 1;
       } else {
@@ -191,7 +191,7 @@ private:
   TokenPtr next_punct() {
     TokenPtr    result         = nullptr;
     LexPosition begin_position = current_position();
-    switch ( current_char() ) {
+    switch(current_char()) {
     case '+': {
       index_++;
       result = Token::Plus(get_lex_info(begin_position));
@@ -229,7 +229,7 @@ private:
     }
     case '=': {
       index_++;
-      if ( index_ < contents_.size() && current_char() == '=' ) {
+      if(index_ < contents_.size() && current_char() == '=') {
         index_++;
         result = Token::Equal(get_lex_info(begin_position));
       } else {
@@ -239,7 +239,7 @@ private:
     }
     case '!': {
       index_++;
-      if ( index_ < contents_.size() && current_char() == '=' ) {
+      if(index_ < contents_.size() && current_char() == '=') {
         index_++;
         result = Token::Not_equal(get_lex_info(begin_position));
       } else {
@@ -251,7 +251,7 @@ private:
     }
     case '<': {
       index_++;
-      if ( index_ < contents_.size() && current_char() == '=' ) {
+      if(index_ < contents_.size() && current_char() == '=') {
         index_++;
         result = Token::Less_equal(get_lex_info(begin_position));
       } else {
@@ -261,7 +261,7 @@ private:
     }
     case '>': {
       index_++;
-      if ( index_ < contents_.size() && current_char() == '=' ) {
+      if(index_ < contents_.size() && current_char() == '=') {
         index_++;
         result = Token::Greater_equal(get_lex_info(begin_position));
       } else {
@@ -311,7 +311,7 @@ private:
   TokenPtr next_integer() {
     size_t      begin          = index_;
     LexPosition begin_position = current_position();
-    while ( std::isdigit(current_char()) ) {
+    while(std::isdigit(current_char())) {
       index_++;
       column_++;
     }
@@ -323,40 +323,40 @@ private:
   TokenPtr next_variable() {
     size_t      begin          = index_;
     LexPosition begin_position = current_position();
-    while ( std::isalnum(current_char()) ) {
+    while(std::isalnum(current_char())) {
       index_++;
       column_++;
     }
     std::string literal(contents_.data() + begin, index_ - begin);
-    if ( KeyWords.find(literal) != KeyWords.end() ) {
+    if(KeyWords.find(literal) != KeyWords.end()) {
       return Token::Keyword(literal, get_lex_info(begin_position));
     }
-    if ( TypeSpcifiers.find(literal) != TypeSpcifiers.end() ) {
+    if(TypeSpcifiers.find(literal) != TypeSpcifiers.end()) {
       return Token::Type_specifier(literal, get_lex_info(begin_position));
     }
     return Token::Identifier(literal, get_lex_info(begin_position));
   }
 
-  char current_char() { return contents_[ index_ ]; }
+  char current_char() { return contents_[index_]; }
 
   TokenPtr next_word() {
     skip_blank();
 
     LexPosition begin_position = current_position();
-    if ( index_ == contents_.size() ) {
+    if(index_ == contents_.size()) {
       return token(
           TokenType::ED, std::string_view(), get_lex_info(begin_position));
     }
 
-    if ( std::ispunct(current_char()) ) {
+    if(std::ispunct(current_char())) {
       return next_punct();
     }
 
-    if ( std::isdigit(current_char()) ) {
+    if(std::isdigit(current_char())) {
       return next_integer();
     }
 
-    if ( std::isalpha(current_char()) ) {
+    if(std::isalpha(current_char())) {
       return next_variable();
     }
 
@@ -372,9 +372,9 @@ private:
   DiagnoseHandlerPtr diagnose_handler_;
 };
 
-std::unique_ptr< Lexer > CreateLexer(std::string_view   content,
-                                     DiagnoseHandlerPtr diagnose_handler) {
-  return std::make_unique< LexerImpl >(content, diagnose_handler);
+std::unique_ptr<Lexer> CreateLexer(std::string_view   content,
+                                   DiagnoseHandlerPtr diagnose_handler) {
+  return std::make_unique<LexerImpl>(content, diagnose_handler);
 }
 
 }  // namespace front

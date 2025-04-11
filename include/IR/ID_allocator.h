@@ -14,13 +14,12 @@ public:
 
 private:
   int64_t alloc_id(const Value* v) {
-    auto [ iter, inserted ]
-        = allocated_ids_.insert({ v, allocated_ids_.size() });
+    auto [iter, inserted] = allocated_ids_.insert({ v, allocated_ids_.size() });
     return iter->second;
   }
-  std::unordered_map< const Value*, int64_t > allocated_ids_;
+  std::unordered_map<const Value*, int64_t> allocated_ids_;
 };
 
-using IDAllocatorPtr = std::shared_ptr< IDAllocator >;
+using IDAllocatorPtr = std::shared_ptr<IDAllocator>;
 
 }  // namespace SiiIR

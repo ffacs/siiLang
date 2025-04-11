@@ -53,7 +53,7 @@ protected:
   std::string_view content_;
 };
 
-using DiagnoseHandlerPtr = std::shared_ptr< DiagnoseHandler >;
+using DiagnoseHandlerPtr = std::shared_ptr<DiagnoseHandler>;
 
 DiagnoseHandlerPtr CreateDiagnoseHandler(std::string      filename,
                                          std::string_view content);

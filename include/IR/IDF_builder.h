@@ -9,12 +9,11 @@ struct IDFBuilder {
   virtual ~IDFBuilder() = default;
   IDFBuilder(FunctionPtr func)
       : func_(std::move(func)) {}
-  virtual DominatorTreePtr        get_dom()                 = 0;
-  virtual std::set< BasicGroup* > get_DF(const BasicGroup*) = 0;
-  virtual std::set< BasicGroup* > get_IDF(const std::vector< BasicGroup* >&)
-      = 0;
+  virtual DominatorTreePtr      get_dom()                                = 0;
+  virtual std::set<BasicGroup*> get_DF(const BasicGroup*)                = 0;
+  virtual std::set<BasicGroup*> get_IDF(const std::vector<BasicGroup*>&) = 0;
 };
 
-std::unique_ptr< IDFBuilder > CreateIDFBuilder(FunctionPtr func);
+std::unique_ptr<IDFBuilder> CreateIDFBuilder(FunctionPtr func);
 
 }  // namespace SiiIR

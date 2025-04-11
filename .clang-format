@@ -95,24 +95,25 @@ ReferenceAlignment: Left
 ReflowComments: true
 SortIncludes: CaseSensitive
 SortUsingDeclarations: LexicographicNumeric
-SpaceAfterTemplateKeyword: true
-SpaceBeforeCpp11BracedList: true
+SpaceAfterTemplateKeyword: false
+SpaceBeforeCpp11BracedList: false
 SpaceBeforeParens: Custom
 SpaceBeforeParensOptions:
-  AfterControlStatements: true
-  AfterForeachMacros: true
+  AfterControlStatements: false
+  AfterForeachMacros: false
   AfterFunctionDeclarationName: false
   AfterFunctionDefinitionName: false
-  AfterIfMacros: true
-SpaceBeforeRangeBasedForLoopColon: true
-SpacesInAngles: Always
-SpacesInContainerLiterals: true
+  AfterIfMacros: false
+SpaceBeforeRangeBasedForLoopColon: false
+SpacesInAngles: Never
+SpacesInContainerLiterals: false
 SpacesInParens: Custom
 SpacesInParensOptions:
-  ExceptDoubleParentheses: true
-  InConditionalStatements: true
+  ExceptDoubleParentheses: false
+  InConditionalStatements: false
   InEmptyParentheses: false
   InCStyleCasts: false
-SpacesInSquareBrackets: true
+  Other: false
+SpacesInSquareBrackets: false
 
 ---
