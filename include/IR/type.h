@@ -5,7 +5,7 @@
 
 namespace SiiIR {
 struct Type;
-using TypePtr = std::shared_ptr< Type >;
+using TypePtr = std::shared_ptr<Type>;
 struct Type {
   enum class Kind {
     INT      = 0,
@@ -25,8 +25,8 @@ struct Type {
   static TypePtr Pointer(TypePtr aim_type, uint64_t offset_limit);
   static TypePtr Pointer(TypePtr aim_type);
   static TypePtr Array(TypePtr element_type, int64_t element_count);
-  static TypePtr Function(TypePtr                return_type,
-                          std::vector< TypePtr > parameter_types);
+  static TypePtr Function(TypePtr              return_type,
+                          std::vector<TypePtr> parameter_types);
   static TypePtr GetAimType(TypePtr pointer_type);
 };
 
@@ -73,9 +73,9 @@ struct ArrayType : public Type {
 };
 
 struct FunctionType : public Type {
-  TypePtr                return_type_;
-  std::vector< TypePtr > parameter_types_;
-  FunctionType(TypePtr return_type, std::vector< TypePtr > parameter_types)
+  TypePtr              return_type_;
+  std::vector<TypePtr> parameter_types_;
+  FunctionType(TypePtr return_type, std::vector<TypePtr> parameter_types)
       : Type(Type::Kind::FUNCTION)
       , return_type_(std::move(return_type))
       , parameter_types_(std::move(parameter_types)) {}

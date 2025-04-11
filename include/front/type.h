@@ -21,10 +21,10 @@ struct Declarator;
 class PointerType;
 class FunctionType;
 class ArrayType;
-typedef std::shared_ptr< Type >                  TypePtr;
-typedef std::shared_ptr< TypeTransformer >       TypeTransformerPtr;
-typedef std::shared_ptr< NestedTypeTransformer > NestedTypeTransformerPtr;
-typedef std::shared_ptr< Declarator >            DeclaratorPtr;
+typedef std::shared_ptr<Type>                  TypePtr;
+typedef std::shared_ptr<TypeTransformer>       TypeTransformerPtr;
+typedef std::shared_ptr<NestedTypeTransformer> NestedTypeTransformerPtr;
+typedef std::shared_ptr<Declarator>            DeclaratorPtr;
 
 struct Type {
   Type(TypeKind kind)
@@ -38,8 +38,8 @@ struct Type {
   static TypePtr Basic(TypeKind kind);
   static TypePtr Pointer(TypePtr aim_type, uint64_t offset_limit);
   static TypePtr Pointer(TypePtr aim_type);
-  static TypePtr Function(TypePtr                      return_type,
-                          std::vector< DeclaratorPtr > parameter_types);
+  static TypePtr Function(TypePtr                    return_type,
+                          std::vector<DeclaratorPtr> parameter_types);
   static TypePtr Array(TypePtr element_type, int64_t element_count);
   static TypePtr NormalizePointer(const TypePtr& type);
   static TypePtr NormalizeArrayType(const TypePtr& type, bool force_count);
@@ -54,7 +54,7 @@ struct PointerType : public Type {
   TypePtr                   aim_type_;
   uint64_t                  offset_limit_;
   constexpr static uint64_t OFFSET_UNLIMIT
-      = std::numeric_limits< uint64_t >::max();
+      = std::numeric_limits<uint64_t>::max();
   PointerType(TypePtr aim_type, uint64_t offset_limit)
       : Type(TypeKind::POINTER)
       , aim_type_(std::move(aim_type))
@@ -65,10 +65,9 @@ struct PointerType : public Type {
 };
 
 struct FunctionType : public Type {
-  TypePtr                      return_type_;
-  std::vector< DeclaratorPtr > parameter_types_;
-  FunctionType(TypePtr                      return_type,
-               std::vector< DeclaratorPtr > parameter_types)
+  TypePtr                    return_type_;
+  std::vector<DeclaratorPtr> parameter_types_;
+  FunctionType(TypePtr return_type, std::vector<DeclaratorPtr> parameter_types)
       : Type(TypeKind::FUNCTION)
       , return_type_(std::move(return_type))
       , parameter_types_(std::move(parameter_types)) {}
@@ -113,14 +112,14 @@ private:
 
 class FunctionTypeTransformer : public NestedTypeTransformer {
 public:
-  FunctionTypeTransformer(std::vector< DeclaratorPtr > parameters)
+  FunctionTypeTransformer(std::vector<DeclaratorPtr> parameters)
       : parameters_(std::move(parameters)) {}
   TypePtr accept(TypePtr type) override {
     return Type::Function(type, parameters_);
   }
 
 private:
-  std::vector< DeclaratorPtr > parameters_;
+  std::vector<DeclaratorPtr> parameters_;
 };
 
 class TypeTransformer {
@@ -132,14 +131,14 @@ public:
         builders_.end(), other->builders_.begin(), other->builders_.end());
   }
   TypePtr accept(TypePtr type) {
-    for ( auto& builder : builders_ ) {
+    for(auto& builder: builders_) {
       type = builder->accept(type);
     }
     return type;
   }
 
 private:
-  std::vector< NestedTypeTransformerPtr > builders_;
+  std::vector<NestedTypeTransformerPtr> builders_;
 };
 
 struct Declarator {
@@ -150,10 +149,10 @@ struct Declarator {
       : type_(std::move(type))
       , identifier_(identifier) {}
   bool operator==(const Declarator& other) const {
-    if ( type_ == nullptr ) {
+    if(type_ == nullptr) {
       return other.type_ == nullptr;
     }
-    if ( type_ != nullptr && other.type_ == nullptr ) {
+    if(type_ != nullptr && other.type_ == nullptr) {
       return false;
     }
     return *type_ == *other.type_;

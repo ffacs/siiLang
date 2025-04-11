@@ -5,7 +5,7 @@
 namespace SiiIR {
 
 class CodeBuilder;
-typedef std::shared_ptr< CodeBuilder > CodeBuilderPtr;
+typedef std::shared_ptr<CodeBuilder> CodeBuilderPtr;
 
 class CodeBuilder {
 public:
@@ -41,7 +41,7 @@ public:
   virtual SiiIRReturnPtr append_return(ValuePtr value)                      = 0;
   virtual SiiIRStorePtr  append_store(ValuePtr source, ValuePtr dest_address)
       = 0;
-  virtual std::shared_ptr< std::vector< SiiIRCodePtr > > finish() = 0;
+  virtual std::shared_ptr<std::vector<SiiIRCodePtr>> finish() = 0;
 };
 
 CodeBuilderPtr CreateCodeBuilder();

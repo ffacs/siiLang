@@ -36,7 +36,7 @@ enum class TokenType : uint32_t {
 };
 
 struct Token;
-typedef std::shared_ptr< Token > TokenPtr;
+typedef std::shared_ptr<Token> TokenPtr;
 
 struct Token {
   Token(TokenType type, std::string_view literal, LexInfo lex_info)
@@ -94,7 +94,7 @@ public:
   virtual void expect_next(const std::string& expect) = 0;
 };
 
-std::unique_ptr< Lexer > CreateLexer(std::string_view   content,
-                                     DiagnoseHandlerPtr diagnose_handler);
+std::unique_ptr<Lexer> CreateLexer(std::string_view   content,
+                                   DiagnoseHandlerPtr diagnose_handler);
 
 }  // namespace front

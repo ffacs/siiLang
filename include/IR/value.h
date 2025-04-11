@@ -10,7 +10,7 @@
 
 namespace SiiIR {
 struct FunctionContext;
-typedef std::shared_ptr< FunctionContext > FunctionContextPtr;
+typedef std::shared_ptr<FunctionContext> FunctionContextPtr;
 enum class ValueKind : uint32_t {
   INSTRUCTION = 0,
   CONSTANT    = 1,
@@ -28,30 +28,30 @@ struct FunctionValue;
 struct UndefValue;
 struct Label;
 struct LabelFuture;
-using SiiIRCodePtr = std::shared_ptr< SiiIRCode >;
-typedef std::shared_ptr< Value >         ValuePtr;
-typedef std::shared_ptr< ConstantValue > ConstantValuePtr;
-typedef std::shared_ptr< FunctionValue > FunctionValuePtr;
-typedef std::shared_ptr< UndefValue >    UndefValuePtr;
-typedef std::shared_ptr< Label >         LabelPtr;
-typedef std::shared_ptr< LabelFuture >   LabelFuturePtr;
+using SiiIRCodePtr = std::shared_ptr<SiiIRCode>;
+typedef std::shared_ptr<Value>         ValuePtr;
+typedef std::shared_ptr<ConstantValue> ConstantValuePtr;
+typedef std::shared_ptr<FunctionValue> FunctionValuePtr;
+typedef std::shared_ptr<UndefValue>    UndefValuePtr;
+typedef std::shared_ptr<Label>         LabelPtr;
+typedef std::shared_ptr<LabelFuture>   LabelFuturePtr;
 
 struct Value {
   explicit Value(ValueKind kind, TypePtr type)
       : kind_(kind)
       , type_(type) {}
-  ValueKind   kind_;
-  TypePtr     type_;
-  List< Use > users_;
+  ValueKind kind_;
+  TypePtr   type_;
+  List<Use> users_;
 
   virtual std::string     to_string(IDAllocator& id_allocator) const = 0;
   static ConstantValuePtr constant(const std::string& literal, TypePtr type);
   static UndefValuePtr    undef(TypePtr type);
   static FunctionValuePtr
-  Function(std::shared_ptr< std::vector< SiiIRCodePtr > > codes,
-           FunctionContextPtr                             ctx,
-           const std::string&                             name,
-           TypePtr                                        type);
+  Function(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
+           FunctionContextPtr                         ctx,
+           const std::string&                         name,
+           TypePtr                                    type);
 };
 
 struct ParameterValue : public Value {
@@ -79,19 +79,19 @@ struct UndefValue : public Value {
 };
 
 struct FunctionValue : public Value {
-  FunctionValue(std::shared_ptr< std::vector< SiiIRCodePtr > > codes,
-                FunctionContextPtr                             ctx,
-                std::string                                    name,
-                TypePtr                                        type)
+  FunctionValue(std::shared_ptr<std::vector<SiiIRCodePtr>> codes,
+                FunctionContextPtr                         ctx,
+                std::string                                name,
+                TypePtr                                    type)
       : Value(ValueKind::FUNCTION, std::move(type))
       , codes_(std::move(codes))
       , ctx_(std::move(ctx))
       , name_(std::move(name)) {}
 
   std::string to_string(IDAllocator& id_allocator) const override;
-  std::shared_ptr< std::vector< SiiIRCodePtr > > codes_;
-  FunctionContextPtr                             ctx_;
-  std::string                                    name_;
+  std::shared_ptr<std::vector<SiiIRCodePtr>> codes_;
+  FunctionContextPtr                         ctx_;
+  std::string                                name_;
 };
 
 struct Label : public Value {

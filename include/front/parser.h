@@ -33,6 +33,6 @@ protected:
   std::istream& input_;
 };
 
-std::unique_ptr< Parser > CreateParser(std::string   file_name,
-                                       std::istream& input);
+std::unique_ptr<Parser> CreateParser(std::string   file_name,
+                                     std::istream& input);
 }  // namespace front

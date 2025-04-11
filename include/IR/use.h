@@ -9,10 +9,10 @@ namespace SiiIR {
 struct SiiIRCode;
 struct Value;
 struct Use;
-using ValuePtr = std::shared_ptr< Value >;
-using UsePtr   = std::shared_ptr< Use >;
+using ValuePtr = std::shared_ptr<Value>;
+using UsePtr   = std::shared_ptr<Use>;
 
-struct Use : public ListNode< Use > {
+struct Use : public ListNode<Use> {
   Use(SiiIRCode* user, ValuePtr value)
       : user_(user)
       , value_(std::move(value)) {}

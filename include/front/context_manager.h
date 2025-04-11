@@ -13,12 +13,12 @@ class VariableSymbol;
 class SymbolTable;
 struct SymbolContext;
 struct ContextManager;
-using SymbolPtr         = std::shared_ptr< Symbol >;
-using FunctionSymbolPtr = std::shared_ptr< FunctionSymbol >;
-using VariableSymbolPtr = std::shared_ptr< VariableSymbol >;
-using SymbolTablePtr    = std::shared_ptr< SymbolTable >;
-using SymbolContextPtr  = std::shared_ptr< SymbolContext >;
-using ContextManagerPtr = std::shared_ptr< ContextManager >;
+using SymbolPtr         = std::shared_ptr<Symbol>;
+using FunctionSymbolPtr = std::shared_ptr<FunctionSymbol>;
+using VariableSymbolPtr = std::shared_ptr<VariableSymbol>;
+using SymbolTablePtr    = std::shared_ptr<SymbolTable>;
+using SymbolContextPtr  = std::shared_ptr<SymbolContext>;
+using ContextManagerPtr = std::shared_ptr<ContextManager>;
 
 enum class SymbolKind : uint8_t {
   VARIABLE,
@@ -59,7 +59,7 @@ public:
 };
 
 struct SymbolTable {
-  std::map< std::string, SymbolPtr > name_to_symbol_;
+  std::map<std::string, SymbolPtr> name_to_symbol_;
 
   SymbolPtr find(const std::string& identifier) const;
   void      push(const std::string& identifier, SymbolPtr symbol);
@@ -70,11 +70,11 @@ SymbolTablePtr CreateSymbolTable();
 struct SymbolContext {
   SymbolContext(SymbolContext* father)
       : father_(father) {
-    symble_table_ = std::make_shared< SymbolTable >();
+    symble_table_ = std::make_shared<SymbolTable>();
   }
-  SymbolContext*                  father_;
-  std::vector< SymbolContextPtr > children_;
-  SymbolTablePtr                  symble_table_;
+  SymbolContext*                father_;
+  std::vector<SymbolContextPtr> children_;
+  SymbolTablePtr                symble_table_;
 };
 
 class ContextManager {

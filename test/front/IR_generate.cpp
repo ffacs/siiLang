@@ -9,9 +9,9 @@ static std::string IRStringGenerate(const ASTNodePtr root) {
   auto               IR_list   = generator->work();
   std::stringstream  result_builder;
   SiiIR::IDAllocator id_allocator;
-  for ( size_t i = 0; i < IR_list->size(); i++ ) {
-    result_builder << (*IR_list)[ i ]->to_string(id_allocator);
-    if ( i != IR_list->size() - 1 ) {
+  for(size_t i = 0; i < IR_list->size(); i++) {
+    result_builder << (*IR_list)[i]->to_string(id_allocator);
+    if(i != IR_list->size() - 1) {
       result_builder << "\n";
     }
   }

@@ -50,22 +50,22 @@ class DeclarationStatementNode;
 class GetAddressNode;
 class ReturnNode;
 class ASTVisitor;
-typedef std::shared_ptr< ASTNode >                  ASTNodePtr;
-typedef std::shared_ptr< EmptyNode >                EmptyNodePtr;
-typedef std::shared_ptr< BinaryOperationNode >      BinaryOperationNodePtr;
-typedef std::shared_ptr< UnaryOperationNode >       UnaryOperationNodePtr;
-typedef std::shared_ptr< LiteralNode >              LiteralNodePtr;
-typedef std::shared_ptr< IfElseNode >               IfElseNodePtr;
-typedef std::shared_ptr< ForLoopNode >              ForLoopNodePtr;
-typedef std::shared_ptr< DoWhileNode >              DoWhileNodePtr;
-typedef std::shared_ptr< WhileLoopNode >            WhileLoopNodePtr;
-typedef std::shared_ptr< CompoundStatementNode >    CompoundStatementNodePtr;
-typedef std::shared_ptr< DeclarationNode >          DeclarationNodePtr;
-typedef std::shared_ptr< VariableDeclarationNode >  VariableDeclarationNodePtr;
-typedef std::shared_ptr< FunctionDeclarationNode >  FunctionDeclarationNodePtr;
-typedef std::shared_ptr< DeclarationStatementNode > DeclarationStatementNodePtr;
-typedef std::shared_ptr< GetAddressNode >           GetAddressNodePtr;
-typedef std::shared_ptr< ReturnNode >               ReturnNodePtr;
+typedef std::shared_ptr<ASTNode>                  ASTNodePtr;
+typedef std::shared_ptr<EmptyNode>                EmptyNodePtr;
+typedef std::shared_ptr<BinaryOperationNode>      BinaryOperationNodePtr;
+typedef std::shared_ptr<UnaryOperationNode>       UnaryOperationNodePtr;
+typedef std::shared_ptr<LiteralNode>              LiteralNodePtr;
+typedef std::shared_ptr<IfElseNode>               IfElseNodePtr;
+typedef std::shared_ptr<ForLoopNode>              ForLoopNodePtr;
+typedef std::shared_ptr<DoWhileNode>              DoWhileNodePtr;
+typedef std::shared_ptr<WhileLoopNode>            WhileLoopNodePtr;
+typedef std::shared_ptr<CompoundStatementNode>    CompoundStatementNodePtr;
+typedef std::shared_ptr<DeclarationNode>          DeclarationNodePtr;
+typedef std::shared_ptr<VariableDeclarationNode>  VariableDeclarationNodePtr;
+typedef std::shared_ptr<FunctionDeclarationNode>  FunctionDeclarationNodePtr;
+typedef std::shared_ptr<DeclarationStatementNode> DeclarationStatementNodePtr;
+typedef std::shared_ptr<GetAddressNode>           GetAddressNodePtr;
+typedef std::shared_ptr<ReturnNode>               ReturnNodePtr;
 
 struct ASTNode {
 protected:
@@ -105,19 +105,19 @@ public:
   static WhileLoopNodePtr       While_loop(ASTNodePtr condition_expression,
                                            ASTNodePtr statement);
   static CompoundStatementNodePtr
-  Compound_statement(std::vector< ASTNodePtr > children);
+  Compound_statement(std::vector<ASTNodePtr> children);
   static VariableDeclarationNodePtr
   Variable_declaration(DeclaratorPtr declarator, ASTNodePtr initializer);
   static FunctionDeclarationNodePtr
   Function_declaration(DeclaratorPtr declarator, CompoundStatementNodePtr body);
   static FunctionDeclarationNodePtr Function_declaration(
-      DeclaratorPtr                              declarator,
-      std::vector< DeclarationStatementNodePtr > declaration_statement_list,
-      CompoundStatementNodePtr                   body);
+      DeclaratorPtr                            declarator,
+      std::vector<DeclarationStatementNodePtr> declaration_statement_list,
+      CompoundStatementNodePtr                 body);
   static DeclarationNodePtr Declaration(DeclaratorPtr declarator,
                                         ASTNodePtr    initializer);
   static DeclarationStatementNodePtr
-  Declaration_statement(std::vector< DeclarationNodePtr > declaration_list);
+  Declaration_statement(std::vector<DeclarationNodePtr> declaration_list);
   static VariableDeclarationNodePtr
   Normalize_variable_declaration(ASTNodePtr node);
   static FunctionDeclarationNodePtr
@@ -244,8 +244,8 @@ struct WhileLoopNode : public ASTNode {
 };
 
 struct CompoundStatementNode : public ASTNode {
-  std::vector< ASTNodePtr > children_;
-  CompoundStatementNode(std::vector< ASTNodePtr > children)
+  std::vector<ASTNodePtr> children_;
+  CompoundStatementNode(std::vector<ASTNodePtr> children)
       : ASTNode(ASTNodeKind::COMPOUND_STATEMENT)
       , children_(std::move(children)) {}
 
@@ -276,13 +276,13 @@ struct VariableDeclarationNode : public DeclarationNode {
 };
 
 struct FunctionDeclarationNode : public DeclarationNode {
-  CompoundStatementNodePtr                   body_;
-  std::vector< DeclarationStatementNodePtr > declaration_statement_list_;
+  CompoundStatementNodePtr                 body_;
+  std::vector<DeclarationStatementNodePtr> declaration_statement_list_;
 
   FunctionDeclarationNode(
-      DeclaratorPtr                              declarator,
-      std::vector< DeclarationStatementNodePtr > declaration_statement_list,
-      CompoundStatementNodePtr                   body)
+      DeclaratorPtr                            declarator,
+      std::vector<DeclarationStatementNodePtr> declaration_statement_list,
+      CompoundStatementNodePtr                 body)
       : DeclarationNode(ASTNodeKind::FUNCTION_DECLARATION,
                         std::move(declarator))
       , declaration_statement_list_(std::move(declaration_statement_list))
@@ -299,9 +299,9 @@ struct FunctionDeclarationNode : public DeclarationNode {
 };
 
 struct DeclarationStatementNode : public ASTNode {
-  std::vector< DeclarationNodePtr > declaration_list_;
+  std::vector<DeclarationNodePtr> declaration_list_;
 
-  DeclarationStatementNode(std::vector< DeclarationNodePtr > declaration_list)
+  DeclarationStatementNode(std::vector<DeclarationNodePtr> declaration_list)
       : ASTNode(ASTNodeKind::DECLARATION_STATEMENT)
       , declaration_list_(std::move(declaration_list)) {}
 
