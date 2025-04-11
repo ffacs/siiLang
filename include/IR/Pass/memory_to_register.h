@@ -4,7 +4,7 @@
 namespace SiiIR {
 class MemoryToRegisterPass : public FunctionPass {
 public:
-  void run( FunctionPtr& func ) override;
+  void run(FunctionPtr& func) override;
 };
 
 }  // namespace SiiIR

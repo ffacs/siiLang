@@ -10,5 +10,5 @@ public:
 };
 
 std::unique_ptr< IRGenerator >
-CreateIRGenerator( ASTNodePtr abstract_syntax_tree );
+CreateIRGenerator(ASTNodePtr abstract_syntax_tree);
 }  // namespace front

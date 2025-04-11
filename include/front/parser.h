@@ -6,8 +6,8 @@
 namespace front {
 class Parser {
 public:
-  Parser( std::istream& input )
-      : input_( input ) {}
+  Parser(std::istream& input)
+      : input_(input) {}
   virtual ~Parser() {}
   virtual ASTNodePtr work() = 0;
 
@@ -33,6 +33,6 @@ protected:
   std::istream& input_;
 };
 
-std::unique_ptr< Parser > CreateParser( std::string   file_name,
-                                        std::istream& input );
+std::unique_ptr< Parser > CreateParser(std::string   file_name,
+                                       std::istream& input);
 }  // namespace front

@@ -15,12 +15,12 @@ static std::map< ASTNodeKind, std::string > BINARY_OPERATION_TYPE_TO_STRING = {
   { ASTNodeKind::LESS_EQUAL, "<=" },
 };
 
-void ASTPrintVisitor::visit( const EmptyNode& node ) {
+void ASTPrintVisitor::visit(const EmptyNode& node) {
   os_ << indent_ << "EmptyNode: "
       << "\n";
 }
 
-void ASTPrintVisitor::visit( const BinaryOperationNode& node ) {
+void ASTPrintVisitor::visit(const BinaryOperationNode& node) {
   switch ( node.kind_ ) {
   case ASTNodeKind::MUL:
   case ASTNodeKind::DIV:
@@ -34,27 +34,27 @@ void ASTPrintVisitor::visit( const BinaryOperationNode& node ) {
     os_ << indent_ << "BinaryOperationNode: "
         << BINARY_OPERATION_TYPE_TO_STRING[ node.kind_ ] << "\n";
     ++indent_;
-    node.lhs_->accept( *this );
-    node.rhs_->accept( *this );
+    node.lhs_->accept(*this);
+    node.rhs_->accept(*this);
     --indent_;
     return;
   }
   default: {
     std::stringstream error_msg;
     error_msg << "Unknow type of BinaryOperationNode"
-              << static_cast< uint32_t >( node.kind_ );
-    throw std::invalid_argument( error_msg.str() );
+              << static_cast< uint32_t >(node.kind_);
+    throw std::invalid_argument(error_msg.str());
   }
   }
 }
 
-void ASTPrintVisitor::visit( const UnaryOperationNode& node ) {
+void ASTPrintVisitor::visit(const UnaryOperationNode& node) {
   switch ( node.kind_ ) {
   case ASTNodeKind::NEG: {
     os_ << indent_ << "UnaryOperationNode: -"
         << "\n";
     ++indent_;
-    node.operand_->accept( *this );
+    node.operand_->accept(*this);
     --indent_;
     return;
   }
@@ -62,20 +62,20 @@ void ASTPrintVisitor::visit( const UnaryOperationNode& node ) {
     os_ << indent_ << "UnaryOperationNode: &"
         << "\n";
     ++indent_;
-    node.operand_->accept( *this );
+    node.operand_->accept(*this);
     --indent_;
     return;
   }
   default: {
     std::stringstream error_msg;
     error_msg << "Unknow type of UnaryOperationNode"
-              << static_cast< uint32_t >( node.kind_ );
-    throw std::invalid_argument( error_msg.str() );
+              << static_cast< uint32_t >(node.kind_);
+    throw std::invalid_argument(error_msg.str());
   }
   }
 }
 
-void ASTPrintVisitor::visit( const LiteralNode& node ) {
+void ASTPrintVisitor::visit(const LiteralNode& node) {
   switch ( node.kind_ ) {
   case ASTNodeKind::INTEGER: {
     os_ << indent_ << "LiteralNode: "
@@ -90,104 +90,104 @@ void ASTPrintVisitor::visit( const LiteralNode& node ) {
   default: {
     std::stringstream error_msg;
     error_msg << "Unknow type of LiteralNode"
-              << static_cast< uint32_t >( node.kind_ );
-    throw std::invalid_argument( error_msg.str() );
+              << static_cast< uint32_t >(node.kind_);
+    throw std::invalid_argument(error_msg.str());
   }
   }
 }
 
-void ASTPrintVisitor::visit( const IfElseNode& node ) {
+void ASTPrintVisitor::visit(const IfElseNode& node) {
   os_ << indent_ << "IfElseNode: "
       << "\n";
   ++indent_;
-  node.expression_->accept( *this );
-  node.if_statement_->accept( *this );
+  node.expression_->accept(*this);
+  node.if_statement_->accept(*this);
   if ( node.else_statement_ ) {
-    node.else_statement_->accept( *this );
+    node.else_statement_->accept(*this);
   }
   --indent_;
 }
 
-void ASTPrintVisitor::visit( const ForLoopNode& node ) {
+void ASTPrintVisitor::visit(const ForLoopNode& node) {
   os_ << indent_ << "ForLoopNode: "
       << "\n";
   ++indent_;
-  node.init_expression_->accept( *this );
-  node.condition_expression_->accept( *this );
-  node.increment_expression_->accept( *this );
-  node.statement_->accept( *this );
+  node.init_expression_->accept(*this);
+  node.condition_expression_->accept(*this);
+  node.increment_expression_->accept(*this);
+  node.statement_->accept(*this);
   --indent_;
 }
 
-void ASTPrintVisitor::visit( const DoWhileNode& node ) {
+void ASTPrintVisitor::visit(const DoWhileNode& node) {
   os_ << indent_ << "DoWhileNode: "
       << "\n";
   ++indent_;
-  node.statement_->accept( *this );
-  node.condition_expression_->accept( *this );
+  node.statement_->accept(*this);
+  node.condition_expression_->accept(*this);
   --indent_;
 }
 
-void ASTPrintVisitor::visit( const WhileLoopNode& node ) {
+void ASTPrintVisitor::visit(const WhileLoopNode& node) {
   os_ << indent_ << "WhileLoopNode: "
       << "\n";
   ++indent_;
-  node.condition_expression_->accept( *this );
-  node.statement_->accept( *this );
+  node.condition_expression_->accept(*this);
+  node.statement_->accept(*this);
   --indent_;
 }
 
-void ASTPrintVisitor::visit( const CompoundStatementNode& node ) {
+void ASTPrintVisitor::visit(const CompoundStatementNode& node) {
   os_ << indent_ << "CompoundStatementNode: "
       << "\n";
   ++indent_;
   for ( const auto& child : node.children_ ) {
-    child->accept( *this );
+    child->accept(*this);
   }
   --indent_;
 }
 
-void ASTPrintVisitor::visit( const VariableDeclarationNode& node ) {
+void ASTPrintVisitor::visit(const VariableDeclarationNode& node) {
   os_ << indent_ << "VariableDeclarationNode: "
       << "\n";
   ++indent_;
   os_ << indent_ << "Declarator: " << node.declarator_->to_string() << "\n";
   if ( node.initializer_ ) {
-    node.initializer_->accept( *this );
+    node.initializer_->accept(*this);
   }
   --indent_;
 }
 
-void ASTPrintVisitor::visit( const FunctionDeclarationNode& node ) {
+void ASTPrintVisitor::visit(const FunctionDeclarationNode& node) {
   os_ << indent_ << "FunctionDeclarationNode: "
       << "\n";
   ++indent_;
   os_ << indent_ << "Declarator: " << node.declarator_->to_string() << "\n";
   for ( const auto& child : node.declaration_statement_list_ ) {
-    visit( *child );
+    visit(*child);
   }
   if ( node.body_ ) {
-    visit( *node.body_ );
+    visit(*node.body_);
   }
   --indent_;
 }
 
-void ASTPrintVisitor::visit( const DeclarationStatementNode& node ) {
+void ASTPrintVisitor::visit(const DeclarationStatementNode& node) {
   os_ << indent_ << "DeclarationStatementNode: "
       << "\n";
   ++indent_;
   for ( const auto& child : node.declaration_list_ ) {
-    child->accept( *this );
+    child->accept(*this);
   }
   --indent_;
 }
 
-void ASTPrintVisitor::visit( const ReturnNode& node ) {
+void ASTPrintVisitor::visit(const ReturnNode& node) {
   os_ << indent_ << "ReturnNode: "
       << "\n";
   ++indent_;
   if ( node.result_ ) {
-    node.result_->accept( *this );
+    node.result_->accept(*this);
   }
   --indent_;
 }
