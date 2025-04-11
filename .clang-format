@@ -113,7 +113,6 @@ SpacesInParensOptions:
   InConditionalStatements: true
   InEmptyParentheses: false
   InCStyleCasts: false
-  Other: true
 SpacesInSquareBrackets: true
 
 ---

@@ -10,7 +10,7 @@ struct BasicGroup {
   std::vector< BasicGroup* > precedes_;
   std::vector< BasicGroup* > follows_;
   LabelPtr                   label_;
-  std::string                to_string( IDAllocator& ) const;
+  std::string                to_string(IDAllocator&) const;
 };
 
 using BasicGroupPtr = std::shared_ptr< BasicGroup >;
@@ -26,9 +26,9 @@ struct Function {
 
 using FunctionPtr = std::shared_ptr< Function >;
 
-FunctionPtr BuildFunction( std::vector< SiiIRCodePtr > codes,
-                           FunctionContextPtr          ctx,
-                           std::string                 name );
+FunctionPtr BuildFunction(std::vector< SiiIRCodePtr > codes,
+                          FunctionContextPtr          ctx,
+                          std::string                 name);
 // TODO merge BasicGroup with its following BasicGroup when there is only one
 
 }  // namespace SiiIR

@@ -5,13 +5,13 @@
 namespace front {
 class ParserImpl : public Parser {
 public:
-  ParserImpl( std::string file_name, std::istream& input )
-      : file_name_( file_name )
-      , contents_( std::istreambuf_iterator< char >( input ),
-                   std::istreambuf_iterator< char >() )
-      , Parser( input ) {
-    diagnose_handler_ = CreateDiagnoseHandler( file_name, contents_ );
-    lexer_            = CreateLexer( contents_, diagnose_handler_ );
+  ParserImpl(std::string file_name, std::istream& input)
+      : file_name_(file_name)
+      , contents_(std::istreambuf_iterator< char >(input),
+                  std::istreambuf_iterator< char >())
+      , Parser(input) {
+    diagnose_handler_ = CreateDiagnoseHandler(file_name, contents_);
+    lexer_            = CreateLexer(contents_, diagnose_handler_);
   }
   ASTNodePtr               work() override;
   CompoundStatementNodePtr parse_compound_statement() override;
@@ -36,18 +36,18 @@ private:
   std::vector< DeclaratorPtr > parse_parameter_type_list();
   std::vector< DeclaratorPtr > parse_identifier_list();
   TypePtr                      parse_type_specifier();
-  void                         parse_pointer( TypeTransformerPtr transformer );
+  void                         parse_pointer(TypeTransformerPtr transformer);
   ASTNodePtr                   parse_constant_expression();
-  LiteralNodePtr parse_direct_declatator( TypeTransformerPtr transformer,
-                                          bool expect_identifier );
-  void           parse_function_array_suffix( TypeTransformerPtr transformer );
+  LiteralNodePtr parse_direct_declatator(TypeTransformerPtr transformer,
+                                         bool               expect_identifier);
+  void           parse_function_array_suffix(TypeTransformerPtr transformer);
   std::vector< DeclarationStatementNodePtr > parse_declaration_list();
-  DeclarationNodePtr          parse_init_declarator( TypePtr base_type );
-  LiteralNodePtr              parse_declarator( TypeTransformerPtr transformer,
-                                                bool               expect_identifier );
+  DeclarationNodePtr          parse_init_declarator(TypePtr base_type);
+  LiteralNodePtr              parse_declarator(TypeTransformerPtr transformer,
+                                               bool               expect_identifier);
   DeclarationStatementNodePtr parse_declaration();
   DeclarationStatementNodePtr
-  parse_declaration( TypePtr base_type, DeclaratorPtr parsed_declarator );
+  parse_declaration(TypePtr base_type, DeclaratorPtr parsed_declarator);
 
   std::string              file_name_;
   std::string              contents_;
@@ -62,10 +62,10 @@ ASTNodePtr ParserImpl::parse_translation_unit() {
   auto     result     = parse_declaration_or_function_definition();
   TokenPtr next_token = lexer_->next();
   if ( next_token->type_ != TokenType::ED ) {
-    diagnose_handler_->mismatch( DiagnoseLevel::kError,
-                                 next_token->lex_info_,
-                                 "EOF",
-                                 next_token->literal_ );
+    diagnose_handler_->mismatch(DiagnoseLevel::kError,
+                                next_token->lex_info_,
+                                "EOF",
+                                next_token->literal_);
   }
   return result;
 }
@@ -86,47 +86,47 @@ ASTNodePtr ParserImpl::parse_declaration_or_function_definition() {
   if ( next_token->type_ == TokenType::TYPE_SPECIFER ) {
     auto base_type = parse_type_specifier();
     if ( lexer_->peek()->type_ == TokenType::SEMICOLON ) {
-      result = parse_declaration( std::move( base_type ), nullptr );
+      result = parse_declaration(std::move(base_type), nullptr);
       goto done;
     }
     TypeTransformerPtr type_transformer = std::make_shared< TypeTransformer >();
-    auto               identifier = parse_declarator( type_transformer, true );
-    auto               final_type = type_transformer->accept( base_type );
+    auto               identifier = parse_declarator(type_transformer, true);
+    auto               final_type = type_transformer->accept(base_type);
     next_token                    = lexer_->peek();
     // Declaration
     if ( next_token->type_ == TokenType::COMMA
          || next_token->type_ == TokenType::SEMICOLON
          || next_token->type_ == TokenType::ASSIGN ) {
       result = parse_declaration(
-          base_type, Declarator::Create( final_type, identifier->literal_ ) );
+          base_type, Declarator::Create(final_type, identifier->literal_));
       goto done;
     }
     // function definition
     auto declaration_list = parse_declaration_list();
     auto function_body    = parse_compound_statement();
 
-    result = ASTNode::Normalize_declaration( ASTNode::Function_declaration(
-        Declarator::Create( final_type, identifier->literal_ ),
-        std::move( declaration_list ),
-        std::move( function_body ) ) );
+    result = ASTNode::Normalize_declaration(ASTNode::Function_declaration(
+        Declarator::Create(final_type, identifier->literal_),
+        std::move(declaration_list),
+        std::move(function_body)));
     goto done;
   } else {
     auto               base_type = Type::DefaultType();
     TypeTransformerPtr type_transformer
-        = std::make_shared< TypeTransformer >( TypeTransformer() );
-    auto identifier       = parse_declarator( type_transformer, true );
-    auto final_type       = type_transformer->accept( base_type );
+        = std::make_shared< TypeTransformer >(TypeTransformer());
+    auto identifier       = parse_declarator(type_transformer, true);
+    auto final_type       = type_transformer->accept(base_type);
     auto declaration_list = parse_declaration_list();
     auto function_body    = parse_compound_statement();
-    auto declarator = Declarator::Create( final_type, identifier->literal_ );
+    auto declarator = Declarator::Create(final_type, identifier->literal_);
     result          = ASTNode::Normalize_declaration(
-        ASTNode::Function_declaration( std::move( declarator ),
-                                       std::move( declaration_list ),
-                                       std::move( function_body ) ) );
+        ASTNode::Function_declaration(std::move(declarator),
+                                      std::move(declaration_list),
+                                      std::move(function_body)));
     goto done;
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -139,7 +139,7 @@ ParserImpl::parse_declaration_list() {
     if ( next_token->type_ != TokenType::TYPE_SPECIFER ) {
       return declarations;
     }
-    declarations.emplace_back( parse_declaration() );
+    declarations.emplace_back(parse_declaration());
   }
 }
 
@@ -147,41 +147,41 @@ ParserImpl::parse_declaration_list() {
 TypePtr ParserImpl::parse_type_specifier() {
   auto type_specifier = lexer_->next();
   if ( type_specifier->literal_ == "int" ) {
-    return Type::Basic( TypeKind::INT );
+    return Type::Basic(TypeKind::INT);
   }
-  diagnose_handler_->mismatch( DiagnoseLevel::kError,
-                               type_specifier->lex_info_,
-                               "Type specifier",
-                               type_specifier->literal_ );
+  diagnose_handler_->mismatch(DiagnoseLevel::kError,
+                              type_specifier->lex_info_,
+                              "Type specifier",
+                              type_specifier->literal_);
   return nullptr;
 }
 
-DeclarationNodePtr ParserImpl::parse_init_declarator( TypePtr base_type ) {
+DeclarationNodePtr ParserImpl::parse_init_declarator(TypePtr base_type) {
   DeclarationNodePtr result      = nullptr;
   LexPosition        begin_pos   = lexer_->current_position();
   TypeTransformerPtr transformer = std::make_shared< TypeTransformer >();
-  auto               identifier  = parse_declarator( transformer, true );
-  auto               final_type  = transformer->accept( base_type );
+  auto               identifier  = parse_declarator(transformer, true);
+  auto               final_type  = transformer->accept(base_type);
   ASTNodePtr         initializer = nullptr;
   if ( lexer_->peek()->type_ == TokenType::ASSIGN ) {
-    lexer_->expect_next( "=" );
+    lexer_->expect_next("=");
     initializer = parse_assignment();
   }
-  result            = ASTNode::Normalize_declaration( ASTNode::Declaration(
-      Declarator::Create( final_type, identifier->literal_ ),
-      std::move( initializer ) ) );
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result = ASTNode::Normalize_declaration(
+      ASTNode::Declaration(Declarator::Create(final_type, identifier->literal_),
+                           std::move(initializer)));
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
-void ParserImpl::parse_pointer( TypeTransformerPtr transformer ) {
+void ParserImpl::parse_pointer(TypeTransformerPtr transformer) {
   while ( true ) {
     auto next_token = lexer_->peek();
     if ( next_token->type_ != TokenType::ASTERISK ) {  //*
       break;
     }
-    lexer_->expect_next( "*" );
-    transformer->push( std::make_shared< PointerTypeTransformer >() );
+    lexer_->expect_next("*");
+    transformer->push(std::make_shared< PointerTypeTransformer >());
   }
 }
 
@@ -196,14 +196,14 @@ std::vector< DeclaratorPtr > ParserImpl::parse_parameter_type_list() {
       return result;
     }
     if ( expect_comma ) {
-      lexer_->expect_next( "," );
+      lexer_->expect_next(",");
     }
     auto               base_type        = parse_type_specifier();
     TypeTransformerPtr type_transformer = std::make_shared< TypeTransformer >();
-    auto               identifier = parse_declarator( type_transformer, false );
-    auto               final_type = type_transformer->accept( base_type );
-    auto declarator = Declarator::Create( final_type, identifier->literal_ );
-    result.emplace_back( std::move( declarator ) );
+    auto               identifier = parse_declarator(type_transformer, false);
+    auto               final_type = type_transformer->accept(base_type);
+    auto declarator = Declarator::Create(final_type, identifier->literal_);
+    result.emplace_back(std::move(declarator));
     expect_comma = true;
   }
 }
@@ -217,17 +217,17 @@ std::vector< DeclaratorPtr > ParserImpl::parse_identifier_list() {
       return result;
     }
     if ( expect_comma ) {
-      lexer_->expect_next( "," );
+      lexer_->expect_next(",");
     }
     next_token = lexer_->next();
     if ( next_token->type_ != TokenType::IDENTIFIER ) {
-      diagnose_handler_->mismatch( DiagnoseLevel::kError,
-                                   next_token->lex_info_,
-                                   "Identifier",
-                                   next_token->literal_ );
+      diagnose_handler_->mismatch(DiagnoseLevel::kError,
+                                  next_token->lex_info_,
+                                  "Identifier",
+                                  next_token->literal_);
     }
-    auto declarator = Declarator::Create( nullptr, next_token->literal_ );
-    result.emplace_back( std::move( declarator ) );
+    auto declarator = Declarator::Create(nullptr, next_token->literal_);
+    result.emplace_back(std::move(declarator));
     expect_comma = true;
   }
 }
@@ -237,10 +237,10 @@ std::vector< DeclaratorPtr > ParserImpl::parse_identifier_list() {
 //                          | '(' ')'
 //                          | '( PARAMETER_TYPE_LIST ')'
 //                          | '( IDENTIFIER_LIST ')'
-void ParserImpl::parse_function_array_suffix( TypeTransformerPtr transformer ) {
+void ParserImpl::parse_function_array_suffix(TypeTransformerPtr transformer) {
   auto next_token = lexer_->peek();
   if ( next_token->type_ == TokenType::LEFT_PARENTHESE ) {  // (
-    lexer_->expect_next( "(" );
+    lexer_->expect_next("(");
     next_token = lexer_->peek();
     std::vector< DeclaratorPtr > parameter_list;
     if ( next_token->type_ == TokenType::IDENTIFIER ) {
@@ -248,12 +248,12 @@ void ParserImpl::parse_function_array_suffix( TypeTransformerPtr transformer ) {
     } else if ( next_token->type_ == TokenType::TYPE_SPECIFER ) {
       parameter_list = parse_parameter_type_list();
     }
-    lexer_->expect_next( ")" );
-    parse_function_array_suffix( transformer );
+    lexer_->expect_next(")");
+    parse_function_array_suffix(transformer);
     transformer->push(
-        std::make_shared< FunctionTypeTransformer >( parameter_list ) );
+        std::make_shared< FunctionTypeTransformer >(parameter_list));
   } else if ( next_token->type_ == TokenType::LEFT_BRACKET ) {  // [
-    lexer_->expect_next( "[" );
+    lexer_->expect_next("[");
     int64_t element_count = ArrayType::ELEMENT_COUNT_UNKOWN;
     if ( lexer_->peek()->type_ != TokenType::RIGHT_BRACKET ) {
       auto element_count_expr = parse_constant_expression();
@@ -261,68 +261,67 @@ void ParserImpl::parse_function_array_suffix( TypeTransformerPtr transformer ) {
         diagnose_handler_->unexpect(
             DiagnoseLevel::kError,
             element_count_expr->lex_info_,
-            "Element count of array should be a integer." );
+            "Element count of array should be a integer.");
       }
       LiteralNode* integer_node
-          = static_cast< LiteralNode* >( element_count_expr.get() );
-      element_count = std::stoll( integer_node->literal_ );
+          = static_cast< LiteralNode* >(element_count_expr.get());
+      element_count = std::stoll(integer_node->literal_);
       if ( element_count < 0 ) {
-        diagnose_handler_->unexpect( DiagnoseLevel::kError,
-                                     element_count_expr->lex_info_,
-                                     "declared an array with a negative size" );
+        diagnose_handler_->unexpect(DiagnoseLevel::kError,
+                                    element_count_expr->lex_info_,
+                                    "declared an array with a negative size");
       }
     }
-    lexer_->expect_next( "]" );
-    parse_function_array_suffix( transformer );
-    transformer->push(
-        std::make_shared< ArrayTypeTransformer >( element_count ) );
+    lexer_->expect_next("]");
+    parse_function_array_suffix(transformer);
+    transformer->push(std::make_shared< ArrayTypeTransformer >(element_count));
   }
 }
 
 // DIRECT_DECLATATOR => {VARIABLE | '(' DECLARATOR ')'}? FUNCTION_ARRAY_SUFFIX
 LiteralNodePtr
-ParserImpl::parse_direct_declatator( TypeTransformerPtr transformer,
-                                     bool               expect_identifier ) {
-  LiteralNodePtr result     = ASTNode::Identifier( "" );
+ParserImpl::parse_direct_declatator(TypeTransformerPtr transformer,
+                                    bool               expect_identifier) {
+  LiteralNodePtr result     = ASTNode::Identifier("");
   LexPosition    begin_pos  = lexer_->current_position();
   auto           next_token = lexer_->peek();
   if ( next_token->type_ == TokenType::IDENTIFIER ) {
     next_token = lexer_->next();
-    result     = ASTNode::Identifier( next_token->literal_ );
-    parse_function_array_suffix( transformer );
+    result     = ASTNode::Identifier(next_token->literal_);
+    parse_function_array_suffix(transformer);
   } else if ( next_token->type_ == TokenType::LEFT_PARENTHESE ) {
-    lexer_->expect_next( "(" );
+    lexer_->expect_next("(");
     TypeTransformerPtr sub_transformer = std::make_shared< TypeTransformer >();
-    result = parse_declarator( sub_transformer, expect_identifier );
-    lexer_->expect_next( ")" );
-    parse_function_array_suffix( transformer );
-    transformer->push( sub_transformer );
+    result = parse_declarator(sub_transformer, expect_identifier);
+    lexer_->expect_next(")");
+    parse_function_array_suffix(transformer);
+    transformer->push(sub_transformer);
   } else if ( expect_identifier ) {
-    diagnose_handler_->mismatch( DiagnoseLevel::kError,
-                                 next_token->lex_info_,
-                                 "Identifier or (",
-                                 next_token->literal_ );
+    diagnose_handler_->mismatch(DiagnoseLevel::kError,
+                                next_token->lex_info_,
+                                "Identifier or (",
+                                next_token->literal_);
   }
 
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
 // DECLARATOR => POINTER? DIRECT_DECLATATOR
-LiteralNodePtr ParserImpl::parse_declarator( TypeTransformerPtr transformer,
-                                             bool expect_identifier ) {
+LiteralNodePtr ParserImpl::parse_declarator(TypeTransformerPtr transformer,
+                                            bool expect_identifier) {
   LiteralNodePtr result    = nullptr;
   LexPosition    begin_pos = lexer_->current_position();
-  parse_pointer( transformer );
-  result            = parse_direct_declatator( transformer, expect_identifier );
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  parse_pointer(transformer);
+  result            = parse_direct_declatator(transformer, expect_identifier);
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
 // DECLARATION => TYPE_SPECIFIER {INIT_DECLARATOR {',' INIT_DECLARATOR}*}? ';'
 DeclarationStatementNodePtr
-ParserImpl::parse_declaration( TypePtr       base_type,
-                               DeclaratorPtr parsed_declarator ) {
+ParserImpl::parse_declaration(TypePtr       base_type,
+                              DeclaratorPtr parsed_declarator) {
   DeclarationStatementNodePtr result    = nullptr;
   LexPosition                 begin_pos = lexer_->current_position();
   if ( base_type == nullptr ) {
@@ -333,41 +332,41 @@ ParserImpl::parse_declaration( TypePtr       base_type,
     ASTNodePtr initializer = nullptr;
     auto       next_token  = lexer_->peek();
     if ( next_token->type_ == TokenType::ASSIGN ) {
-      lexer_->expect_next( "=" );
+      lexer_->expect_next("=");
       initializer = parse_assignment();
       next_token  = lexer_->peek();
       if ( next_token->type_ == TokenType::COMMA ) {
-        lexer_->expect_next( "," );
+        lexer_->expect_next(",");
       }
     } else if ( next_token->type_ == TokenType::COMMA ) {
-      lexer_->expect_next( "," );
+      lexer_->expect_next(",");
     }
-    declaration_list.emplace_back( ASTNode::Normalize_declaration(
-        ASTNode::Declaration( parsed_declarator, std::move( initializer ) ) ) );
+    declaration_list.emplace_back(ASTNode::Normalize_declaration(
+        ASTNode::Declaration(parsed_declarator, std::move(initializer))));
   }
   while ( true ) {
     auto next_token = lexer_->peek();
     if ( next_token->type_ == TokenType::SEMICOLON ) {
-      lexer_->expect_next( ";" );
-      result = ASTNode::Declaration_statement( std::move( declaration_list ) );
+      lexer_->expect_next(";");
+      result = ASTNode::Declaration_statement(std::move(declaration_list));
       goto done;
     }
-    declaration_list.emplace_back( parse_init_declarator( base_type ) );
+    declaration_list.emplace_back(parse_init_declarator(base_type));
     next_token = lexer_->peek();
     if ( next_token->type_ == TokenType::SEMICOLON ) {
-      lexer_->expect_next( ";" );
-      result = ASTNode::Declaration_statement( std::move( declaration_list ) );
+      lexer_->expect_next(";");
+      result = ASTNode::Declaration_statement(std::move(declaration_list));
       goto done;
     }
-    lexer_->expect_next( "," );
+    lexer_->expect_next(",");
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
 DeclarationStatementNodePtr ParserImpl::parse_declaration() {
-  return parse_declaration( nullptr, nullptr );
+  return parse_declaration(nullptr, nullptr);
 }
 
 // STATEMENT =>  COMPOUND_STATEMENT
@@ -387,8 +386,8 @@ ASTNodePtr ParserImpl::parse_statement() {
     result = parse_select_statement();
     goto done;
   } else if ( next_token->type_ == TokenType::KEYWORD
-              && ( next_token->literal_ == "for" || next_token->literal_ == "do"
-                   || next_token->literal_ == "while" ) ) {
+              && (next_token->literal_ == "for" || next_token->literal_ == "do"
+                  || next_token->literal_ == "while") ) {
     result = parse_iteration_statement();
     goto done;
   } else if ( next_token->type_ == TokenType::KEYWORD
@@ -398,7 +397,7 @@ ASTNodePtr ParserImpl::parse_statement() {
   }
   result = parse_expression_statement();
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -406,12 +405,12 @@ done:
 CompoundStatementNodePtr ParserImpl::parse_compound_statement() {
   CompoundStatementNodePtr result    = nullptr;
   LexPosition              begin_pos = lexer_->current_position();
-  lexer_->expect_next( "{" );
+  lexer_->expect_next("{");
   std::vector< ASTNodePtr > children;
   while ( true ) {
     TokenPtr next_token = lexer_->peek();
     if ( next_token->type_ == TokenType::RIGHT_BRACE ) {
-      lexer_->expect_next( "}" );
+      lexer_->expect_next("}");
       break;
     }
     ASTNodePtr next_node = nullptr;
@@ -421,12 +420,12 @@ CompoundStatementNodePtr ParserImpl::parse_compound_statement() {
       next_node = parse_statement();
     }
     if ( next_node->kind_ != ASTNodeKind::EMPTY ) {
-      children.emplace_back( std::move( next_node ) );
+      children.emplace_back(std::move(next_node));
     }
   }
-  result = ASTNode::Compound_statement( children );
+  result = ASTNode::Compound_statement(children);
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -437,14 +436,14 @@ ASTNodePtr ParserImpl::parse_expression_statement() {
   TokenPtr    next_token = lexer_->peek();
   if ( next_token->type_ != TokenType::SEMICOLON ) {
     ASTNodePtr next_node = parse_assignment();
-    lexer_->expect_next( ";" );
+    lexer_->expect_next(";");
     result = next_node;
     goto done;
   }
-  lexer_->expect_next( ";" );
+  lexer_->expect_next(";");
   result = ASTNode::empty();
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -459,51 +458,51 @@ ASTNodePtr ParserImpl::parse_iteration_statement() {
   ASTNodePtr  init_expression = nullptr, condition_expression = nullptr,
              increment_expession = nullptr, statement = nullptr;
   if ( next_token->literal_ == "for" ) {
-    lexer_->expect_next( "for" );
-    lexer_->expect_next( "(" );
+    lexer_->expect_next("for");
+    lexer_->expect_next("(");
     init_expression = lexer_->peek()->type_ == TokenType::SEMICOLON
                           ? ASTNode::empty()
                           : parse_expression();
-    lexer_->expect_next( ";" );
+    lexer_->expect_next(";");
     next_token           = lexer_->peek();
     condition_expression = lexer_->peek()->type_ == TokenType::SEMICOLON
                                ? ASTNode::empty()
                                : parse_expression();
-    lexer_->expect_next( ";" );
+    lexer_->expect_next(";");
     next_token          = lexer_->peek();
     increment_expession = lexer_->peek()->type_ == TokenType::RIGHT_PARENTHESE
                               ? ASTNode::empty()
                               : parse_expression();
-    lexer_->expect_next( ")" );
+    lexer_->expect_next(")");
     statement = parse_statement();
-    result    = ASTNode::For_loop( std::move( init_expression ),
-                                std::move( condition_expression ),
-                                std::move( increment_expession ),
-                                std::move( statement ) );
+    result    = ASTNode::For_loop(std::move(init_expression),
+                               std::move(condition_expression),
+                               std::move(increment_expession),
+                               std::move(statement));
     goto done;
   } else if ( next_token->literal_ == "do" ) {
-    lexer_->expect_next( "do" );
+    lexer_->expect_next("do");
     statement = parse_statement();
-    lexer_->expect_next( "while" );
-    lexer_->expect_next( "(" );
+    lexer_->expect_next("while");
+    lexer_->expect_next("(");
     condition_expression = parse_expression();
-    lexer_->expect_next( ")" );
-    lexer_->expect_next( ";" );
-    result = ASTNode::Do_while( std::move( statement ),
-                                std::move( condition_expression ) );
+    lexer_->expect_next(")");
+    lexer_->expect_next(";");
+    result = ASTNode::Do_while(std::move(statement),
+                               std::move(condition_expression));
     goto done;
   } else {
-    lexer_->expect_next( "while" );
-    lexer_->expect_next( "(" );
+    lexer_->expect_next("while");
+    lexer_->expect_next("(");
     condition_expression = parse_expression();
-    lexer_->expect_next( ")" );
+    lexer_->expect_next(")");
     statement = parse_statement();
-    result    = ASTNode::While_loop( std::move( condition_expression ),
-                                  std::move( statement ) );
+    result    = ASTNode::While_loop(std::move(condition_expression),
+                                 std::move(statement));
     goto done;
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -512,13 +511,13 @@ ASTNodePtr ParserImpl::parse_jump_statement() {
   LexPosition begin_pos  = lexer_->current_position();
   TokenPtr    next_token = lexer_->peek();
   if ( next_token->literal_ == "return" ) {
-    lexer_->expect_next( "return" );
-    result = ASTNode::Return( parse_expression() );
-    lexer_->expect_next( ";" );
+    lexer_->expect_next("return");
+    result = ASTNode::Return(parse_expression());
+    lexer_->expect_next(";");
     goto done;
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -527,21 +526,21 @@ done:
 ASTNodePtr ParserImpl::parse_select_statement() {
   ASTNodePtr  result    = nullptr;
   LexPosition begin_pos = lexer_->current_position();
-  lexer_->expect_next( "if" );
-  lexer_->expect_next( "(" );
+  lexer_->expect_next("if");
+  lexer_->expect_next("(");
   auto expression = parse_expression();
-  lexer_->expect_next( ")" );
+  lexer_->expect_next(")");
   auto       if_statement   = parse_statement();
   auto       next_token     = lexer_->peek();
   ASTNodePtr else_statement = nullptr;
   if ( next_token->type_ == TokenType::KEYWORD
        && next_token->literal_ == "else" ) {
-    lexer_->expect_next( "else" );
+    lexer_->expect_next("else");
     else_statement = parse_statement();
   }
-  result = ASTNode::If_else( expression, if_statement, else_statement );
+  result = ASTNode::If_else(expression, if_statement, else_statement);
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -560,9 +559,9 @@ ASTNodePtr ParserImpl::parse_assignment() {
     goto done;
   }
   next_token = lexer_->next();
-  result     = ASTNode::Assign( lhs, parse_assignment() );
+  result     = ASTNode::Assign(lhs, parse_assignment());
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -583,13 +582,13 @@ ASTNodePtr ParserImpl::parse_equality() {
     next_token     = lexer_->next();
     ASTNodePtr rhs = parse_relation();
     if ( is_equal ) {
-      lhs = ASTNode::Equal( lhs, rhs );
+      lhs = ASTNode::Equal(lhs, rhs);
     } else {
-      lhs = ASTNode::Not_equal( lhs, rhs );
+      lhs = ASTNode::Not_equal(lhs, rhs);
     }
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -615,17 +614,17 @@ ASTNodePtr ParserImpl::parse_relation() {
     next_token     = lexer_->next();
     ASTNodePtr rhs = parse_add_and_subtraction();
     if ( is_less_than ) {
-      lhs = ASTNode::Less_than( lhs, rhs );
+      lhs = ASTNode::Less_than(lhs, rhs);
     } else if ( is_less_equal ) {
-      lhs = ASTNode::Less_equal( lhs, rhs );
+      lhs = ASTNode::Less_equal(lhs, rhs);
     } else if ( is_greater_than ) {
-      lhs = ASTNode::Less_than( rhs, lhs );
+      lhs = ASTNode::Less_than(rhs, lhs);
     } else {
-      lhs = ASTNode::Less_equal( rhs, lhs );
+      lhs = ASTNode::Less_equal(rhs, lhs);
     }
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -644,10 +643,10 @@ ASTNodePtr ParserImpl::parse_add_and_subtraction() {
     }
     next_token     = lexer_->next();
     ASTNodePtr rhs = parse_multiply_and_division();
-    lhs = is_add ? ASTNode::Add( lhs, rhs ) : ASTNode::Subtract( lhs, rhs );
+    lhs = is_add ? ASTNode::Add(lhs, rhs) : ASTNode::Subtract(lhs, rhs);
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -666,10 +665,10 @@ ASTNodePtr ParserImpl::parse_multiply_and_division() {
     }
     next_token     = lexer_->next();
     ASTNodePtr rhs = parse_unary();
-    lhs = is_mul ? ASTNode::Multiply( lhs, rhs ) : ASTNode::Divide( lhs, rhs );
+    lhs = is_mul ? ASTNode::Multiply(lhs, rhs) : ASTNode::Divide(lhs, rhs);
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -684,16 +683,16 @@ ASTNodePtr ParserImpl::parse_unary() {
     goto done;
   } else if ( next_token->type_ == TokenType::HYPHEN ) {
     next_token = lexer_->next();
-    result     = ASTNode::Negtive( parse_unary() );
+    result     = ASTNode::Negtive(parse_unary());
     goto done;
   } else if ( next_token->type_ == TokenType::BIT_AND ) {
     next_token = lexer_->next();
-    result     = ASTNode::Get_address( parse_unary() );
+    result     = ASTNode::Get_address(parse_unary());
     goto done;
   }
   result = parse_primary();
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
@@ -704,34 +703,34 @@ ASTNodePtr ParserImpl::parse_primary() {
   TokenPtr    next_token = lexer_->next();
   switch ( next_token->type_ ) {
   case TokenType::IDENTIFIER: {
-    result = ASTNode::Identifier( next_token->literal_ );
+    result = ASTNode::Identifier(next_token->literal_);
     goto done;
   }
   case TokenType::INTEGER: {
-    result = ASTNode::Integer( next_token->literal_ );
+    result = ASTNode::Integer(next_token->literal_);
     goto done;
   }
   case TokenType::LEFT_PARENTHESE: {
     ASTNodePtr expression = parse_expression();
-    lexer_->expect_next( ")" );
+    lexer_->expect_next(")");
     result = expression;
     goto done;
   }
   default:
-    diagnose_handler_->mismatch( DiagnoseLevel::kError,
-                                 next_token->lex_info_,
-                                 "operator",
-                                 next_token->literal_ );
+    diagnose_handler_->mismatch(DiagnoseLevel::kError,
+                                next_token->lex_info_,
+                                "operator",
+                                next_token->literal_);
     return nullptr;
   }
 done:
-  result->lex_info_ = lexer_->get_lex_info( begin_pos );
+  result->lex_info_ = lexer_->get_lex_info(begin_pos);
   return result;
 }
 
-std::unique_ptr< Parser > CreateParser( std::string   file_name,
-                                        std::istream& input ) {
-  return std::make_unique< ParserImpl >( std::move( file_name ), input );
+std::unique_ptr< Parser > CreateParser(std::string   file_name,
+                                       std::istream& input) {
+  return std::make_unique< ParserImpl >(std::move(file_name), input);
 }
 
 }  // namespace front
