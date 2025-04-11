@@ -6,4 +6,4 @@ class FunctionPass {
   virtual void run(FunctionPtr& func) = 0;
 };
 
-} // namespace SiiIR
+}  // namespace SiiIR

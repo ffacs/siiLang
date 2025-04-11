@@ -7,32 +7,32 @@
 namespace front {
 
 enum class TokenType : uint32_t {
-  UNKNOWN = 0,
-  ED = 1,
-  INTEGER = 2,
-  IDENTIFIER = 3,
-  PLUS = 4,             // +
-  HYPHEN = 5,           // -
-  ASTERISK = 6,         // *
-  SLASH = 7,            // /
-  LEFT_PARENTHESE = 8,  // (
-  RIGHT_PARENTHESE = 9, // )
-  SEMICOLON = 10,       // ;
-  EQUAL = 11,           // ==
-  NOT_EQUAL = 12,       // !=
-  LEFT_ANGLE = 13,      // <
-  LESS_EQUAL = 14,      // <=
-  RIGHT_ANGLE = 15,     // >
-  GREATER_EQUAL = 16,   // >=
-  ASSIGN = 17,          // =
-  LEFT_BRACE = 18,      // {
-  RIGHT_BRACE = 19,     // }
-  LEFT_BRACKET = 20,    // [
-  RIGHT_BRACKET = 21,   // ]
-  KEYWORD = 22,
-  TYPE_SPECIFER = 23,
-  COMMA = 24, // ,
-  BIT_AND = 25, // &
+  UNKNOWN          = 0,
+  ED               = 1,
+  INTEGER          = 2,
+  IDENTIFIER       = 3,
+  PLUS             = 4,   // +
+  HYPHEN           = 5,   // -
+  ASTERISK         = 6,   // *
+  SLASH            = 7,   // /
+  LEFT_PARENTHESE  = 8,   // (
+  RIGHT_PARENTHESE = 9,   // )
+  SEMICOLON        = 10,  // ;
+  EQUAL            = 11,  // ==
+  NOT_EQUAL        = 12,  // !=
+  LEFT_ANGLE       = 13,  // <
+  LESS_EQUAL       = 14,  // <=
+  RIGHT_ANGLE      = 15,  // >
+  GREATER_EQUAL    = 16,  // >=
+  ASSIGN           = 17,  // =
+  LEFT_BRACE       = 18,  // {
+  RIGHT_BRACE      = 19,  // }
+  LEFT_BRACKET     = 20,  // [
+  RIGHT_BRACKET    = 21,  // ]
+  KEYWORD          = 22,
+  TYPE_SPECIFER    = 23,
+  COMMA            = 24,  // ,
+  BIT_AND          = 25,  // &
 };
 
 struct Token;
@@ -40,13 +40,14 @@ typedef std::shared_ptr<Token> TokenPtr;
 
 struct Token {
   Token(TokenType type, std::string_view literal, LexInfo lex_info)
-      : type_(type), literal_(std::move(literal)),
-        lex_info_(std::move(lex_info)) {}
-  TokenType type_;
+      : type_(type)
+      , literal_(std::move(literal))
+      , lex_info_(std::move(lex_info)) {}
+  TokenType   type_;
   std::string literal_;
-  LexInfo lex_info_;
+  LexInfo     lex_info_;
 
-  std::string to_string() const;
+  std::string     to_string() const;
   static TokenPtr Unknow(std::string_view literal, LexInfo position);
   static TokenPtr Integer(std::string_view literal, LexInfo position);
   static TokenPtr Identifier(std::string_view literal, LexInfo position);
@@ -90,10 +91,10 @@ public:
 
   virtual LexInfo get_lex_info(LexPosition begin) = 0;
 
-  virtual void expect_next(const std::string &expect) = 0;
+  virtual void expect_next(const std::string& expect) = 0;
 };
 
-std::unique_ptr<Lexer> CreateLexer(std::string_view content,
+std::unique_ptr<Lexer> CreateLexer(std::string_view   content,
                                    DiagnoseHandlerPtr diagnose_handler);
 
-} // namespace front
+}  // namespace front

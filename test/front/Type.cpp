@@ -88,21 +88,21 @@ TEST(Type, NormalizeFunctionType) {
   EXPECT_EQ(
       *Type::NormalizeFunctionType(Type::Function(
           Type::Basic(TypeKind::INT),
-          {Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
-                              "")})),
+          { Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
+                               "") })),
       *Type::Function(Type::Basic(TypeKind::INT),
-                      {Declarator::Create(Type::Pointer(Type::Function(
-                                              Type::Basic(TypeKind::INT), {})),
-                                          "")}));
+                      { Declarator::Create(Type::Pointer(Type::Function(
+                                               Type::Basic(TypeKind::INT), {})),
+                                           "") }));
 
   EXPECT_EQ(
-      *Type::NormalizeFunctionType(
-          Type::Function(Type::Basic(TypeKind::INT),
-                         {Declarator::Create(
-                             Type::Array(Type::Basic(TypeKind::INT), 5), "")})),
+      *Type::NormalizeFunctionType(Type::Function(
+          Type::Basic(TypeKind::INT),
+          { Declarator::Create(Type::Array(Type::Basic(TypeKind::INT), 5),
+                               "") })),
       *Type::Function(Type::Basic(TypeKind::INT),
-                      {Declarator::Create(
-                          Type::Pointer(Type::Basic(TypeKind::INT), 5), "")}));
+                      { Declarator::Create(
+                          Type::Pointer(Type::Basic(TypeKind::INT), 5), "") }));
 }
 
 TEST(Type, NormalizeParameterDeclaration) {
@@ -141,4 +141,4 @@ TEST(Type, NormalizeVariableDeclaration) {
                std::invalid_argument);
 }
 
-} // namespace front
+}  // namespace front

@@ -5,12 +5,12 @@
 
 namespace SiiIR {
 TEST(Use, BinaryOperation) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
-  auto left = std::make_shared<ConstantValue>("1", Type::Integer(8));
-  auto right = std::make_shared<ConstantValue>("2", Type::Integer(8));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  auto left         = std::make_shared<ConstantValue>("1", Type::Integer(8));
+  auto right        = std::make_shared<ConstantValue>("2", Type::Integer(8));
   auto code_builder = CreateCodeBuilder();
-  auto add = code_builder->append_add(left, right);
+  auto add          = code_builder->append_add(left, right);
 
   ASSERT_EQ(SiiIRCodeKind::ADD, add->kind_);
   EXPECT_EQ(left, add->lhs_->value_);
@@ -21,7 +21,7 @@ TEST(Use, BinaryOperation) {
   EXPECT_EQ(right->users_.begin()->user_, add.get());
   EXPECT_EQ(add->users_.size(), 0);
 
-  auto left2 = std::make_shared<ConstantValue>("3", Type::Integer(8));
+  auto left2  = std::make_shared<ConstantValue>("3", Type::Integer(8));
   auto right2 = std::make_shared<ConstantValue>("3", Type::Integer(8));
   EXPECT_EQ(left2->users_.size(), 0);
   add->use_setter<0>()(left2);
@@ -36,11 +36,11 @@ TEST(Use, BinaryOperation) {
 }
 
 TEST(Use, UnaryOperation) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
-  auto operand = std::make_shared<ConstantValue>("1", Type::Integer(8));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  auto operand      = std::make_shared<ConstantValue>("1", Type::Integer(8));
   auto code_builder = CreateCodeBuilder();
-  auto neg = code_builder->append_neg(operand);
+  auto neg          = code_builder->append_neg(operand);
 
   ASSERT_EQ(SiiIRCodeKind::NEG, neg->kind_);
   EXPECT_EQ(operand, neg->operand_->value_);
@@ -59,11 +59,11 @@ TEST(Use, UnaryOperation) {
 }
 
 TEST(Use, Goto) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
-  auto label = std::make_shared<Label>();
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  auto label        = std::make_shared<Label>();
   auto code_builder = CreateCodeBuilder();
-  auto goto_code = code_builder->append_goto(label);
+  auto goto_code    = code_builder->append_goto(label);
 
   ASSERT_EQ(SiiIRCodeKind::GOTO, goto_code->kind_);
   EXPECT_EQ(label, goto_code->dest_label_->value_);
@@ -81,15 +81,15 @@ TEST(Use, Goto) {
 
 TEST(Use, ConditionBranch) {
   // Arrange
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
-  auto condition = std::make_shared<ConstantValue>("1", Type::Integer(1));
-  auto true_label = std::make_shared<Label>();
-  auto false_label = std::make_shared<Label>();
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  auto condition    = std::make_shared<ConstantValue>("1", Type::Integer(1));
+  auto true_label   = std::make_shared<Label>();
+  auto false_label  = std::make_shared<Label>();
   auto code_builder = CreateCodeBuilder();
 
-  auto cond_branch =
-      code_builder->append_condition_branch(condition, true_label, false_label);
+  auto cond_branch = code_builder->append_condition_branch(
+      condition, true_label, false_label);
 
   ASSERT_EQ(SiiIRCodeKind::CONDITION_BRANCH, cond_branch->kind_);
 
@@ -104,8 +104,8 @@ TEST(Use, ConditionBranch) {
   EXPECT_EQ(false_label->users_.size(), 1);
   EXPECT_EQ(false_label->users_.begin()->user_, cond_branch.get());
 
-  auto new_condition = std::make_shared<ConstantValue>("1", Type::Integer(1));
-  auto new_true_label = std::make_shared<Label>();
+  auto new_condition   = std::make_shared<ConstantValue>("1", Type::Integer(1));
+  auto new_true_label  = std::make_shared<Label>();
   auto new_false_label = std::make_shared<Label>();
 
   EXPECT_EQ(new_condition->users_.size(), 0);
@@ -129,10 +129,10 @@ TEST(Use, ConditionBranch) {
 }
 
 TEST(Use, Load) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
-  auto src =
-      std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  auto src
+      = std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
   auto code_builder = CreateCodeBuilder();
 
   auto load = code_builder->append_load(src);
@@ -144,8 +144,8 @@ TEST(Use, Load) {
   EXPECT_EQ(src->users_.size(), 1);
   EXPECT_EQ(src->users_.begin()->user_, load.get());
 
-  auto new_src =
-      std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
+  auto new_src
+      = std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
   EXPECT_EQ(new_src->users_.size(), 0);
 
   load->use_setter<0>()(new_src);
@@ -156,11 +156,11 @@ TEST(Use, Load) {
 }
 
 TEST(Use, Store) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto src = std::make_shared<ConstantValue>("1", Type::Integer(8));
-  auto dest =
-      std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
+  auto dest
+      = std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
   auto code_builder = CreateCodeBuilder();
 
   auto store = code_builder->append_store(src, dest);
@@ -174,8 +174,8 @@ TEST(Use, Store) {
   EXPECT_EQ(dest->users_.begin()->user_, store.get());
 
   auto new_src = std::make_shared<ConstantValue>("1", Type::Integer(8));
-  auto new_dest =
-      std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
+  auto new_dest
+      = std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
   EXPECT_EQ(new_src->users_.size(), 0);
   EXPECT_EQ(new_dest->users_.size(), 0);
 
@@ -193,13 +193,13 @@ TEST(Use, Store) {
 
 TEST(Use, Phi) {
   // Arrange
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   size_t src_size = 3;
 
   // Act
-  auto address =
-      std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
+  auto address
+      = std::make_shared<ConstantValue>("1", Type::Pointer(Type::Integer(8)));
   auto phi = std::make_shared<SiiIRPhi>(address, src_size);
 
   EXPECT_EQ(src_size, phi->src_list_.size());
@@ -227,4 +227,4 @@ TEST(Use, Phi) {
   EXPECT_EQ(new_src3->users_.size(), 1);
   EXPECT_EQ(new_src3->users_.begin()->user_, phi.get());
 }
-} // namespace SiiIR
+}  // namespace SiiIR

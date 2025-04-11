@@ -5,25 +5,25 @@
 namespace SiiIR {
 
 TEST(Function, BuildFunctionFromEmptyCodes) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto codes = std::make_shared<std::vector<SiiIRCodePtr>>();
-  auto func = BuildFunction(*codes, ctx, "");
+  auto func  = BuildFunction(*codes, ctx, "");
   EXPECT_EQ(func->basic_groups_.size(), 1);
   ASSERT_NE(func->entry_, nullptr);
   EXPECT_EQ(func->entry_->follows_.size(), 0);
 }
 
 TEST(Function, BuildSingleBasicGroup) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
   code_builder->append_nope();
   code_builder->append_nope();
   code_builder->append_nope();
   code_builder->append_nope();
   auto codes = code_builder->finish();
-  auto func = BuildFunction(*codes, ctx, "");
+  auto func  = BuildFunction(*codes, ctx, "");
   EXPECT_EQ(func->basic_groups_.size(), 2);
   ASSERT_NE(func->entry_, nullptr);
   EXPECT_EQ(func->entry_->follows_.size(), 1);
@@ -37,13 +37,13 @@ TEST(Function, BuildSingleBasicGroup) {
 }
 
 TEST(Function, BuildFunctionWithLabel) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
   code_builder->append_label(std::make_shared<Label>());
   code_builder->append_nope();
   auto codes = code_builder->finish();
-  auto func = BuildFunction(*codes, ctx, "");
+  auto func  = BuildFunction(*codes, ctx, "");
   EXPECT_EQ(func->basic_groups_.size(), 2);
   ASSERT_NE(func->entry_, nullptr);
   auto entry = func->entry_;
@@ -55,17 +55,17 @@ TEST(Function, BuildFunctionWithLabel) {
 }
 
 TEST(Function, BuildFunctionWithGoto) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
-  auto label1 = std::make_shared<Label>();
+  auto label1       = std::make_shared<Label>();
   code_builder->append_nope();
   code_builder->append_label(label1);
   code_builder->append_nope();
   code_builder->append_nope();
   code_builder->append_goto(label1);
   auto codes = code_builder->finish();
-  auto func = BuildFunction(*codes, ctx, "");
+  auto func  = BuildFunction(*codes, ctx, "");
   EXPECT_EQ(func->basic_groups_.size(), 3);
   auto entry = func->entry_;
   EXPECT_EQ(entry->follows_.size(), 1);
@@ -74,7 +74,7 @@ TEST(Function, BuildFunctionWithGoto) {
   EXPECT_EQ(group1->codes_.size(), 2LL);
   EXPECT_EQ(&group1->codes_[0], codes->at(0).get());
   EXPECT_EQ(group1->codes_[1].kind_, SiiIRCodeKind::GOTO);
-  EXPECT_EQ(static_cast<SiiIRGoto &>(group1->codes_[1]).dest_label_->value_,
+  EXPECT_EQ(static_cast<SiiIRGoto&>(group1->codes_[1]).dest_label_->value_,
             label1);
   EXPECT_EQ(group1->follows_.size(), 1);
 
@@ -88,12 +88,12 @@ TEST(Function, BuildFunctionWithGoto) {
 }
 
 TEST(Function, BuildFunctionWithConditionBranch) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
-  auto expression = Value::constant("constant", Type::Integer(1));
-  auto true_label = std::make_shared<Label>();
-  auto false_label = std::make_shared<Label>();
+  auto expression   = Value::constant("constant", Type::Integer(1));
+  auto true_label   = std::make_shared<Label>();
+  auto false_label  = std::make_shared<Label>();
   // group1
   code_builder->append_nope();
   code_builder->append_condition_branch(expression, true_label, false_label);
@@ -106,7 +106,7 @@ TEST(Function, BuildFunctionWithConditionBranch) {
   code_builder->append_nope();
 
   auto codes = code_builder->finish();
-  auto func = BuildFunction(*codes, ctx, "");
+  auto func  = BuildFunction(*codes, ctx, "");
   EXPECT_EQ(func->basic_groups_.size(), 4);
   auto entry = func->entry_;
   EXPECT_EQ(entry->follows_.size(), 1);
@@ -137,14 +137,14 @@ TEST(Function, BuildFunctionWithConditionBranch) {
 }
 
 TEST(Function, BuildFunctionWithAlloca) {
-  FunctionContextPtr ctx =
-      std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
+  FunctionContextPtr ctx
+      = std::make_shared<FunctionContext>(Type::Function(Type::Integer(8), {}));
   auto code_builder = CreateCodeBuilder();
-  auto address1 = code_builder->append_alloca(4, Type::Integer(8));
+  auto address1     = code_builder->append_alloca(4, Type::Integer(8));
   code_builder->append_alloca(4, Type::Integer(8));
   code_builder->append_nope();
   auto codes = code_builder->finish();
-  auto func = BuildFunction(*codes, ctx, "");
+  auto func  = BuildFunction(*codes, ctx, "");
   EXPECT_EQ(func->basic_groups_.size(), 2);
   auto entry = func->entry_;
   EXPECT_EQ(entry->codes_.size(), 3);
@@ -158,4 +158,4 @@ TEST(Function, BuildFunctionWithAlloca) {
   EXPECT_EQ(group1->follows_.size(), 0);
 }
 
-} // namespace SiiIR
+}  // namespace SiiIR

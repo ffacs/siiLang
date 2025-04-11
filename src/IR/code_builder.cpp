@@ -10,7 +10,7 @@ public:
   SiiIRBinaryOperationPtr append_divide(ValuePtr left, ValuePtr right) override;
   SiiIRBinaryOperationPtr append_add(ValuePtr left, ValuePtr right) override;
   SiiIRBinaryOperationPtr append_sub(ValuePtr left, ValuePtr right) override;
-  SiiIRUnaryOperationPtr append_neg(ValuePtr left) override;
+  SiiIRUnaryOperationPtr  append_neg(ValuePtr left) override;
   SiiIRBinaryOperationPtr append_equal(ValuePtr left, ValuePtr right) override;
   SiiIRBinaryOperationPtr append_not_equal(ValuePtr left,
                                            ValuePtr right) override;
@@ -19,30 +19,31 @@ public:
   SiiIRBinaryOperationPtr append_less_equal(ValuePtr left,
                                             ValuePtr right) override;
   SiiIRConditionBranchPtr
-  append_condition_branch(ValuePtr expression, LabelPtr true_label,
-                          LabelPtr false_label) override;
-  SiiIRGotoPtr append_goto(LabelPtr label) override;
-  void append_label(LabelPtr label) override;
-  SiiIRNopePtr append_nope() override;
+                             append_condition_branch(ValuePtr expression,
+                                                     LabelPtr true_label,
+                                                     LabelPtr false_label) override;
+  SiiIRGotoPtr               append_goto(LabelPtr label) override;
+  void                       append_label(LabelPtr label) override;
+  SiiIRNopePtr               append_nope() override;
   SiiIRFunctionDefinitionPtr append_function(FunctionValuePtr func) override;
   SiiIRAllocaPtr append_alloca(uint32_t bytes, TypePtr type) override;
-  SiiIRLoadPtr append_load(ValuePtr source_address) override;
+  SiiIRLoadPtr   append_load(ValuePtr source_address) override;
   SiiIRReturnPtr append_return(ValuePtr value) override;
-  SiiIRStorePtr append_store(ValuePtr source, ValuePtr dest_address) override;
+  SiiIRStorePtr  append_store(ValuePtr source, ValuePtr dest_address) override;
   std::shared_ptr<std::vector<SiiIRCodePtr>> finish() override;
 
 protected:
-  void append_new_code(SiiIRCodePtr new_code);
+  void                      append_new_code(SiiIRCodePtr new_code);
   std::vector<SiiIRCodePtr> alloca_list_;
   std::vector<SiiIRCodePtr> code_list_;
-  uint32_t unnamed_label_count_ = 0;
-  LabelPtr appended_label_;
+  uint32_t                  unnamed_label_count_ = 0;
+  LabelPtr                  appended_label_;
 };
 
 void CodeBuilderImpl::append_new_code(SiiIRCodePtr new_code) {
-  if (appended_label_ != nullptr) {
+  if(appended_label_ != nullptr) {
     appended_label_->dest_code_ = new_code.get();
-    new_code->label_ = std::move(appended_label_);
+    new_code->label_            = std::move(appended_label_);
     appended_label_.reset();
   }
   code_list_.emplace_back(std::move(new_code));
@@ -89,45 +90,53 @@ SiiIRUnaryOperationPtr CodeBuilderImpl::append_neg(ValuePtr child) {
 
 SiiIRBinaryOperationPtr CodeBuilderImpl::append_equal(ValuePtr left,
                                                       ValuePtr right) {
-  SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
-      SiiIRCodeKind::EQUAL, std::move(left), std::move(right),
-      Type::Integer(1));
+  SiiIRBinaryOperationPtr new_code
+      = std::make_shared<SiiIRBinaryOperation>(SiiIRCodeKind::EQUAL,
+                                               std::move(left),
+                                               std::move(right),
+                                               Type::Integer(1));
   append_new_code(new_code);
   return new_code;
 }
 
 SiiIRBinaryOperationPtr CodeBuilderImpl::append_not_equal(ValuePtr left,
                                                           ValuePtr right) {
-  if (*left->type_ != *right->type_) {
+  if(*left->type_ != *right->type_) {
     throw std::runtime_error("Not equal must be of same type");
   }
-  SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
-      SiiIRCodeKind::NOT_EQUAL, std::move(left), std::move(right),
-      Type::Integer(1));
+  SiiIRBinaryOperationPtr new_code
+      = std::make_shared<SiiIRBinaryOperation>(SiiIRCodeKind::NOT_EQUAL,
+                                               std::move(left),
+                                               std::move(right),
+                                               Type::Integer(1));
   append_new_code(new_code);
   return new_code;
 }
 
 SiiIRBinaryOperationPtr CodeBuilderImpl::append_less_than(ValuePtr left,
                                                           ValuePtr right) {
-  if (*left->type_ != *right->type_) {
+  if(*left->type_ != *right->type_) {
     throw std::runtime_error("Less than must be of same type");
   }
-  SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
-      SiiIRCodeKind::LESS_THAN, std::move(left), std::move(right),
-      Type::Integer(1));
+  SiiIRBinaryOperationPtr new_code
+      = std::make_shared<SiiIRBinaryOperation>(SiiIRCodeKind::LESS_THAN,
+                                               std::move(left),
+                                               std::move(right),
+                                               Type::Integer(1));
   append_new_code(new_code);
   return new_code;
 }
 
 SiiIRBinaryOperationPtr CodeBuilderImpl::append_less_equal(ValuePtr left,
                                                            ValuePtr right) {
-  if (*left->type_ != *right->type_) {
+  if(*left->type_ != *right->type_) {
     throw std::runtime_error("Less equal must be of same type");
   }
-  SiiIRBinaryOperationPtr new_code = std::make_shared<SiiIRBinaryOperation>(
-      SiiIRCodeKind::LESS_EQUAL, std::move(left), std::move(right),
-      Type::Integer(1));
+  SiiIRBinaryOperationPtr new_code
+      = std::make_shared<SiiIRBinaryOperation>(SiiIRCodeKind::LESS_EQUAL,
+                                               std::move(left),
+                                               std::move(right),
+                                               Type::Integer(1));
   append_new_code(new_code);
   return new_code;
 }
@@ -135,7 +144,7 @@ SiiIRBinaryOperationPtr CodeBuilderImpl::append_less_equal(ValuePtr left,
 SiiIRStorePtr CodeBuilderImpl::append_store(ValuePtr source,
                                             ValuePtr dest_address) {
   auto aim_type = Type::GetAimType(dest_address->type_);
-  if (*aim_type != *source->type_) {
+  if(*aim_type != *source->type_) {
     throw std::runtime_error("Store must be of same type");
   }
   SiiIRStorePtr new_code = std::make_shared<SiiIRStore>(source, dest_address);
@@ -144,8 +153,8 @@ SiiIRStorePtr CodeBuilderImpl::append_store(ValuePtr source,
 }
 
 SiiIRLoadPtr CodeBuilderImpl::append_load(ValuePtr source_address) {
-  SiiIRLoadPtr new_code =
-      std::make_shared<SiiIRLoad>(std::move(source_address));
+  SiiIRLoadPtr new_code
+      = std::make_shared<SiiIRLoad>(std::move(source_address));
   append_new_code(new_code);
   return new_code;
 }
@@ -156,9 +165,11 @@ SiiIRReturnPtr CodeBuilderImpl::append_return(ValuePtr value) {
   return new_code;
 }
 
-SiiIRConditionBranchPtr CodeBuilderImpl::append_condition_branch(
-    ValuePtr condition, LabelPtr true_label, LabelPtr false_label) {
-  if (*condition->type_ != *Type::Integer(1)) {
+SiiIRConditionBranchPtr
+CodeBuilderImpl::append_condition_branch(ValuePtr condition,
+                                         LabelPtr true_label,
+                                         LabelPtr false_label) {
+  if(*condition->type_ != *Type::Integer(1)) {
     throw std::runtime_error("Condition branch must be of type bool");
   }
   SiiIRConditionBranchPtr new_code = std::make_shared<SiiIRConditionBranch>(
@@ -174,7 +185,7 @@ SiiIRGotoPtr CodeBuilderImpl::append_goto(LabelPtr label) {
 }
 
 void CodeBuilderImpl::append_label(LabelPtr label) {
-  if (appended_label_ != nullptr) {
+  if(appended_label_ != nullptr) {
     append_goto(label);
     appended_label_ = nullptr;
   }
@@ -188,11 +199,11 @@ SiiIRNopePtr CodeBuilderImpl::append_nope() {
 }
 
 std::shared_ptr<std::vector<SiiIRCodePtr>> CodeBuilderImpl::finish() {
-  if (appended_label_ != nullptr) {
+  if(appended_label_ != nullptr) {
     append_nope();
   }
-  std::shared_ptr<std::vector<SiiIRCodePtr>> result =
-      std::make_shared<std::vector<SiiIRCodePtr>>();
+  std::shared_ptr<std::vector<SiiIRCodePtr>> result
+      = std::make_shared<std::vector<SiiIRCodePtr>>();
   result->insert(result->end(), alloca_list_.begin(), alloca_list_.end());
   result->insert(result->end(), code_list_.begin(), code_list_.end());
   return result;
@@ -200,8 +211,8 @@ std::shared_ptr<std::vector<SiiIRCodePtr>> CodeBuilderImpl::finish() {
 
 SiiIRFunctionDefinitionPtr
 CodeBuilderImpl::append_function(FunctionValuePtr func) {
-  SiiIRFunctionDefinitionPtr function =
-      std::make_shared<SiiIRFunctionDefinition>(std::move(func));
+  SiiIRFunctionDefinitionPtr function
+      = std::make_shared<SiiIRFunctionDefinition>(std::move(func));
   append_new_code(function);
   return function;
 }
@@ -216,4 +227,4 @@ CodeBuilderPtr CreateCodeBuilder() {
   return std::make_shared<CodeBuilderImpl>();
 }
 
-} // namespace SiiIR
+}  // namespace SiiIR
