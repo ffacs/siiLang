@@ -2,8 +2,8 @@
 #include "IR/function.h"
 
 namespace SiiIR {
-  class FunctionPass {
-    virtual void run( FunctionPtr& func ) = 0;
-  };
+class FunctionPass {
+  virtual void run( FunctionPtr& func ) = 0;
+};
 
 }  // namespace SiiIR

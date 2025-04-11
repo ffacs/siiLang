@@ -89,7 +89,7 @@ IndentExternBlock: Indent
 IndentPPDirectives: AfterHash
 IndentRequiresClause: true
 InsertNewlineAtEOF: true
-NamespaceIndentation: All
+NamespaceIndentation: None
 PointerAlignment: Left
 ReferenceAlignment: Left
 ReflowComments: true
