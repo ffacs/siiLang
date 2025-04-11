@@ -18,3 +18,19 @@ add_subdirectory(test)
 add_executable(sc main.cpp)
 target_link_libraries(sc sc_front_lib_shared)
 target_link_libraries(sc sc_ir_lib_shared)
+
+set(FORMAT_SCRIPT ${CMAKE_SOURCE_DIR}/scripts/format/run-format.sh)
+
+add_custom_target(
+    format
+    COMMAND ${FORMAT_SCRIPT}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running code formatter..."
+)
+
+add_custom_target(
+    check-format
+    COMMAND ${FORMAT_SCRIPT} --dry-run
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Checking code formatting..."
+)
