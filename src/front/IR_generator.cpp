@@ -42,6 +42,8 @@ protected:
 
   ValuePtr          generate_for_get_address_node(const ASTNodePtr& node,
                                                   CodeBuilderPtr&   code_builder);
+  ValuePtr          generate_for_prefix_inc_dec_node(const ASTNodePtr& node,
+                                                     CodeBuilderPtr&   code_builder);
   ValuePtr          generate_for_equal_node(const ASTNodePtr& node,
                                             CodeBuilderPtr&   code_builder);
   ValuePtr          generate_for_not_equal_node(const ASTNodePtr& node,
@@ -92,7 +94,10 @@ IRGeneratorImpl::generate_for_rvalue_node(const ASTNodePtr& node,
   case ASTNodeKind::NEG  : return generate_for_neg_node(node, code_builder);
   case ASTNodeKind::GET_ADDRESS:
     return generate_for_get_address_node(node, code_builder);
-  case ASTNodeKind::EQUAL: return generate_for_equal_node(node, code_builder);
+  case ASTNodeKind::PREFIX_INC:
+  case ASTNodeKind::PREFIX_DEC:
+    return generate_for_prefix_inc_dec_node(node, code_builder);
+  case ASTNodeKind::EQUAL     : return generate_for_equal_node(node, code_builder);
   case ASTNodeKind::NOT_EQUAL:
     return generate_for_not_equal_node(node, code_builder);
   case ASTNodeKind::LESS_THAN:
@@ -286,6 +291,35 @@ IRGeneratorImpl::generate_for_get_address_node(const ASTNodePtr& node,
 
   return child_value->address_;
 }
+
+ValuePtr
+IRGeneratorImpl::generate_for_prefix_inc_dec_node(const ASTNodePtr& node,
+                                                  CodeBuilderPtr&   code_builder) {
+  const UnaryOperationNode* unary_operation_node
+      = static_cast<const UnaryOperationNode*>(node.get());
+  auto child_value
+      = generate_for_lvalue_node(unary_operation_node->operand_, code_builder);
+  
+  auto old_value = code_builder->append_load(child_value->address_);
+  if (old_value->type_->kind_ != SiiIR::Type::Kind::INT) {
+    std::stringstream error_msg;
+    error_msg << "Unsupport type for prefix inc/dec";
+    throw std::invalid_argument(error_msg.str());
+  }
+  ValuePtr new_value = nullptr;
+  if (node->kind_ == ASTNodeKind::PREFIX_INC) {
+    new_value = code_builder->append_add(
+        old_value,
+        std::make_shared<SiiIR::ConstantValue>("1", old_value->type_));
+  } else if (node->kind_ == ASTNodeKind::PREFIX_DEC) {
+    new_value = code_builder->append_sub(
+        old_value,
+        std::make_shared<SiiIR::ConstantValue>("1", old_value->type_));
+  }
+  code_builder->append_store(new_value, child_value->address_);
+  return new_value;
+}
+
 ValuePtr
 IRGeneratorImpl::generate_for_equal_node(const ASTNodePtr& node,
                                          CodeBuilderPtr&   code_builder) {

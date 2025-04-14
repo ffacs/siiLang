@@ -688,6 +688,14 @@ ASTNodePtr ParserImpl::parse_unary() {
     next_token = lexer_->next();
     result     = ASTNode::Get_address(parse_unary());
     goto done;
+  } else if(next_token->type_ == TokenType::INC_OPE) {
+    next_token = lexer_->next();
+    result     = ASTNode::Prefix_increase(parse_unary());
+    goto done;
+  } else if(next_token->type_ == TokenType::DEC_OPE) {
+    next_token = lexer_->next();
+    result     = ASTNode::Prefix_decrease(parse_unary());
+    goto done;
   }
   result = parse_primary();
 done:

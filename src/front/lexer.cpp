@@ -129,6 +129,14 @@ TokenPtr Token::Bit_and(LexInfo position) {
   return token(TokenType::BIT_AND, "&", std::move(position));
 }
 
+TokenPtr Token::Inc_ope(LexInfo position) {
+  return token(TokenType::INC_OPE, "++", std::move(position));
+}
+
+TokenPtr Token::Dec_ope(LexInfo position) {
+  return token(TokenType::DEC_OPE, "--", std::move(position));
+}
+
 static std::set<std::string> KeyWords
     = { "if", "else", "for", "do", "while", "return" };
 
@@ -194,12 +202,22 @@ private:
     switch(current_char()) {
     case '+': {
       index_++;
-      result = Token::Plus(get_lex_info(begin_position));
+      if(index_ < contents_.size() && current_char() == '+') {
+        index_++;
+        result = Token::Inc_ope(get_lex_info(begin_position));
+      } else {
+        result = Token::Plus(get_lex_info(begin_position));
+      }
       break;
     }
     case '-': {
       index_++;
-      result = Token::Hyphen(get_lex_info(begin_position));
+      if(index_ < contents_.size() && current_char() == '-') {
+        index_++;
+        result = Token::Dec_ope(get_lex_info(begin_position));
+      } else {
+        result = Token::Hyphen(get_lex_info(begin_position));
+      }
       break;
     }
     case '*': {

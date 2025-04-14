@@ -914,4 +914,57 @@ TEST(IRGenerator, Return) {
       std::runtime_error);
 }
 
+TEST(IRGenerator, PrefixIncAndDec) {
+  EXPECT_EQ("@function():\n"
+            "  %0 = alloca size 4;\n"
+            "  %1 = load %0;\n"
+            "  %2 = %1 + 1;\n"
+            "  store %2 to %0;\n"
+            "  return %2;",
+            IRStringGenerate(ASTNode::Function_declaration(
+                Declarator::Create(
+                    Type::Function(Type::Basic(TypeKind::INT), {}), "function"),
+                ASTNode::Compound_statement(
+                    { ASTNode::Declaration_statement({
+                        ASTNode::Declaration(
+                            Declarator::Create(Type::Basic(TypeKind::INT), "a"),
+                            nullptr),
+                      }),
+                      ASTNode::Return(ASTNode::Prefix_increase(
+                          ASTNode::Identifier("a"))) }))));
+
+  EXPECT_EQ("@function():\n"
+            "  %0 = alloca size 4;\n"
+            "  %1 = load %0;\n"
+            "  %2 = %1 - 1;\n"
+            "  store %2 to %0;\n"
+            "  return %2;",
+            IRStringGenerate(ASTNode::Function_declaration(
+                Declarator::Create(
+                    Type::Function(Type::Basic(TypeKind::INT), {}), "function"),
+                ASTNode::Compound_statement(
+                    { ASTNode::Declaration_statement({
+                        ASTNode::Declaration(
+                            Declarator::Create(Type::Basic(TypeKind::INT), "a"),
+                            nullptr),
+                      }),
+                      ASTNode::Return(ASTNode::Prefix_decrease(
+                          ASTNode::Identifier("a"))) }))));
+
+  //Unsupport type for prefix inc/dec
+  EXPECT_THROW(
+      IRStringGenerate(ASTNode::Function_declaration(
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
+                             "function"),
+          ASTNode::Compound_statement(
+              { ASTNode::Declaration_statement({
+                  ASTNode::Declaration(
+                      Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)), "a"),
+                      nullptr),
+                }),
+                ASTNode::Return(
+                    ASTNode::Prefix_decrease(ASTNode::Identifier("a"))) }))),
+      std::invalid_argument);
+}
+
 }  // namespace front

@@ -64,6 +64,21 @@ UnaryOperationNodePtr ASTNode::Negtive(ASTNodePtr operand) {
                                               ASTNodeKind::NEG);
 }
 
+UnaryOperationNodePtr ASTNode::Get_address(ASTNodePtr operand) {
+  return std::make_shared<UnaryOperationNode>(std::move(operand),
+                                              ASTNodeKind::GET_ADDRESS);
+}
+
+UnaryOperationNodePtr ASTNode::Prefix_increase(ASTNodePtr operand) {
+  return std::make_shared<UnaryOperationNode>(std::move(operand),
+                                              ASTNodeKind::PREFIX_INC);
+}
+
+UnaryOperationNodePtr ASTNode::Prefix_decrease(ASTNodePtr operand) {
+  return std::make_shared<UnaryOperationNode>(std::move(operand),
+                                              ASTNodeKind::PREFIX_DEC);
+}
+
 IfElseNodePtr ASTNode::If_else(ASTNodePtr expression,
                                ASTNodePtr if_statement,
                                ASTNodePtr else_statement) {
@@ -269,10 +284,6 @@ DeclarationNodePtr ASTNode::Declaration(DeclaratorPtr declarator,
                                        std::move(initializer));
 }
 
-GetAddressNodePtr ASTNode::Get_address(ASTNodePtr node) {
-  return std::make_shared<GetAddressNode>(std::move(node));
-}
-
 ReturnNodePtr ASTNode::Return(ASTNodePtr operand) {
   return std::make_shared<ReturnNode>(std::move(operand));
 }
@@ -409,14 +420,6 @@ bool DeclarationStatementNode::operator==(const ASTNode& other) const {
     }
   }
   return true;
-}
-
-bool GetAddressNode::operator==(const ASTNode& other) const {
-  if(kind_ != other.kind_) {
-    return false;
-  }
-  auto typed_other = static_cast<const GetAddressNode&>(other);
-  return *operand_ == *typed_other.operand_;
 }
 
 bool ReturnNode::operator==(const ASTNode& other) const {

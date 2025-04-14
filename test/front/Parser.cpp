@@ -819,4 +819,15 @@ TEST(Parser, Return) {
                std::invalid_argument);
 }
 
+TEST(Parser, PrefixIncAndDec) {
+  EXPECT_EQ(ASTToString(CreateParser("++a;")->parse_unary()),
+            ASTToString(ASTNode::Prefix_increase(ASTNode::Identifier("a"))));
+  EXPECT_EQ(ASTToString(CreateParser("--a;")->parse_unary()),
+            ASTToString(ASTNode::Prefix_decrease(ASTNode::Identifier("a"))));
+    
+  EXPECT_THROW(ASTToString(CreateParser("int main() { a--; }")
+                               ->parse_declaration_or_function_definition()),
+               std::invalid_argument);
+}
+
 }  // namespace front

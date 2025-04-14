@@ -30,7 +30,9 @@ enum class ASTNodeKind : uint32_t {
   FUNCTION_DECLARATION  = 19,
   DECLARATION_STATEMENT = 20,
   GET_ADDRESS           = 21,
-  RETURN                = 22
+  RETURN                = 22,
+  PREFIX_INC            = 23,
+  PREFIX_DEC            = 24
 };
 
 class ASTNode;
@@ -47,7 +49,6 @@ class DeclarationNode;
 class VariableDeclarationNode;
 class FunctionDeclarationNode;
 class DeclarationStatementNode;
-class GetAddressNode;
 class ReturnNode;
 class ASTVisitor;
 typedef std::shared_ptr<ASTNode>                  ASTNodePtr;
@@ -64,7 +65,6 @@ typedef std::shared_ptr<DeclarationNode>          DeclarationNodePtr;
 typedef std::shared_ptr<VariableDeclarationNode>  VariableDeclarationNodePtr;
 typedef std::shared_ptr<FunctionDeclarationNode>  FunctionDeclarationNodePtr;
 typedef std::shared_ptr<DeclarationStatementNode> DeclarationStatementNodePtr;
-typedef std::shared_ptr<GetAddressNode>           GetAddressNodePtr;
 typedef std::shared_ptr<ReturnNode>               ReturnNodePtr;
 
 struct ASTNode {
@@ -93,6 +93,9 @@ public:
   static LiteralNodePtr         Identifier(const std::string& name);
   static LiteralNodePtr         Integer(const std::string& literal);
   static UnaryOperationNodePtr  Negtive(ASTNodePtr operand);
+  static UnaryOperationNodePtr  Get_address(ASTNodePtr operand);
+  static UnaryOperationNodePtr  Prefix_increase(ASTNodePtr operand);
+  static UnaryOperationNodePtr  Prefix_decrease(ASTNodePtr operand);
   static IfElseNodePtr          If_else(ASTNodePtr expression,
                                         ASTNodePtr if_statement,
                                         ASTNodePtr else_statement);
@@ -123,7 +126,6 @@ public:
   static FunctionDeclarationNodePtr
                             Normalize_function_declaration(ASTNodePtr node);
   static DeclarationNodePtr Normalize_declaration(ASTNodePtr node);
-  static GetAddressNodePtr  Get_address(ASTNodePtr node);
   static ReturnNodePtr      Return(ASTNodePtr operand);
 };
 
@@ -307,13 +309,6 @@ struct DeclarationStatementNode : public ASTNode {
 
   bool operator==(const ASTNode&) const override;
   void accept(ASTVisitor& visitor) override { visitor.visit(*this); }
-};
-
-struct GetAddressNode : public UnaryOperationNode {
-  GetAddressNode(ASTNodePtr operand)
-      : UnaryOperationNode(std::move(operand), ASTNodeKind::GET_ADDRESS) {}
-
-  bool operator==(const ASTNode&) const override;
 };
 
 struct ReturnNode : public ASTNode {

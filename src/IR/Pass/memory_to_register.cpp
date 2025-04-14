@@ -1,7 +1,6 @@
 #include "IR/Pass/memory_to_register.h"
 #include "IR/IDF_builder.h"
 #include "IR/dominator_tree.h"
-#include <iostream>
 #include <map>
 #include <set>
 #include <stack>
