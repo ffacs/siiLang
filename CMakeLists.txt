@@ -11,9 +11,15 @@ endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+option(ENABLE_TESTING "Enable unit test build" ON)
+
 include_directories(include)
 add_subdirectory(src)
-add_subdirectory(test)
+
+if(ENABLE_TESTING)
+    enable_testing()
+    add_subdirectory(test)
+endif()
 
 add_executable(sc main.cpp)
 target_link_libraries(sc sc_front_lib_shared)
