@@ -82,6 +82,14 @@ void ASTPrintVisitor::visit(const UnaryOperationNode& node) {
     --indent_;
     return;
   }
+  case ASTNodeKind::DEREFERENCE: {
+    os_ << indent_ << "UnaryOperationNode: *"
+        << "\n";
+    ++indent_;
+    node.operand_->accept(*this);
+    --indent_;
+    return;
+  }
   default: {
     std::stringstream error_msg;
     error_msg << "Unknow type of UnaryOperationNode"

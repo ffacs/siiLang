@@ -32,7 +32,8 @@ enum class ASTNodeKind : uint32_t {
   GET_ADDRESS           = 21,
   RETURN                = 22,
   PREFIX_INC            = 23,
-  PREFIX_DEC            = 24
+  PREFIX_DEC            = 24,
+  DEREFERENCE           = 25
 };
 
 class ASTNode;
@@ -96,6 +97,7 @@ public:
   static UnaryOperationNodePtr  Get_address(ASTNodePtr operand);
   static UnaryOperationNodePtr  Prefix_increase(ASTNodePtr operand);
   static UnaryOperationNodePtr  Prefix_decrease(ASTNodePtr operand);
+  static UnaryOperationNodePtr  Dereference(ASTNodePtr operand);
   static IfElseNodePtr          If_else(ASTNodePtr expression,
                                         ASTNodePtr if_statement,
                                         ASTNodePtr else_statement);

@@ -79,6 +79,11 @@ UnaryOperationNodePtr ASTNode::Prefix_decrease(ASTNodePtr operand) {
                                               ASTNodeKind::PREFIX_DEC);
 }
 
+UnaryOperationNodePtr ASTNode::Dereference(ASTNodePtr operand) {
+  return std::make_shared<UnaryOperationNode>(std::move(operand),
+                                              ASTNodeKind::DEREFERENCE);
+}
+
 IfElseNodePtr ASTNode::If_else(ASTNodePtr expression,
                                ASTNodePtr if_statement,
                                ASTNodePtr else_statement) {

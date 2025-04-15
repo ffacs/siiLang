@@ -48,6 +48,7 @@ struct Type {
   static TypePtr NormalizeParameterDeclaration(const TypePtr& type);
   static TypePtr NormalizeVariableDeclaration(const TypePtr& type);
   static size_t  SizeOf(const TypePtr& type);
+  static TypePtr RemovePointer(const TypePtr& type);
   static SiiIR::TypePtr ToIRType(const TypePtr& type);
 };
 

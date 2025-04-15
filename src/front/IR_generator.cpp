@@ -81,6 +81,8 @@ protected:
                                    SiiIR::CodeBuilderPtr& code_builder);
   LValue generate_for_identifier_node(const ASTNodePtr&      node,
                                       SiiIR::CodeBuilderPtr& code_builder);
+  LValue generate_for_dereference_node(const ASTNodePtr&      node,
+                                       SiiIR::CodeBuilderPtr& code_builder);
 
   RValue generate_for_assign_node(const ASTNodePtr&      node,
                                   SiiIR::CodeBuilderPtr& code_builder);
@@ -134,9 +136,10 @@ IRGeneratorImpl::generate_for_rvalue_node(const ASTNodePtr&      node,
     return generate_for_less_equal_node(node, code_builder);
   case ASTNodeKind::INTEGER:
     return generate_for_integer_node(node, code_builder);
-  case ASTNodeKind::IDENTIFIER: {
-    LValue variable = generate_for_identifier_node(node, code_builder);
-    return RValue(variable.type_, code_builder->append_load(variable.address_));
+  case ASTNodeKind::IDENTIFIER:
+  case ASTNodeKind::DEREFERENCE: {
+    LValue lvalue = generate_for_lvalue_node(node, code_builder);
+    return RValue(lvalue.type_, code_builder->append_load(lvalue.address_));
   }
   case ASTNodeKind::ASSIGN: {
     return generate_for_assign_node(node, code_builder);
@@ -157,6 +160,8 @@ IRGeneratorImpl::generate_for_lvalue_node(const ASTNodePtr&      node,
   switch(node->kind_) {
   case ASTNodeKind::IDENTIFIER:
     return generate_for_identifier_node(node, code_builder);
+  case ASTNodeKind::DEREFERENCE:
+    return generate_for_dereference_node(node, code_builder);
   default: {
     std::stringstream error_msg;
     // not a value node
@@ -187,6 +192,12 @@ void IRGeneratorImpl::generate_for_non_value_node(
     generate_for_less_equal_node(node, code_builder);
     return;
   case ASTNodeKind::NEG: generate_for_neg_node(node, code_builder); return;
+  case ASTNodeKind::PREFIX_INC:
+  case ASTNodeKind::PREFIX_DEC:
+    generate_for_prefix_inc_dec_node(node, code_builder);
+    return;
+  case ASTNodeKind::DEREFERENCE:
+    generate_for_dereference_node(node, code_builder);
   case ASTNodeKind::GET_ADDRESS:
     generate_for_get_address_node(node, code_builder);
     return;
@@ -444,14 +455,26 @@ LValue IRGeneratorImpl::generate_for_identifier_node(
                               + "'");
 }
 
+LValue IRGeneratorImpl::generate_for_dereference_node(
+    const ASTNodePtr&      node,
+    SiiIR::CodeBuilderPtr& code_builder) {
+  const UnaryOperationNode* unary_operation_node
+      = static_cast<const UnaryOperationNode*>(node.get());
+  auto child_value
+      = generate_for_rvalue_node(unary_operation_node->operand_, code_builder);
+
+  if(child_value.type_->kind_ != TypeKind::POINTER) {
+    throw std::invalid_argument("Try to dereference a non pointer value");
+  }
+
+  return LValue(Type::RemovePointer(child_value.type_), child_value.value_);
+}
+
 RValue
 IRGeneratorImpl::generate_for_assign_node(const ASTNodePtr&      node,
                                           SiiIR::CodeBuilderPtr& code_builder) {
   const BinaryOperationNode* binary_operation_node
       = static_cast<const BinaryOperationNode*>(node.get());
-  if(binary_operation_node->lhs_->kind_ != ASTNodeKind::IDENTIFIER) {
-    throw std::invalid_argument("Expect Identifier on the left of assignment");
-  }
   RValue right_value
       = generate_for_rvalue_node(binary_operation_node->rhs_, code_builder);
   LValue left_value

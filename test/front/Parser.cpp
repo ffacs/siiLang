@@ -830,4 +830,9 @@ TEST(Parser, PrefixIncAndDec) {
                std::invalid_argument);
 }
 
+TEST(Parser, Dereference) {
+  EXPECT_EQ(ASTToString(CreateParser("*a;")->parse_unary()),
+            ASTToString(ASTNode::Dereference(ASTNode::Identifier("a"))));
+}
+
 }  // namespace front

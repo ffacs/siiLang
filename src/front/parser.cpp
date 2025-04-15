@@ -696,6 +696,10 @@ ASTNodePtr ParserImpl::parse_unary() {
     next_token = lexer_->next();
     result     = ASTNode::Prefix_decrease(parse_unary());
     goto done;
+  } else if (next_token->type_ == TokenType::ASTERISK) {
+    next_token = lexer_->next();
+    result     = ASTNode::Dereference(parse_unary());
+    goto done;
   }
   result = parse_primary();
 done:

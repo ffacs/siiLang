@@ -113,6 +113,13 @@ size_t Type::SizeOf(const TypePtr& type) {
   }
 }
 
+TypePtr Type::RemovePointer(const TypePtr &type) {
+  if (type->kind_ != TypeKind::POINTER) {
+    throw std::invalid_argument("Try to remove pointer of a non pointer type");
+  }
+  return static_cast<const PointerType*>(type.get())->aim_type_;
+}
+
 std::string Type::to_string(const std::string& current) const {
   switch(kind_) {
   case TypeKind::INT: return std::string("int ") + current;

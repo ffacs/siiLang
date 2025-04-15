@@ -951,7 +951,7 @@ TEST(IRGenerator, PrefixIncAndDec) {
                       ASTNode::Return(ASTNode::Prefix_decrease(
                           ASTNode::Identifier("a"))) }))));
 
-  //Unsupport type for prefix inc/dec
+  // Unsupport type for prefix inc/dec
   EXPECT_THROW(
       IRStringGenerate(ASTNode::Function_declaration(
           Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
@@ -959,11 +959,54 @@ TEST(IRGenerator, PrefixIncAndDec) {
           ASTNode::Compound_statement(
               { ASTNode::Declaration_statement({
                   ASTNode::Declaration(
-                      Declarator::Create(Type::Pointer(Type::Basic(TypeKind::INT)), "a"),
+                      Declarator::Create(
+                          Type::Pointer(Type::Basic(TypeKind::INT)), "a"),
                       nullptr),
                 }),
                 ASTNode::Return(
                     ASTNode::Prefix_decrease(ASTNode::Identifier("a"))) }))),
+      std::invalid_argument);
+}
+
+TEST(IRGenerator, Dereference) {
+  EXPECT_EQ(
+      "@function():\n"
+      "  %0 = alloca size 8;\n"
+      "  %1 = load %0;\n"
+      "  store 1 to %1;\n"
+      "  %2 = load %0;\n"
+      "  %3 = load %2;\n"
+      "  return %3;",
+      IRStringGenerate(ASTNode::Function_declaration(
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
+                             "function"),
+          ASTNode::Compound_statement(
+              { ASTNode::Declaration_statement({
+                  ASTNode::Declaration(
+                      Declarator::Create(
+                          Type::Pointer(Type::Basic(TypeKind::INT)), "a"),
+                      nullptr),
+                }),
+                ASTNode::Assign(ASTNode::Dereference(ASTNode::Identifier("a")),
+                                ASTNode::Integer("1")),
+                ASTNode::Return(
+                    ASTNode::Dereference(ASTNode::Identifier("a"))) }))));
+
+  // Unsupport type for prefix inc/dec
+  EXPECT_THROW(
+      IRStringGenerate(ASTNode::Function_declaration(
+          Declarator::Create(Type::Function(Type::Basic(TypeKind::INT), {}),
+                             "function"),
+          ASTNode::Compound_statement(
+              { ASTNode::Declaration_statement({
+                  ASTNode::Declaration(
+                      Declarator::Create(Type::Basic(TypeKind::INT), "a"),
+                      nullptr),
+                }),
+                ASTNode::Assign(ASTNode::Dereference(ASTNode::Identifier("a")),
+                                ASTNode::Integer("1")),
+                ASTNode::Return(
+                    ASTNode::Dereference(ASTNode::Identifier("a"))) }))),
       std::invalid_argument);
 }
 
