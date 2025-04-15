@@ -86,6 +86,7 @@ TypePtr Type::NormalizeParameterDeclaration(const TypePtr& type) {
   case TypeKind::POINTER : return NormalizePointer(type);
   case TypeKind::ARRAY   : return NormalizeArrayType(type, false);
   case TypeKind::FUNCTION: return NormalizeFunctionType(type);
+  case TypeKind::BOOL    :
   case TypeKind::INT     : return type;
   }
 }
@@ -103,6 +104,7 @@ TypePtr Type::NormalizeVariableDeclaration(const TypePtr& type) {
 
 size_t Type::SizeOf(const TypePtr& type) {
   switch(type->kind_) {
+  case TypeKind::BOOL   : return 1;
   case TypeKind::INT    : return 4;
   case TypeKind::POINTER: return 8;
   case TypeKind::ARRAY:
@@ -191,6 +193,7 @@ DeclaratorPtr Declarator::Create(TypePtr type, const std::string& identifier) {
 
 SiiIR::TypePtr Type::ToIRType(const TypePtr& type) {
   switch(type->kind_) {
+  case TypeKind::BOOL   : return SiiIR::Type::Integer(8);
   case TypeKind::INT    : return SiiIR::Type::Integer(32);
   case TypeKind::POINTER: {
     auto& pointer_type = static_cast<const PointerType&>(*type);

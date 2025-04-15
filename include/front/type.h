@@ -8,6 +8,7 @@
 
 namespace front {
 enum class TypeKind : uint32_t {
+  BOOL,
   INT,
   POINTER,
   FUNCTION,
