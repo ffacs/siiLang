@@ -184,6 +184,10 @@ public:
   }
 
 private:
+  void advance() {
+    column_++;
+    index_++;
+  }
   void skip_blank() {
     while(index_ < contents_.size() && std::isspace(contents_[index_])) {
       if(contents_[index_] == '\n' || contents_[index_] == '\r') {
@@ -201,9 +205,9 @@ private:
     LexPosition begin_position = current_position();
     switch(current_char()) {
     case '+': {
-      index_++;
+      advance();
       if(index_ < contents_.size() && current_char() == '+') {
-        index_++;
+        advance();
         result = Token::Inc_ope(get_lex_info(begin_position));
       } else {
         result = Token::Plus(get_lex_info(begin_position));
@@ -211,9 +215,9 @@ private:
       break;
     }
     case '-': {
-      index_++;
+      advance();
       if(index_ < contents_.size() && current_char() == '-') {
-        index_++;
+        advance();
         result = Token::Dec_ope(get_lex_info(begin_position));
       } else {
         result = Token::Hyphen(get_lex_info(begin_position));
@@ -221,34 +225,34 @@ private:
       break;
     }
     case '*': {
-      index_++;
+      advance();
       result = Token::Asterisk(get_lex_info(begin_position));
       break;
     }
     case '/': {
-      index_++;
+      advance();
       result = Token::Slash(get_lex_info(begin_position));
       break;
     }
     case '(': {
-      index_++;
+      advance();
       result = Token::Left_parenthese(get_lex_info(begin_position));
       break;
     }
     case ')': {
-      index_++;
+      advance();
       result = Token::Right_parenthese(get_lex_info(begin_position));
       break;
     }
     case ';': {
-      index_++;
+      advance();
       result = Token::Semicolon(get_lex_info(begin_position));
       break;
     }
     case '=': {
-      index_++;
+      advance();
       if(index_ < contents_.size() && current_char() == '=') {
-        index_++;
+        advance();
         result = Token::Equal(get_lex_info(begin_position));
       } else {
         result = Token::Assgin(get_lex_info(begin_position));
@@ -256,21 +260,21 @@ private:
       break;
     }
     case '!': {
-      index_++;
+      advance();
       if(index_ < contents_.size() && current_char() == '=') {
-        index_++;
+        advance();
         result = Token::Not_equal(get_lex_info(begin_position));
       } else {
-        index_++;
+        advance();
         result = Token::Unknow(contents_.substr(index_ - 2, 2),
                                get_lex_info(begin_position));
       }
       break;
     }
     case '<': {
-      index_++;
+      advance();
       if(index_ < contents_.size() && current_char() == '=') {
-        index_++;
+        advance();
         result = Token::Less_equal(get_lex_info(begin_position));
       } else {
         result = Token::Left_angle(get_lex_info(begin_position));
@@ -278,9 +282,9 @@ private:
       break;
     }
     case '>': {
-      index_++;
+      advance();
       if(index_ < contents_.size() && current_char() == '=') {
-        index_++;
+        advance();
         result = Token::Greater_equal(get_lex_info(begin_position));
       } else {
         result = Token::Right_angle(get_lex_info(begin_position));
@@ -288,37 +292,37 @@ private:
       break;
     }
     case '{': {
-      index_++;
+      advance();
       result = Token::Left_brace(get_lex_info(begin_position));
       break;
     }
     case '}': {
-      index_++;
+      advance();
       result = Token::Right_brace(get_lex_info(begin_position));
       break;
     }
     case '[': {
-      index_++;
+      advance();
       result = Token::Left_bracket(get_lex_info(begin_position));
       break;
     }
     case ']': {
-      index_++;
+      advance();
       result = Token::Right_bracket(get_lex_info(begin_position));
       break;
     }
     case ',': {
-      index_++;
+      advance();
       result = Token::Comma(get_lex_info(begin_position));
       break;
     }
     case '&': {
-      index_++;
+      advance();
       result = Token::Bit_and(get_lex_info(begin_position));
       break;
     }
     default: {
-      index_++;
+      advance();
       result = Token::Unknow(contents_.substr(index_ - 1, 1),
                              get_lex_info(begin_position));
     }
@@ -330,8 +334,7 @@ private:
     size_t      begin          = index_;
     LexPosition begin_position = current_position();
     while(std::isdigit(current_char())) {
-      index_++;
-      column_++;
+      advance();
     }
     return Token::Integer(
         std::string_view(contents_.data() + begin, index_ - begin),
@@ -342,8 +345,7 @@ private:
     size_t      begin          = index_;
     LexPosition begin_position = current_position();
     while(std::isalnum(current_char())) {
-      index_++;
-      column_++;
+      advance();
     }
     std::string literal(contents_.data() + begin, index_ - begin);
     if(KeyWords.find(literal) != KeyWords.end()) {
