@@ -190,6 +190,9 @@ static bool TryRemoveAllocIfStoreOnly(SiiIRAlloca& alloca) {
       return false;
     }
   }
+  for(auto& use: alloca.users_) {
+    use.user_->remove_from_parent();
+  }
   alloca.remove_from_parent();
   return true;
 }

@@ -70,6 +70,9 @@ private:
         false_group->precedes_.push_back(result.get());
         break;
       }
+      if (current->kind_ == SiiIRCodeKind::RETURN) {
+        break;
+      }
       current_line++;
     }
 
