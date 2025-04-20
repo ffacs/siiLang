@@ -26,6 +26,7 @@ struct IDFBuilderImpl : public IDFBuilder {
 
 static bool IsDominatorOf(const DominatorTreeNode* dom,
                           const DominatorTreeNode* node) {
+  if (dom == node) { return false; }
   while(node->level > dom->level) {
     node = node->parent_;
   }
