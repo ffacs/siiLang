@@ -11,7 +11,7 @@ static bool VerifyDomninaceFrotier(
         dominators) {
   for(const auto& df: DFs) {
     const std::set<const BasicGroup*>& dominators_of_df = dominators.at(df);
-    if(dominators_of_df.find(bg) != dominators_of_df.end()) {
+    if(dominators_of_df.find(bg) != dominators_of_df.end() && df != bg) {
       throw std::runtime_error("DF is dominated by bg");
       return false;
     }
