@@ -194,12 +194,18 @@ static void TraversePrintFunction(BasicGroup*            current_group,
   }
 }
 
-std::string Function::to_string() const {
+std::string Function::to_string(IDAllocator* id_allocator) const {
   std::stringstream     result;
   std::set<BasicGroup*> visited;
-  IDAllocator           id_allocator;
+  if (!id_allocator) {
+    IDAllocator local_allocator;
+    id_allocator = &local_allocator;
+  }
   result << "Function " << name_ << std::endl;
-  TraversePrintFunction(entry_, visited, result, id_allocator);
+  for (auto& arg : ctx_->parameters_) {
+    result << "; Parameter: " << arg->to_string(*id_allocator) << std::endl;
+  }
+  TraversePrintFunction(entry_, visited, result, *id_allocator);
   return result.str();
 }
 

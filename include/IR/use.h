@@ -15,7 +15,7 @@ using UsePtr   = std::shared_ptr<Use>;
 struct Use : public ListNode<Use> {
   Use(SiiIRCode* user, ValuePtr value)
       : user_(user)
-      , value_(std::move(value)) {}
+      , value_(std::move(value)) { }
   ~Use() {}
   SiiIRCode*     user_;
   const ValuePtr value_;

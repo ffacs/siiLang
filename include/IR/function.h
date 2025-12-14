@@ -21,7 +21,7 @@ struct Function {
   BasicGroup*                entry_;
   std::string                name_;
 
-  std::string to_string() const;
+  std::string to_string(IDAllocator* id_allocator = nullptr) const;
 };
 
 using FunctionPtr = std::shared_ptr<Function>;

@@ -53,6 +53,7 @@ static void ReplaceTemporary(UsePtr*                     use,
     UsePtr old_use = *use;
     old_use->remove_from_parent();
     *use = NewUse(old_use->user_, temporary_rename_map[value_ptr.get()]);
+    (*use)->value_->users_.push_back(*use);
   }
   return;
 }
@@ -88,6 +89,8 @@ RenamePass(DominatorTreeNode*                      current_node,
       if(variable_rename_map.find(source) != variable_rename_map.end()) {
         temporary_rename_map[&load] = variable_rename_map[source].top();
         code_list.erase(iter);
+      } else {
+        ReplaceTemporary(&load.src_, temporary_rename_map);
       }
       continue;
     }
@@ -233,6 +236,7 @@ static bool FuncMemoryToRegister(FunctionPtr& func) {
 }
 
 void MemoryToRegisterPass::run(FunctionPtr& func) {
-  do { } while(FuncMemoryToRegister(func)); }
+  do {} while(FuncMemoryToRegister(func)); 
+}
 
 }  // namespace SiiIR
