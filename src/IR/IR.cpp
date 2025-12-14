@@ -113,4 +113,10 @@ std::string SiiIRReturn::to_string(IDAllocator& id_allocator) const {
          + id_allocator.alloc(result_->value_.get()) + ";";
 }
 
+std::string SiiIRAssign::to_string(IDAllocator& id_allocator) const {
+  return SiiIRCode::to_string(id_allocator) + "  "
+         + id_allocator.alloc(dest_->value_.get()) + " = "
+         + id_allocator.alloc(src_->value_.get()) + ";";
+}
+
 }  // namespace SiiIR

@@ -1,4 +1,5 @@
 #include "include/IR/Pass/memory_to_register.h"
+#include "include/IR/Pass/quit_SSA.h"
 #include "include/IR/function.h"
 #include "include/front/ASTPrinter.h"
 #include "include/front/IR_generator.h"
@@ -32,6 +33,7 @@ int main(int argc, char* argv[]) {
             std::move(function_definition->function_->ctx_),
             std::move(function_definition->function_->name_));
         SiiIR::MemoryToRegisterPass().run(func);
+        SiiIR::QuitSSAPass().run(func);
         std::cout << func->to_string() << std::endl;
       } else {
         throw std::runtime_error("Not a function definition");
